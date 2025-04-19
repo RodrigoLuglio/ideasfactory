@@ -1,0 +1,64 @@
+/* Base styles */
+* {
+  box-sizing: border-box;
+  scrollbar-size: 2 3;
+}
+
+/* App styles */
+#brainstorm_container {
+  width: 100%;
+  height: 100%;
+  padding: 1;
+}
+
+#document_container {
+  width: 100%;
+  height: 100%;
+  padding: 1;
+}
+
+/* Conversation and Document displays */
+.conversation,
+.document {
+  height: 1fr;
+  background: $surface;
+  color: $text;
+  border: solid $primary;
+  margin-bottom: 1;
+  padding: 1;
+  overflow: auto;
+}
+
+/* Input containers */
+#start_container,
+#message_container,
+#feedback_container,
+#action_container {
+  margin-top: 1;
+  margin-bottom: 1;
+  height: auto;
+}
+
+/* Inputs */
+#topic_input,
+#message_input,
+#feedback_input {
+  width: 1fr;
+  margin-right: 1;
+}
+
+/* Headers */
+#session_header,
+#conversation_header,
+#document_header {
+  background: $primary;
+  color: $text;
+  padding: 1;
+  text-align: center;
+  text-style: bold;
+}
+
+/* Custom button styling */
+Button {
+  min-width: 15;
+}

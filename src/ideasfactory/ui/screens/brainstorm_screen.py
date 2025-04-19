@@ -1,0 +1,151 @@
+"""
+Brainstorm screen for IdeasFactory.
+
+This module defines the Textual screen for brainstorming sessions.
+"""
+
+import logging
+from typing import Optional
+
+from textual.app import ComposeResult
+from textual.screen import Screen
+from textual.widgets import (
+    Header, Footer, Button, Input, Static, TextArea, Label, Markdown
+)
+from textual.containers import Vertical, Horizontal, HorizontalGroup, VerticalGroup, VerticalScroll
+from textual.binding import Binding
+
+from ideasfactory.agents.business_analyst import BusinessAnalyst
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+class BrainstormScreen(Screen):
+    """
+    Screen for conducting brainstorming sessions with the Business Analyst.
+    """
+    
+    BINDINGS = [
+        Binding(key="ctrl+s", action="start_session", description="Start Session"),
+        Binding(key="ctrl+enter", action="send_message", description="Send Message"),
+        Binding(key="ctrl+d", action="create_document", description="Create Document"),
+    ]
+    
+    def __init__(self, *args, **kwargs):
+        """Initialize the brainstorm screen."""
+        super().__init__(*args, **kwargs)
+        self.business_analyst = BusinessAnalyst()
+        self.session_id: Optional[str] = None
+
+    
+    def compose(self) -> ComposeResult:
+        """Create child widgets for the screen."""
+        yield Vertical(
+            Label("Start a New Brainstorming Session", id="session_header"),
+            Horizontal(
+                Input(placeholder="Enter your idea topic here...", id="topic_input"),
+                Button("Start Session", id="start_button", variant="primary"),
+                id="start_container"
+            ),
+            Vertical(
+                Label("Brainstorming Session", id="conversation_header"),
+                Static(id="conversation_display", classes="conversation"),
+                Horizontal(
+                    TextArea(id="message_input"),
+                    Button("Send", id="send_button", variant="primary"),
+                    id="message_container"
+                ),
+                Button("Create Document", id="create_document_button", variant="success"),
+                id="conversation_container"
+            ),
+            id="brainstorm_container"
+        )
+    
+    def on_mount(self) -> None:
+        """Handle the screen's mount event."""
+        # Hide the conversation container initially
+        self.query_one("#conversation_container").display = False
+        
+        # Connect button click events
+        self.query_one("#start_button").on_click = self.start_session
+        self.query_one("#send_button").on_click = self.send_message
+        self.query_one("#create_document_button").on_click = self.create_document
+    
+    def set_session(self, session_id: str) -> None:
+        """Set the current session ID."""
+        self.session_id = session_id
+    
+    async def start_session(self) -> None:
+        """Start a new brainstorming session."""
+        # Get the topic from the input
+        topic = self.query_one("#topic_input").value
+        if not topic:
+            # Show an error message
+            self.notify("Please enter a topic for the brainstorming session", severity="error")
+            return
+        
+        # Generate a session ID
+        import uuid
+        session_id = str(uuid.uuid4())
+        
+        # Create the session
+        session = await self.business_analyst.create_session(session_id, topic)
+        self.session_id = session_id
+        
+        # Update the app's current session
+        if hasattr(self.app, "set_current_session"):
+            self.app.set_current_session(session_id)
+        
+        # Start the brainstorming
+        response = await self.business_analyst.start_brainstorming(session_id)
+        
+        # Update the UI
+        self.query_one("#conversation_display").update(f"Topic: {topic}\n\nBA: {response}")
+        
+        # Show the conversation container
+        self.query_one("#conversation_container").display = True
+        
+        # Hide the start container
+        self.query_one("#start_container").display = False
+        
+        # Update the header
+        self.query_one("#session_header").update(f"Brainstorming Session: {topic}")
+    
+    async def send_message(self) -> None:
+        """Send a message to the Business Analyst."""
+        if not self.session_id:
+            self.notify("No active session", severity="error")
+            return
+        
+        # Get the message from the input
+        message = self.query_one("#message_input").text
+        if not message:
+            return
+        
+        # Clear the input
+        self.query_one("#message_input").text = ""
+        
+        # Update the conversation display
+        conversation = self.query_one("#conversation_display")
+        current_text = conversation.renderable
+        conversation.update(f"{current_text}\n\nYou: {message}")
+        
+        # Send the message to the Business Analyst
+        response = await self.business_analyst.send_message(self.session_id, message)
+        
+        # Update the conversation display
+        conversation = self.query_one("#conversation_display")
+        current_text = conversation.renderable
+        conversation.update(f"{current_text}\n\nBA: {response}")
+    
+    async def create_document(self) -> None:
+        """Create a document from the brainstorming session."""
+        if not self.session_id:
+            self.notify("No active session", severity="error")
+            return
+        
+        # Create the document
+        document = await self.business_analyst.create_document(self.session_id)
+        
+        # Switch to the document review screen
+        self.app.action_switch_to_document()

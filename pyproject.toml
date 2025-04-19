@@ -1,0 +1,33 @@
+[project]
+name = "ideasfactory"
+version = "0.1.0"
+description = "Transform your ideas into fully actionable agile style documentation"
+readme = "README.md"
+authors = [
+    { name = "Rodrigo Luglio", email = "rodrigo@rlabs.com.br" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "gitpython>=3.1.44",
+    "litellm>=1.66.3",
+    "markdown-it-py>=3.0.0",
+    "pydantic>=2.11.3",
+    "python-frontmatter>=1.1.0",
+    "textual>=3.1.0",
+]
+
+[project.scripts]
+ideasfactory = "ideasfactory:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "isort>=6.0.1",
+    "mypy>=1.15.0",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
+]
