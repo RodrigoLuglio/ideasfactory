@@ -12,7 +12,7 @@ from textual.screen import Screen
 from textual.widgets import (
     Header, Footer, Button, Input, Static, TextArea, Label, Markdown
 )
-from textual.containers import Vertical, Horizontal, HorizontalGroup, VerticalGroup, VerticalScroll
+from textual.containers import Vertical, Horizontal, VerticalScroll, Container
 from textual.binding import Binding
 
 from ideasfactory.agents.business_analyst import BusinessAnalyst
@@ -36,23 +36,26 @@ class BrainstormScreen(Screen):
         super().__init__(*args, **kwargs)
         self.business_analyst = BusinessAnalyst()
         self.session_id: Optional[str] = None
+        
+        # Track mount state
+        self._is_mounted = False
 
-    
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
-        yield Vertical(
+        # Use the Container class directly instead of relying on a generic container
+        yield Container(
             Label("Start a New Brainstorming Session", id="session_header"),
-            Horizontal(
+            Container(
                 Input(placeholder="Enter your idea topic here...", id="topic_input"),
                 Button("Start Session", id="start_button", variant="primary"),
                 id="start_container"
             ),
-            Vertical(
+            Container(
                 Label("Brainstorming Session", id="conversation_header"),
                 VerticalScroll(
                     Static(id="conversation_display", classes="conversation")
                 ),
-                Horizontal(
+                Container(
                     Input(placeholder="Type your message here...", id="message_input"),
                     Button("Send", id="send_button", variant="primary"),
                     id="message_container"
@@ -65,6 +68,7 @@ class BrainstormScreen(Screen):
     
     def on_mount(self) -> None:
         """Handle the screen's mount event."""
+        self._is_mounted = True
         # Hide the conversation container initially
         self.query_one("#conversation_container").display = False
 
@@ -95,6 +99,10 @@ class BrainstormScreen(Screen):
     
     async def start_session(self) -> None:
         """Start a new brainstorming session."""
+        if not self._is_mounted:
+            logger.error("Screen not mounted yet")
+            return
+            
         # Get the topic from the input
         topic = self.query_one("#topic_input").value
         if not topic:
@@ -131,6 +139,10 @@ class BrainstormScreen(Screen):
     
     async def send_message(self) -> None:
         """Send a message to the Business Analyst."""
+        if not self._is_mounted:
+            logger.error("Screen not mounted yet")
+            return
+            
         if not self.session_id:
             self.notify("No active session", severity="error")
             return
@@ -158,6 +170,10 @@ class BrainstormScreen(Screen):
     
     async def create_document(self) -> None:
         """Create a document from the brainstorming session."""
+        if not self._is_mounted:
+            logger.error("Screen not mounted yet")
+            return
+            
         if not self.session_id:
             self.notify("No active session", severity="error")
             return

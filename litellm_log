@@ -89,3 +89,66 @@ LiteLLM completion() model= gpt-4o; provider = openai
 2025-04-19 01:07:17,138 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
 2025-04-19 01:07:17,138 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
 2025-04-19 01:07:17,140 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:28:02,991 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-19 14:28:04,947 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-19 14:28:04,960 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-19 14:28:04,961 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:28:04,961 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:28:04,963 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:29:03,060 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-19 14:29:04,902 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-19 14:29:04,917 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-19 14:29:04,918 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:29:04,920 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:29:42,464 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-19 14:29:44,104 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-19 14:29:44,109 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-19 14:29:44,109 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:29:44,109 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:29:44,111 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:32:32,678 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-19 14:32:34,208 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-19 14:32:34,217 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-19 14:32:34,218 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:32:34,219 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:32:34,223 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:33:23,361 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-19 14:33:28,943 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-19 14:33:28,946 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-19 14:33:28,947 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:33:28,947 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 14:33:28,955 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:07:49,618 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-19 15:07:51,304 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-19 15:07:51,318 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-19 15:07:51,319 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:07:51,319 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:07:51,320 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:08:17,128 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-19 15:08:23,999 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-19 15:08:24,006 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-19 15:08:24,006 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:08:24,007 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:08:24,016 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:12:51,122 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-19 15:12:53,646 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-19 15:12:53,658 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-19 15:12:53,658 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:12:53,659 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:12:53,660 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:12:56,484 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-19 15:13:04,600 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-19 15:13:04,604 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-19 15:13:04,604 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:13:04,605 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:13:04,614 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 15:13:18,706 - ideasfactory.agents.business_analyst - ERROR - Session not found: ca60c418-7804-43be-845c-213bff67389b

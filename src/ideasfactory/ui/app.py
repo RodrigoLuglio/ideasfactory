@@ -12,6 +12,7 @@ from typing import Optional
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer
 from textual.binding import Binding
+from textual.screen import Screen
 
 from ideasfactory.ui.screens.brainstorm_screen import BrainstormScreen
 from ideasfactory.ui.screens.document_review_screen import DocumentReviewScreen
@@ -38,6 +39,8 @@ class IdeasFactoryApp(App):
         """Initialize the application."""
         super().__init__(*args, **kwargs)
         self.current_session_id: Optional[str] = None
+        self.brainstorm_screen = None
+        self.document_screen = None
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
@@ -46,23 +49,41 @@ class IdeasFactoryApp(App):
     
     def on_mount(self) -> None:
         """Handle the app's mount event."""
+        # Create screens first before installing them
+        self.brainstorm_screen = BrainstormScreen()
+        self.document_screen = DocumentReviewScreen()
+        
         # Install screens
-        self.install_screen(BrainstormScreen(), name="brainstorm_screen")
-        self.install_screen(DocumentReviewScreen(), name="document_review_screen")
+        self.install_screen(self.brainstorm_screen, name="brainstorm_screen")
+        self.install_screen(self.document_screen, name="document_review_screen")
+        
         # Show the brainstorm screen by default
         self.push_screen("brainstorm_screen")
     
     def action_switch_to_brainstorm(self) -> None:
         """Switch to the brainstorm screen."""
-        self.switch_screen("brainstorm_screen")
+        try:
+            # Safely switch to screen using push_screen instead of switch_screen
+            if self.screen.name != "brainstorm_screen":
+                self.push_screen("brainstorm_screen")
+        except Exception as e:
+            logger.error(f"Error switching to brainstorm screen: {e}")
     
     def action_switch_to_document(self) -> None:
         """Switch to the document review screen."""
-        self.switch_screen("document_review_screen")
+        try:
+            # Safely switch to screen using push_screen instead of switch_screen
+            if self.screen.name != "document_review_screen":
+                self.push_screen("document_review_screen")
+        except Exception as e:
+            logger.error(f"Error switching to document screen: {e}")
     
     def set_current_session(self, session_id: str) -> None:
         """Set the current session ID."""
         self.current_session_id = session_id
-        # Update both screens with the session ID
-        self.query_one(BrainstormScreen).set_session(session_id)
-        self.query_one(DocumentReviewScreen).set_session(session_id)
+        
+        # Update both screens with the session ID without querying them
+        if self.brainstorm_screen:
+            self.brainstorm_screen.set_session(session_id)
+        if self.document_screen:
+            self.document_screen.set_session(session_id)

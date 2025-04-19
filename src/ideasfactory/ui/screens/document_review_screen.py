@@ -12,7 +12,7 @@ from textual.screen import Screen
 from textual.widgets import (
     Header, Footer, Button, Input, Static, TextArea, Label
 )
-from textual.containers import Vertical, Horizontal
+from textual.containers import Vertical, Horizontal, Container
 from textual.binding import Binding
 
 from ideasfactory.agents.business_analyst import BusinessAnalyst
@@ -39,18 +39,21 @@ class DocumentReviewScreen(Screen):
         self.document_manager = DocumentManager()
         self.session_id: Optional[str] = None
         self.document_path: Optional[str] = None
+        
+        # Track mount state
+        self._is_mounted = False
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
-        yield Vertical(
+        yield Container(
             Label("Document Review", id="document_header"),
             TextArea(id="document_display", classes="document"),
-            Horizontal(
+            Container(
                 TextArea(id="feedback_input"),
                 Button("Revise", id="revise_button", variant="primary"),
                 id="feedback_container"
             ),
-            Horizontal(
+            Container(
                 Button("Save Document", id="save_button", variant="success"),
                 Button("Complete", id="complete_button", variant="warning"),
                 id="action_container"
@@ -60,30 +63,29 @@ class DocumentReviewScreen(Screen):
     
     def on_mount(self) -> None:
         """Handle the screen's mount event."""
-        pass
+        self._is_mounted = True
+        # Try to load document if session is already set
+        if self.session_id:
+            self._load_document_async()
     
-    async def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Handle button press events."""
-        if event.button.id == "revise_button":
-            await self.revise_document()
-        elif event.button.id == "save_button":
-            await self.save_document()
-        elif event.button.id == "complete_button":
-            await self.complete_session()
-
-
-    def set_session(self, session_id: str) -> None:
-        """Set the current session ID and load the document."""
-        self.session_id = session_id
-        self._load_document()
+    def on_screen_resume(self) -> None:
+        """Handle screen being resumed."""
+        # When the screen is shown again, reload the document
+        if self.session_id:
+            self._load_document_async()
     
-    async def _load_document(self) -> None:
+    def _load_document_async(self) -> None:
+        """Asynchronously load the document."""
+        self.call_later(self._load_document)
+    
+    def _load_document(self) -> None:
         """Load the document for the current session."""
-        if not self.session_id:
+        if not self._is_mounted or not self.session_id:
             return
         
         # Get the session from the Business Analyst
         session = self.business_analyst.sessions.get(self.session_id)
+        
         if not session or not session.document:
             self.query_one("#document_display").text = "No document available for this session."
             return
@@ -94,8 +96,27 @@ class DocumentReviewScreen(Screen):
         # Update the header
         self.query_one("#document_header").update(f"Document Review: {session.topic}")
     
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button press events."""
+        if event.button.id == "revise_button":
+            await self.revise_document()
+        elif event.button.id == "save_button":
+            await self.save_document()
+        elif event.button.id == "complete_button":
+            await self.complete_session()
+    
+    def set_session(self, session_id: str) -> None:
+        """Set the current session ID and load the document."""
+        self.session_id = session_id
+        if self._is_mounted:
+            self._load_document_async()
+    
     async def revise_document(self) -> None:
         """Revise the document based on feedback."""
+        if not self._is_mounted:
+            logger.error("Screen not mounted yet")
+            return
+            
         if not self.session_id:
             self.notify("No active session", severity="error")
             return
@@ -117,6 +138,10 @@ class DocumentReviewScreen(Screen):
     
     async def save_document(self) -> None:
         """Save the document to the file system."""
+        if not self._is_mounted:
+            logger.error("Screen not mounted yet")
+            return
+            
         if not self.session_id:
             self.notify("No active session", severity="error")
             return
@@ -151,6 +176,10 @@ class DocumentReviewScreen(Screen):
     
     async def complete_session(self) -> None:
         """Complete the current session."""
+        if not self._is_mounted:
+            logger.error("Screen not mounted yet")
+            return
+            
         if not self.session_id:
             self.notify("No active session", severity="error")
             return
@@ -173,4 +202,5 @@ class DocumentReviewScreen(Screen):
         self.query_one("#document_header").update("Document Review")
         
         # Switch back to the brainstorm screen
-        self.app.action_switch_to_brainstorm()
+        # Use pop_screen to go back to the previous screen
+        self.app.pop_screen()

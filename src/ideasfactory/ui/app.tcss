@@ -1,4 +1,5 @@
-/* Add these to your app.tcss */
+/* IdeasFactory Application Styles */
+
 Screen {
   background: $surface;
 }
@@ -11,12 +12,20 @@ DocumentReviewScreen {
   layout: vertical;
 }
 
-/* Add specific styles for containers to ensure visibility */
+/* Container styles */
+Container {
+  width: 100%;
+  height: auto;
+  padding: 1;
+  align: center middle;
+}
+
 #brainstorm_container {
   width: 100%;
   height: 100%;
   padding: 1;
   background: $surface;
+  layout: vertical;
 }
 
 #document_container {
@@ -24,24 +33,146 @@ DocumentReviewScreen {
   height: 100%;
   padding: 1;
   background: $surface;
+  layout: vertical;
 }
 
-/* Make sure labels are visible */
+#start_container {
+  width: 100%;
+  height: auto;
+  layout: horizontal;
+  padding: 1;
+  margin: 1 2;
+}
+
+#conversation_container {
+  width: 100%;
+  height: 1fr;
+  layout: vertical;
+  padding: 1;
+  margin: 1 2;
+}
+
+#message_container {
+  width: 100%;
+  height: auto;
+  layout: horizontal;
+  padding: 1;
+  margin: 1 0;
+}
+
+#feedback_container {
+  width: 100%;
+  height: auto;
+  layout: horizontal;
+  padding: 1;
+  margin: 1 2;
+}
+
+#action_container {
+  width: 100%;
+  height: auto;
+  layout: horizontal;
+  padding: 1;
+  margin: 1 2;
+}
+
+/* Labels */
 Label {
   color: $text;
   width: 100%;
+  padding: 1;
 }
 
-/* Ensure inputs are styled properly */
+#session_header {
+  text-style: bold;
+  padding: 1 2;
+}
+
+#conversation_header {
+  text-style: bold;
+  padding: 1 2;
+}
+
+#document_header {
+  text-style: bold;
+  padding: 1 2;
+}
+
+/* Inputs */
 Input {
-  width: 1fr;
+  width: 3fr;
   background: $panel;
   color: $text;
 }
 
+#topic_input {
+  margin-right: 1;
+}
+
+#message_input {
+  margin-right: 1;
+}
+
+/* TextAreas */
 TextArea {
-  width: 1fr;
+  width: 100%;
   height: 10;
   background: $panel;
   color: $text;
+}
+
+#document_display {
+  height: 20;
+  margin: 1 2;
+}
+
+#feedback_input {
+  height: 5;
+  width: 3fr;
+  margin-right: 1;
+}
+
+/* Static elements */
+Static {
+  width: 100%;
+  padding: 1;
+}
+
+#conversation_display {
+  background: $panel;
+  color: $text;
+  border: solid $border;
+}
+
+/* Buttons */
+Button {
+  width: auto;
+  margin: 0 1;
+}
+
+#start_button {
+  width: auto;
+}
+
+#send_button {
+  width: auto;
+}
+
+#create_document_button {
+  width: auto;
+  margin: 1 2;
+}
+
+/* VerticalScroll */
+VerticalScroll {
+  width: 100%;
+  height: 20;
+  margin: 1 2;
+}
+
+/* Conversation styles */
+.conversation {
+  width: 100%;
+  padding: 1;
+  background: $panel;
 }
