@@ -8,7 +8,6 @@ import os
 import logging
 from typing import Optional, List, Dict, Any
 from datetime import datetime
-import hashlib
 from pathlib import Path
 
 import git
@@ -70,6 +69,37 @@ class DocumentManager:
             # Continue without Git support
             self.repo = None
     
+    def _write_frontmatter(self, filepath: str, post: frontmatter.Post):
+        """
+        Write a frontmatter post to a file.
+        
+        Handles different versions of the frontmatter library.
+        """
+        try:
+            # Try the newer API first
+            with open(filepath, "w", encoding="utf-8") as f:
+                frontmatter.dump(post, f)
+        except TypeError:
+            # If that fails, try the older API
+            with open(filepath, "wb") as f:
+                content = frontmatter.dumps(post)
+                f.write(content.encode('utf-8'))
+    
+    def _read_frontmatter(self, filepath: str) -> frontmatter.Post:
+        """
+        Read a frontmatter post from a file.
+        
+        Handles different versions of the frontmatter library.
+        """
+        try:
+            # Try the newer API first
+            with open(filepath, "r", encoding="utf-8") as f:
+                return frontmatter.load(f)
+        except (UnicodeDecodeError, TypeError):
+            # If that fails, try the older API
+            with open(filepath, "rb") as f:
+                return frontmatter.loads(f.read().decode('utf-8'))
+    
     def create_document(
         self,
         content: str,
@@ -120,8 +150,7 @@ class DocumentManager:
         post = frontmatter.Post(content=content, **metadata)
         
         # Write the document to file
-        with open(filepath, "wb") as f:
-            f.write(frontmatter.dump(post))
+        self._write_frontmatter(filepath, post)
         
         # Version control the document if Git is available
         if self.repo:
@@ -154,8 +183,7 @@ class DocumentManager:
         """
         try:
             # Read the existing document
-            with open(filepath, "rb") as f:
-                post = frontmatter.read(f)
+            post = self._read_frontmatter(filepath)
             
             # Update content
             post.content = content
@@ -174,8 +202,7 @@ class DocumentManager:
             post["updated_at"] = datetime.now().isoformat()
             
             # Write the updated document
-            with open(filepath, "wb") as f:
-                f.write(frontmatter.dump(post))
+            self._write_frontmatter(filepath, post)
             
             # Version control the document if Git is available
             if self.repo:
@@ -203,8 +230,7 @@ class DocumentManager:
         """
         try:
             # Read the document
-            with open(filepath, "rb") as f:
-                post = frontmatter.read(f)
+            post = self._read_frontmatter(filepath)
             
             # Return as a dictionary
             result = dict(post)
@@ -246,8 +272,7 @@ class DocumentManager:
                             filepath = os.path.join(directory, filename)
                             
                             # Read the document metadata
-                            with open(filepath, "rb") as f:
-                                post = frontmatter.read(f)
+                            post = self._read_frontmatter(filepath)
                             
                             # Add to the result
                             document_info = dict(post)
