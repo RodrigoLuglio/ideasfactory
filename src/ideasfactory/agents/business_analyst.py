@@ -1,3 +1,6 @@
+# Option 1: Use a singleton pattern for BusinessAnalyst (recommended)
+
+# In ideasfactory/agents/business_analyst.py
 """
 Business Analyst agent for IdeasFactory.
 
@@ -58,12 +61,25 @@ class BrainstormSession(BaseModel):
 class BusinessAnalyst:
     """
     Business Analyst agent that conducts brainstorming sessions and produces vision documents.
+    
+    Implemented as a singleton to ensure the same instance is shared across the application.
     """
+    
+    _instance = None
+    
+    def __new__(cls):
+        """Ensure only one instance of BusinessAnalyst is created."""
+        if cls._instance is None:
+            cls._instance = super(BusinessAnalyst, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
     
     def __init__(self):
         """Initialize the Business Analyst agent."""
-        self.sessions: Dict[str, BrainstormSession] = {}
-        self.system_prompt = create_system_prompt(BA_SYSTEM_PROMPT)
+        if not hasattr(self, '_initialized') or not self._initialized:
+            self.sessions: Dict[str, BrainstormSession] = {}
+            self.system_prompt = create_system_prompt(BA_SYSTEM_PROMPT)
+            self._initialized = True
     
     async def create_session(self, session_id: str, topic: str) -> BrainstormSession:
         """
