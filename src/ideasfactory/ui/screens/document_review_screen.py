@@ -60,11 +60,18 @@ class DocumentReviewScreen(Screen):
     
     def on_mount(self) -> None:
         """Handle the screen's mount event."""
-        # Connect button click events
-        self.query_one("#revise_button").on_click = self.revise_document
-        self.query_one("#save_button").on_click = self.save_document
-        self.query_one("#complete_button").on_click = self.complete_session
+        pass
     
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button press events."""
+        if event.button.id == "revise_button":
+            await self.revise_document()
+        elif event.button.id == "save_button":
+            await self.save_document()
+        elif event.button.id == "complete_button":
+            await self.complete_session()
+
+
     def set_session(self, session_id: str) -> None:
         """Set the current session ID and load the document."""
         self.session_id = session_id

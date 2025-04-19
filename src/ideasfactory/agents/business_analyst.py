@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 
 from ideasfactory.utils.llm_utils import (
     Message, send_prompt, create_system_prompt, create_user_prompt,
-    create_assistant_prompt, BA_SYSTEM_PROMPT
+    create_assistant_prompt, BA_SYSTEM_PROMPT, BA_DOCUMENT_CREATION_PROMPT
 )
 
 # Configure logging
@@ -35,6 +35,11 @@ class Suggestion(BaseModel):
     content: str = Field(..., description="Content of the suggestion")
     accepted: bool = Field(False, description="Whether the suggestion was accepted")
 
+class Feature(BaseModel):
+    """A feature discussed during the brainstorming session."""
+    name: str = Field(..., description="Name of the feature")
+    description: str = Field(..., description="Description of the feature")
+    accepted: bool = Field(False, description="Whether the feature was accepted")
 
 class BrainstormSession(BaseModel):
     """A brainstorming session with the Business Analyst."""
@@ -58,48 +63,7 @@ class BusinessAnalyst:
     def __init__(self):
         """Initialize the Business Analyst agent."""
         self.sessions: Dict[str, BrainstormSession] = {}
-        self._initialize_prompts()
-    
-    def _initialize_prompts(self):
-        """Initialize the prompts used by the agent."""
-        # System prompt for the agent
         self.system_prompt = create_system_prompt(BA_SYSTEM_PROMPT)
-        
-        # Prompt for document creation
-        self.document_creation_prompt = """
-        Based on our brainstorming session, please create a comprehensive project vision document in markdown format.
-        
-        The document should:
-        - contain all the necessary details to precisely describe the solution/product/service
-        - contain all features, improvements, suggestions we agreed upon during the brainstorm session
-        - NOT contain any information, feature, suggestion or improvement that was not agreed upon
-        - NOT contain any invented information, feature, suggestion or improvement or that was not discussed
-        - be clear, detailed and precise, describing the solution/product/service with ALL and ONLY the information
-          that was discussed and agreed upon during the brainstorm session
-        - be written in a markdown format
-        
-        Here's a general structure you can follow, but adapt it as needed:
-        
-        # [Project Name]
-        
-        ## Overview
-        [A brief description of the project]
-        
-        ## Problem Statement
-        [The problem the project aims to solve]
-        
-        ## Solution Description
-        [Detailed description of the proposed solution]
-        
-        ## Features
-        [List of features with descriptions]
-        
-        ## Technical Requirements
-        [Any technical requirements or constraints discussed]
-        
-        ## Next Steps
-        [Potential next steps for the project]
-        """
     
     async def create_session(self, session_id: str, topic: str) -> BrainstormSession:
         """
@@ -217,7 +181,7 @@ class BusinessAnalyst:
         session.state = SessionState.DOCUMENT_CREATION
         
         # Create and add the document creation message
-        document_request = create_user_prompt(self.document_creation_prompt)
+        document_request = create_user_prompt(BA_DOCUMENT_CREATION_PROMPT)
         document_messages = session.messages + [document_request]
         
         # Get the agent's response

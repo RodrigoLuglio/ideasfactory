@@ -30,8 +30,8 @@ class IdeasFactoryApp(App):
     CSS_PATH = "app.tcss"
     BINDINGS = [
         Binding(key="q", action="quit", description="Quit"),
-        Binding(key="b", action="switch_to_brainstorm", description="Brainstorm"),
-        Binding(key="d", action="switch_to_document", description="Document"),
+        Binding(key="b", action="action_switch_to_brainstorm", description="Brainstorm"),
+        Binding(key="d", action="action_switch_to_document", description="Document"),
     ]
     
     def __init__(self, *args, **kwargs):
@@ -42,24 +42,23 @@ class IdeasFactoryApp(App):
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
         yield Header()
-        yield BrainstormScreen(id="brainstorm_screen")
-        yield DocumentReviewScreen(id="document_review_screen")
         yield Footer()
     
     def on_mount(self) -> None:
         """Handle the app's mount event."""
+        # Install screens
+        self.install_screen(BrainstormScreen(), name="brainstorm_screen")
+        self.install_screen(DocumentReviewScreen(), name="document_review_screen")
         # Show the brainstorm screen by default
-        self.action_switch_to_brainstorm()
+        self.push_screen("brainstorm_screen")
     
     def action_switch_to_brainstorm(self) -> None:
         """Switch to the brainstorm screen."""
-        self.query_one(BrainstormScreen).display = True
-        self.query_one(DocumentReviewScreen).display = False
+        self.switch_screen("brainstorm_screen")
     
     def action_switch_to_document(self) -> None:
         """Switch to the document review screen."""
-        self.query_one(BrainstormScreen).display = False
-        self.query_one(DocumentReviewScreen).display = True
+        self.switch_screen("document_review_screen")
     
     def set_current_session(self, session_id: str) -> None:
         """Set the current session ID."""

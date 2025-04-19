@@ -26,9 +26,9 @@ class BrainstormScreen(Screen):
     """
     
     BINDINGS = [
-        Binding(key="ctrl+s", action="start_session", description="Start Session"),
-        Binding(key="ctrl+enter", action="send_message", description="Send Message"),
-        Binding(key="ctrl+d", action="create_document", description="Create Document"),
+        ("ctrl+s", "start_session", "Start Session"),
+        ("enter", "send_message", "Send Message"),
+        ("ctrl+d", "create_document", "Create Document"),
     ]
     
     def __init__(self, *args, **kwargs):
@@ -49,9 +49,11 @@ class BrainstormScreen(Screen):
             ),
             Vertical(
                 Label("Brainstorming Session", id="conversation_header"),
-                Static(id="conversation_display", classes="conversation"),
+                VerticalScroll(
+                    Static(id="conversation_display", classes="conversation")
+                ),
                 Horizontal(
-                    TextArea(id="message_input"),
+                    Input(placeholder="Type your message here...", id="message_input"),
                     Button("Send", id="send_button", variant="primary"),
                     id="message_container"
                 ),
@@ -65,11 +67,27 @@ class BrainstormScreen(Screen):
         """Handle the screen's mount event."""
         # Hide the conversation container initially
         self.query_one("#conversation_container").display = False
-        
-        # Connect button click events
-        self.query_one("#start_button").on_click = self.start_session
-        self.query_one("#send_button").on_click = self.send_message
-        self.query_one("#create_document_button").on_click = self.create_document
+
+    async def action_start_session(self) -> None:
+        """Start session action."""
+        await self.start_session()
+    
+    async def action_send_message(self) -> None:
+        """Send message action."""
+        await self.send_message()
+    
+    async def action_create_document(self) -> None:
+        """Create document action."""
+        await self.create_document()
+
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button press events."""
+        if event.button.id == "start_button":
+            await self.start_session()
+        elif event.button.id == "send_button":
+            await self.send_message()
+        elif event.button.id == "create_document_button":
+            await self.create_document()
     
     def set_session(self, session_id: str) -> None:
         """Set the current session ID."""
@@ -118,12 +136,12 @@ class BrainstormScreen(Screen):
             return
         
         # Get the message from the input
-        message = self.query_one("#message_input").text
+        message = self.query_one("#message_input").value
         if not message:
             return
         
         # Clear the input
-        self.query_one("#message_input").text = ""
+        self.query_one("#message_input").value = ""
         
         # Update the conversation display
         conversation = self.query_one("#conversation_display")

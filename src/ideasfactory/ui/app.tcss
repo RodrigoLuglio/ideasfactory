@@ -1,64 +1,47 @@
-/* Base styles */
-* {
-  box-sizing: border-box;
-  scrollbar-size: 2 3;
+/* Add these to your app.tcss */
+Screen {
+  background: $surface;
 }
 
-/* App styles */
+BrainstormScreen {
+  layout: vertical;
+}
+
+DocumentReviewScreen {
+  layout: vertical;
+}
+
+/* Add specific styles for containers to ensure visibility */
 #brainstorm_container {
   width: 100%;
   height: 100%;
   padding: 1;
+  background: $surface;
 }
 
 #document_container {
   width: 100%;
   height: 100%;
   padding: 1;
-}
-
-/* Conversation and Document displays */
-.conversation,
-.document {
-  height: 1fr;
   background: $surface;
+}
+
+/* Make sure labels are visible */
+Label {
   color: $text;
-  border: solid $primary;
-  margin-bottom: 1;
-  padding: 1;
-  overflow: auto;
+  width: 100%;
 }
 
-/* Input containers */
-#start_container,
-#message_container,
-#feedback_container,
-#action_container {
-  margin-top: 1;
-  margin-bottom: 1;
-  height: auto;
-}
-
-/* Inputs */
-#topic_input,
-#message_input,
-#feedback_input {
+/* Ensure inputs are styled properly */
+Input {
   width: 1fr;
-  margin-right: 1;
-}
-
-/* Headers */
-#session_header,
-#conversation_header,
-#document_header {
-  background: $primary;
+  background: $panel;
   color: $text;
-  padding: 1;
-  text-align: center;
-  text-style: bold;
 }
 
-/* Custom button styling */
-Button {
-  min-width: 15;
+TextArea {
+  width: 1fr;
+  height: 10;
+  background: $panel;
+  color: $text;
 }

@@ -1,0 +1,24 @@
+2025-04-18 23:47:57,722 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-18 23:47:57,744 - ideasfactory.utils.llm_utils - ERROR - Error sending prompt to LLM: litellm.AuthenticationError: AuthenticationError: OpenAIException - The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+2025-04-18 23:53:37,916 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-18 23:53:39,436 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-18 23:53:39,449 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-18 23:53:39,450 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-18 23:53:39,450 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-18 23:53:39,451 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-18 23:56:14,821 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-18 23:56:19,540 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-18 23:56:19,553 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-18 23:56:19,554 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-18 23:56:19,554 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-18 23:56:19,556 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 00:21:04,474 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-19 00:21:13,237 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-19 00:21:13,251 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-19 00:21:13,252 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 00:21:13,252 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-19 00:21:13,253 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
