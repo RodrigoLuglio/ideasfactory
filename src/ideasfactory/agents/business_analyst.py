@@ -1,5 +1,3 @@
-# Option 1: Use a singleton pattern for BusinessAnalyst (recommended)
-
 # In ideasfactory/agents/business_analyst.py
 """
 Business Analyst agent for IdeasFactory.

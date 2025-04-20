@@ -12,6 +12,10 @@ DocumentReviewScreen {
   layout: vertical;
 }
 
+ProjectManagerScreen {
+  layout: vertical;
+}
+
 /* Container styles */
 Container {
   width: 100%;
@@ -29,6 +33,14 @@ Container {
 }
 
 #document_container {
+  width: 100%;
+  height: 100%;
+  padding: 1;
+  background: $surface;
+  layout: vertical;
+}
+
+#pm_container {
   width: 100%;
   height: 100%;
   padding: 1;
@@ -63,7 +75,7 @@ Container {
 #feedback_container {
   width: 100%;
   height: auto;
-  layout: horizontal;
+  layout: vertical;
   padding: 1;
   margin: 1 2;
 }
@@ -72,6 +84,16 @@ Container {
   width: 100%;
   height: auto;
   layout: horizontal;
+  padding: 1;
+  margin: 1 2;
+  dock: bottom;
+}
+
+/* Research screen containers */
+#vision_container {
+  width: 100%;
+  height: auto;
+  layout: vertical;
   padding: 1;
   margin: 1 2;
 }

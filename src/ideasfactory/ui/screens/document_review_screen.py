@@ -1,3 +1,5 @@
+# Updated document_review_screen.py - Fix revision flow and UI feedback
+
 """
 Document review screen for IdeasFactory.
 
@@ -30,6 +32,7 @@ class DocumentReviewScreen(Screen):
     BINDINGS = [
         Binding(key="ctrl+r", action="revise_document", description="Revise Document"),
         Binding(key="ctrl+s", action="save_document", description="Save Document"),
+        Binding(key="ctrl+b", action="back_to_brainstorm", description="Back to Brainstorm"),
     ]
     
     def __init__(self, *args, **kwargs):
@@ -39,6 +42,7 @@ class DocumentReviewScreen(Screen):
         self.document_manager = DocumentManager()
         self.session_id: Optional[str] = None
         self.document_path: Optional[str] = None
+        self._document_version = 0
         
         # Track mount state
         self._is_mounted = False
@@ -47,14 +51,17 @@ class DocumentReviewScreen(Screen):
         """Create child widgets for the screen."""
         yield Container(
             Label("Document Review", id="document_header"),
-            TextArea(id="document_display", classes="document"),
+            TextArea(id="document_display", classes="document", read_only=True),
+            Label("Document is read-only. Use the feedback box below to request changes.", id="document_status"),
             Container(
-                TextArea(id="feedback_input"),
+                Label("Request changes to the document:", id="feedback_header"),
+                Input(id="feedback_input", placeholder="Enter your feedback here..."),
                 Button("Revise", id="revise_button", variant="primary"),
                 id="feedback_container"
             ),
             Container(
                 Button("Save Document", id="save_button", variant="success"),
+                Button("Back to Brainstorm", id="back_button", variant="primary"),
                 Button("Complete", id="complete_button", variant="warning"),
                 id="action_container"
             ),
@@ -95,6 +102,9 @@ class DocumentReviewScreen(Screen):
         
         # Update the header
         self.query_one("#document_header").update(f"Document Review: {session.topic}")
+        
+        # Reset feedback input
+        self.query_one("#feedback_input").text = ""
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button press events."""
@@ -104,6 +114,8 @@ class DocumentReviewScreen(Screen):
             await self.save_document()
         elif event.button.id == "complete_button":
             await self.complete_session()
+        elif event.button.id == "back_button":
+            await self.back_to_brainstorm()
     
     def set_session(self, session_id: str) -> None:
         """Set the current session ID and load the document."""
@@ -122,19 +134,45 @@ class DocumentReviewScreen(Screen):
             return
         
         # Get the feedback from the input
-        feedback = self.query_one("#feedback_input").text
+        feedback = self.query_one("#feedback_input").value
         if not feedback:
             self.notify("Please enter feedback for revision", severity="error")
             return
         
-        # Clear the input
-        self.query_one("#feedback_input").text = ""
+        # Disable the revise button while processing
+        revise_button = self.query_one("#revise_button")
+        revise_button.disabled = True
         
-        # Revise the document
-        document = await self.business_analyst.revise_document(self.session_id, feedback)
+        # Show processing status
+        self.query_one("#document_status").update("Processing revision request...")
         
-        # Update the document display
-        self.query_one("#document_display").text = document
+        try:
+            # Revise the document
+            document = await self.business_analyst.revise_document(self.session_id, feedback)
+            
+            # Update the document display
+            self.query_one("#document_display").text = document
+            
+            # Clear the feedback input
+            self.query_one("#feedback_input").text = ""
+            
+            # Increment version
+            self._document_version += 1
+            
+            # Update status
+            self.query_one("#document_status").update(f"Document updated (version {self._document_version})")
+            
+            # Notify success
+            self.notify("Document revised successfully", severity="success")
+            
+        except Exception as e:
+            logger.error(f"Error revising document: {e}")
+            self.notify("Failed to revise document", severity="error")
+            self.query_one("#document_status").update("Error during revision")
+        
+        finally:
+            # Re-enable the revise button
+            revise_button.disabled = False
     
     async def save_document(self) -> None:
         """Save the document to the file system."""
@@ -174,6 +212,15 @@ class DocumentReviewScreen(Screen):
             else:
                 self.notify("Failed to update document", severity="error")
     
+    async def back_to_brainstorm(self) -> None:
+        """Go back to the brainstorming screen."""
+        # Pop this screen to return to the previous one
+        self.app.pop_screen()
+    
+    async def action_back_to_brainstorm(self) -> None:
+        """Handle keyboard shortcut for going back to brainstorm."""
+        await self.back_to_brainstorm()
+    
     async def complete_session(self) -> None:
         """Complete the current session."""
         if not self._is_mounted:
@@ -184,12 +231,14 @@ class DocumentReviewScreen(Screen):
             self.notify("No active session", severity="error")
             return
         
+        # Ask for confirmation
+        if not self.document_path:
+            # Document hasn't been saved yet
+            self.notify("Please save the document before completing the session", severity="warning")
+            return
+        
         # Complete the session
         await self.business_analyst.complete_session(self.session_id)
-        
-        # Save the document if not already saved
-        if not self.document_path:
-            await self.save_document()
         
         # Notify the user
         self.notify("Session completed", severity="information")
@@ -200,7 +249,7 @@ class DocumentReviewScreen(Screen):
         # Reset the UI
         self.query_one("#document_display").text = "No active session"
         self.query_one("#document_header").update("Document Review")
+        self.query_one("#document_status").update("No document loaded")
         
-        # Switch back to the brainstorm screen
-        # Use pop_screen to go back to the previous screen
+        # Go back to the brainstorm screen
         self.app.pop_screen()

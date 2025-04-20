@@ -1,3 +1,5 @@
+# Updated app.py - Main application with Project Manager integration
+
 """
 Main application for IdeasFactory.
 
@@ -16,6 +18,7 @@ from textual.screen import Screen
 
 from ideasfactory.ui.screens.brainstorm_screen import BrainstormScreen
 from ideasfactory.ui.screens.document_review_screen import DocumentReviewScreen
+from ideasfactory.ui.screens.project_manager_screen import ProjectManagerScreen
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -33,14 +36,17 @@ class IdeasFactoryApp(App):
         Binding(key="q", action="quit", description="Quit"),
         Binding(key="b", action="action_switch_to_brainstorm", description="Brainstorm"),
         Binding(key="d", action="action_switch_to_document", description="Document"),
+        Binding(key="p", action="action_switch_to_project_manager", description="Research"),
     ]
     
     def __init__(self, *args, **kwargs):
         """Initialize the application."""
         super().__init__(*args, **kwargs)
         self.current_session_id: Optional[str] = None
+        self.current_project_vision: Optional[str] = None
         self.brainstorm_screen = None
         self.document_screen = None
+        self.project_manager_screen = None
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
@@ -52,10 +58,12 @@ class IdeasFactoryApp(App):
         # Create screens first before installing them
         self.brainstorm_screen = BrainstormScreen()
         self.document_screen = DocumentReviewScreen()
+        self.project_manager_screen = ProjectManagerScreen()
         
         # Install screens
         self.install_screen(self.brainstorm_screen, name="brainstorm_screen")
         self.install_screen(self.document_screen, name="document_review_screen")
+        self.install_screen(self.project_manager_screen, name="project_manager_screen")
         
         # Show the brainstorm screen by default
         self.push_screen("brainstorm_screen")
@@ -78,12 +86,29 @@ class IdeasFactoryApp(App):
         except Exception as e:
             logger.error(f"Error switching to document screen: {e}")
     
+    def action_switch_to_project_manager(self) -> None:
+        """Switch to the project manager screen."""
+        try:
+            # Safely switch to screen using push_screen instead of switch_screen
+            if self.screen.name != "project_manager_screen":
+                self.push_screen("project_manager_screen")
+        except Exception as e:
+            logger.error(f"Error switching to project manager screen: {e}")
+    
     def set_current_session(self, session_id: str) -> None:
         """Set the current session ID."""
         self.current_session_id = session_id
         
-        # Update both screens with the session ID without querying them
+        # Update screens with the session ID
         if self.brainstorm_screen:
             self.brainstorm_screen.set_session(session_id)
         if self.document_screen:
             self.document_screen.set_session(session_id)
+    
+    def set_project_vision(self, project_vision: str) -> None:
+        """Set the current project vision document."""
+        self.current_project_vision = project_vision
+        
+        # Update the project manager screen with the vision
+        if self.project_manager_screen:
+            self.project_manager_screen.set_project_vision(project_vision)
