@@ -132,6 +132,55 @@ Container {
   margin: 1 2;
 }
 
+#status_container {
+  width: 100%;
+  height: auto;
+  layout: vertical;
+  padding: 1;
+  margin: 1 2;
+}
+
+#report_container {
+  width: 100%;
+  height: auto;
+  layout: vertical;
+  padding: 1;
+  margin: 1 2;
+}
+
+#documents_container {
+  width: 100%;
+  height: auto;
+  layout: horizontal;
+  padding: 1;
+  margin: 1 2;
+}
+
+#analysis_container {
+  width: 100%;
+  height: auto;
+  layout: vertical;
+  padding: 1;
+  margin: 1 2;
+}
+
+#decision_container {
+  width: 100%;
+  height: auto;
+  layout: vertical;
+  padding: 1;
+  margin: 1 2;
+  border: solid $primary;
+}
+
+#question_container {
+  width: 100%;
+  height: auto;
+  layout: vertical;
+  padding: 1;
+  margin: 1 2;
+}
+
 /* Labels */
 Label {
   color: $text;
@@ -175,6 +224,26 @@ Label {
 }
 
 #feedback_header {
+  text-style: bold;
+  padding: 1 2;
+}
+
+#architecture_header {
+  text-style: bold;
+  padding: 1 2;
+}
+
+#analysis_header {
+  text-style: bold;
+  padding: 1 2;
+}
+
+#decision_header {
+  text-style: bold;
+  padding: 1 2;
+}
+
+#question_header {
   text-style: bold;
   padding: 1 2;
 }
@@ -251,6 +320,63 @@ Static {
   padding: 1;
   margin: 1 0;
   border: solid $border;
+}
+
+#analysis_status {
+  background: $primary-darken-3;
+  color: $text;
+  text-align: center;
+  padding: 1;
+  margin: 1 0;
+  border: solid $border;
+}
+
+#decision_title {
+  background: $primary;
+  color: $text;
+  text-align: center;
+  padding: 1;
+  margin: 1 0;
+  border: solid $border;
+}
+
+#decision_description {
+  background: $surface;
+  color: $text;
+  padding: 1;
+  margin: 1 0;
+  border: solid $border;
+}
+
+#answer_display {
+  background: $panel;
+  color: $text;
+  padding: 1;
+  margin: 1 0;
+  border: solid $border;
+  height: 8;
+}
+
+/* RadioSet and RadioButtons */
+#options_radioset {
+  width: 100%;
+  margin: 1 0;
+  background: $panel;
+  padding: 1;
+  border: solid $border;
+}
+
+RadioButton {
+  width: 100%;
+  padding: 1;
+}
+
+#decision_buttons {
+  layout: horizontal;
+  align: center middle;
+  width: 100%;
+  padding: 1;
+  margin: 1 0;
 }
 
 /* Buttons */

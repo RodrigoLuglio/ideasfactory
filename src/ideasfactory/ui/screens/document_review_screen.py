@@ -180,6 +180,10 @@ class DocumentReviewScreen(Screen):
         elif self.document_source == DocumentSource.PROJECT_MANAGER:
             self.query_one("#back_button").label = "Back to Research"
             self.query_one("#proceed_button").label = "Continue to Architecture"
+        elif self.document_source == DocumentSource.ARCHITECT:
+            self.query_one("#back_button").label = "Back to Architecture"
+            self.query_one("#proceed_button").label = "Continue to Task List"
+        # Add more mappings for other agents as they're implemented
         # Add more mappings for other agents as they're implemented
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -316,8 +320,10 @@ class DocumentReviewScreen(Screen):
             if self.document_source == DocumentSource.BUSINESS_ANALYST:
                 self.app.action_switch_to_deep_research()
             elif self.document_source == DocumentSource.PROJECT_MANAGER:
-                # This would go to the architecture screen once implemented
-                self.notify("Architecture phase not yet implemented", severity="warning")
+                self.app.action_switch_to_architecture()
+            elif self.document_source == DocumentSource.ARCHITECT:
+                # This would go to the Product Owner screen once implemented
+                self.notify("Product Owner phase not yet implemented", severity="warning")
     
     async def action_proceed(self) -> None:
         """Handle keyboard shortcut for proceeding."""
