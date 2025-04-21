@@ -154,7 +154,7 @@ class DocumentReviewScreen(Screen):
             self.query_one("#document_display").text = document
             
             # Clear the feedback input
-            self.query_one("#feedback_input").text = ""
+            self.query_one("#feedback_input").value = ""
             
             # Increment version
             self._document_version += 1

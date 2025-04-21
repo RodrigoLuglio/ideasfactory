@@ -15,11 +15,68 @@ from pydantic import BaseModel, Field
 
 from ideasfactory.utils.llm_utils import (
     Message, send_prompt, create_system_prompt, create_user_prompt,
-    create_assistant_prompt, BA_SYSTEM_PROMPT, BA_DOCUMENT_CREATION_PROMPT
+    create_assistant_prompt
 )
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+# Business Analyst system prompt
+BA_SYSTEM_PROMPT = """
+You are a business analyst passionate about technology and innovation. Your role is to help shape ideas, 
+as vague as they could be, into a clear and detailed scope for a solution, project or service that the initial idea might turn into.
+
+You do this by conducting a brainstorm session with the user. 
+
+In the brainstorm session you:
+
+- help the user to transform the idea into feasible, actionable and structured features
+- may suggest features and improvements to the user's idea, one at a time naturally, in a conversational way
+- can ask questions, one at a time, in opportune momments to:
+    - gather more information 
+    - clarify any doubts 
+    - help refine the idea
+- keep account of the user's acceptance of both your suggestions and the different features you are discussing
+- DON'T directly ask the user answer a list of questions, but rather try to gather the information you need to create the scope document during the brainstorm session
+
+By the end of the session, you must have a clear scope with all the necessary details to precisely describe 
+the solution/project/service, including all the accepted suggestions you made and the features you discussed, that "was born", during the brainstorm session, from the user idea to write a project vision document in markdown.
+"""
+
+BA_DOCUMENT_CREATION_PROMPT = """
+Based on our brainstorming session, please create a comprehensive project vision document in markdown format.
+
+The document should:
+- contain all the necessary details to precisely describe the solution/product/service
+- contain all features, improvements, suggestions we agreed upon during the brainstorm session
+- NOT contain any information, feature, suggestion or improvement that was not agreed upon
+- NOT contain any invented information, feature, suggestion or improvement or that was not discussed
+- be clear, detailed and precise, describing the solution/product/service with ALL and ONLY the information
+    that was discussed and agreed upon during the brainstorm session
+- be written in a markdown format
+
+Here's a general structure you can follow, but adapt it as needed:
+
+# [Project Name]
+
+## Overview
+[A brief description of the project]
+
+## Problem Statement
+[The problem the project aims to solve]
+
+## Solution Description
+[Detailed description of the proposed solution]
+
+## Features
+[List of features with descriptions]
+
+## Technical Requirements
+[Any technical requirements or constraints discussed]
+
+## Next Steps
+[Potential next steps for the project]
+"""
 
 
 class SessionState(Enum):
@@ -32,12 +89,12 @@ class SessionState(Enum):
 
 
 class Suggestion(BaseModel):
-    """A suggestion made during the brainstorming session."""
+    """A suggestion made by the agent during the brainstorming session."""
     content: str = Field(..., description="Content of the suggestion")
     accepted: bool = Field(False, description="Whether the suggestion was accepted")
 
 class Feature(BaseModel):
-    """A feature discussed during the brainstorming session."""
+    """A feature discussed by both the agent and the user during the brainstorming session."""
     name: str = Field(..., description="Name of the feature")
     description: str = Field(..., description="Description of the feature")
     accepted: bool = Field(False, description="Whether the feature was accepted")
@@ -48,13 +105,13 @@ class BrainstormSession(BaseModel):
     topic: str = Field(..., description="Topic of the brainstorming session")
     messages: List[Message] = Field(default_factory=list, description="Messages in the session")
     suggestions: List[Suggestion] = Field(default_factory=list, description="Suggestions made during the session")
+    features: List[Feature] = Field(default_factory=list, description="Features discussed during the session")
     state: SessionState = Field(default=SessionState.STARTED, description="Current state of the session")
     document: Optional[str] = Field(None, description="Generated document content")
     
     class Config:
         """Pydantic model configuration."""
         arbitrary_types_allowed = True
-
 
 class BusinessAnalyst:
     """
@@ -210,16 +267,6 @@ class BusinessAnalyst:
         return response.content
     
     async def revise_document(self, session_id: str, feedback: str) -> Optional[str]:
-        """
-        Revise the document based on feedback.
-        
-        Args:
-            session_id: Identifier of the session
-            feedback: Feedback on the document
-            
-        Returns:
-            The revised document content or None if session not found
-        """
         # Get the session
         session = self.sessions.get(session_id)
         if not session:
@@ -231,11 +278,35 @@ class BusinessAnalyst:
             logger.error(f"Session {session_id} not in document review state: {session.state}")
             return None
         
-        # Create the revision message
+        # Create a specific document revision request
         revision_request = create_user_prompt(
-            f"Please revise the document based on this feedback: {feedback}"
+            f"""I need you to revise the document that was created based on our brainstorming session.
+
+    Here is the feedback: 
+    {feedback}
+
+    Please provide ONLY the complete revised document in markdown format. Do not include any other explanations or conversation outside of the document content. Just the revised document text."""
         )
-        document_messages = session.messages + [revision_request]
+        
+        # We need to include the original document creation context
+        # First find the original document in the messages
+        document_messages = []
+        document_found = False
+        
+        for msg in session.messages:
+            document_messages.append(msg)
+            # If we reach the document creation request, we'll include it
+            if msg.role == "user" and "create a comprehensive project vision document" in msg.content:
+                document_found = True
+        
+        # If we didn't find the document creation message, use a different approach
+        if not document_found:
+            # Create a temporary message that includes the current document
+            document_content_msg = create_assistant_prompt(session.document)
+            document_messages.append(document_content_msg)
+        
+        # Add the revision request
+        document_messages.append(revision_request)
         
         # Get the agent's response
         response = await send_prompt(document_messages)

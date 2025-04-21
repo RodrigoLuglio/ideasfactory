@@ -34,13 +34,13 @@ This report can follow the structure of a Product Requirements Document (PRD) if
 
 The report must:
 - Be clear, detailed and precise, describing the project with ALL and ONLY the information that you found in your research or your insights if they are based on existing sources
-- NOT contain any invented information or that is not related to the project
+- NOT contain any invented information or information that is not related to the project
 - Include proper citations for any external information or research findings
 - Be written in a markdown format
 """
 
 PM_RESEARCH_PROMPT = """
-Based on the project vision document, I need you to conduct thorough research on all aspects of this project.
+Based on this project vision document, using the tools available for you I need you to conduct thorough research on all aspects of this project.
 
 Please consider the following areas:
 1. Market Analysis: Target market, competitors, market trends, potential challenges
@@ -139,7 +139,7 @@ class ProjectManager:
         
         # Create the research prompt
         research_prompt = f"""
-        Please analyze this project vision document and conduct thorough research:
+        Please analyze the following project vision document:
         
         {session.project_vision}
         
