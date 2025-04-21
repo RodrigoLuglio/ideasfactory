@@ -100,7 +100,7 @@ class DeepResearchScreen(Screen):
         # Try to load project vision if available
         self._load_project_vision()
 
-    def on_screen_resume(self) -> None:
+    async def on_screen_resume(self) -> None:
         """Handle screen being resumed."""
         # When the screen is shown again, check if we have a session ID
         if hasattr(self.app, "current_session_id") and self.app.current_session_id:
@@ -108,7 +108,7 @@ class DeepResearchScreen(Screen):
             
             # Use DocumentManager to load the project vision document
             doc_manager = DocumentManager()
-            document = doc_manager.get_latest_document_by_type("project-vision", session_id)
+            document = await doc_manager.get_latest_document_by_type("project-vision", session_id)
             
             if document and "content" in document:
                 self.project_vision = document["content"]

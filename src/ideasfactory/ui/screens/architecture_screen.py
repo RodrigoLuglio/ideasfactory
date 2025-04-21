@@ -121,7 +121,7 @@ class ArchitectureScreen(Screen):
         # Disable buttons that shouldn't be clickable yet
         self.query_one("#create_document_button").disabled = True
     
-    def on_screen_resume(self) -> None:
+    async def on_screen_resume(self) -> None:
         """Handle screen being resumed."""
         # Check if we have a session ID
         if hasattr(self.app, "current_session_id") and self.app.current_session_id:
@@ -131,14 +131,14 @@ class ArchitectureScreen(Screen):
             doc_manager = DocumentManager()
             
             # Load project vision document
-            vision_document = doc_manager.get_latest_document_by_type("project-vision", session_id)
+            vision_document = await doc_manager.get_latest_document_by_type("project-vision", session_id)
             if vision_document and "content" in vision_document:
                 self.project_vision = vision_document["content"]
             else:
                 self.project_vision = None
                 
             # Load research report document
-            research_document = doc_manager.get_latest_document_by_type("research-report", session_id)
+            research_document = await doc_manager.get_latest_document_by_type("research-report", session_id)
             if research_document and "content" in research_document:
                 self.research_report = research_document["content"]
             else:
@@ -272,7 +272,6 @@ class ArchitectureScreen(Screen):
 
         # Remove all radio buttons and rebuild the radio set
         radio_set = self.query_one("#options_radioset")
-        radio_set.clear()
         # Remove existing children
         if hasattr(radio_set, "children"):
             radio_set.remove_children()
