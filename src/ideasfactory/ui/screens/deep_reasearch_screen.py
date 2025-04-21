@@ -209,9 +209,14 @@ class DeepResearchScreen(Screen):
             # Hide progress bar after a short delay
             self.call_later(self._hide_progress_bar, delay=2)
     
-    def _hide_progress_bar(self) -> None:
-        """Hide the progress bar."""
-        self.query_one("#research_progress").display = False
+    
+    def _hide_progress_bar(self, *args, **kwargs) -> None:
+        """Hide the progress bar. Accepts and ignores any arguments passed from call_later."""
+        try:
+            progress_bar = self.query_one("#research_progress")
+            progress_bar.display = False
+        except Exception as e:
+            logger.error(f"Error hiding progress bar: {e}")
     
     async def revise_report(self) -> None:
         """Revise the research report based on feedback."""
