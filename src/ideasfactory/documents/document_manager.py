@@ -434,3 +434,58 @@ class DocumentManager:
         except Exception as e:
             logger.error(f"Error getting document history: {str(e)}")
             return []
+        
+    async def get_latest_document_by_type(self, document_type: str, session_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get the latest version of a document of a specific type for a session.
+        
+        Args:
+            document_type: Type of document to retrieve (e.g., "project-vision")
+            session_id: Session ID for the document
+            
+        Returns:
+            Document content and metadata, or None if not found
+        """
+        try:
+            # Construct the expected path directly based on our folder structure
+            session_path = os.path.join(self.base_dir, f"session-{session_id}")
+            doc_type_path = os.path.join(session_path, document_type)
+            
+            # Use our existing filename mapping
+            filename_mapping = {
+                "project-vision": "project-vision.md",
+                "research-report": "research-report.md",
+                "architecture": "system-architecture.md",
+                "task-list": "task-list.md",
+                "standards-patterns": "standards-patterns.md",
+                "epics-stories": "epics-stories.md"
+            }
+            
+            if document_type in filename_mapping:
+                # Use the standardized filename
+                filename = filename_mapping[document_type]
+                filepath = os.path.join(doc_type_path, filename)
+                
+                if os.path.exists(filepath):
+                    return self.get_document(filepath)
+                else:
+                    logger.error(f"Document not found at expected path: {filepath}")
+                    return None
+            else:
+                # If it's not a standard document type, fallback to listing
+                documents = self.list_documents(document_type=document_type, session_id=session_id)
+                
+                if documents:
+                    # Sort by version (if available) to get the latest
+                    sorted_docs = sorted(
+                        documents,
+                        key=lambda x: x.get("version", "0.0.0"),
+                        reverse=True
+                    )
+                    return self.get_document(sorted_docs[0]["filepath"])
+                else:
+                    logger.error(f"No {document_type} documents found for session {session_id}")
+                    return None
+        except Exception as e:
+            logger.error(f"Error retrieving document: {str(e)}")
+            return None

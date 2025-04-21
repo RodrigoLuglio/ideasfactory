@@ -48,10 +48,6 @@ class IdeasFactoryApp(App):
         """Initialize the application."""
         super().__init__(*args, **kwargs)
         self.current_session_id: Optional[str] = None
-        self.current_project_name: Optional[str] = None
-        self.current_project_vision: Optional[str] = None
-        self.current_research_report: Optional[str] = None
-        self.current_architecture_document: Optional[str] = None
         self.brainstorm_screen = None
         self.document_review_screen = None
         self.deep_research_screen = None
@@ -132,28 +128,6 @@ class IdeasFactoryApp(App):
         if self.architecture_screen:
             self.architecture_screen.set_session(session_id)
     
-    def set_project_vision(self, project_vision: str) -> None:
-        """Set the current project vision document."""
-        self.current_project_vision = project_vision
-        
-        # Update screens with the vision
-        if self.deep_research_screen:
-            self.deep_research_screen.set_project_vision(project_vision)
-        if self.architecture_screen:
-            self.architecture_screen.set_project_vision(project_vision)
-    
-    def set_research_report(self, research_report: str) -> None:
-        """Set the current research report document."""
-        self.current_research_report = research_report
-        
-        # Update the architecture screen with the research report
-        if self.architecture_screen:
-            self.architecture_screen.set_research_report(research_report)
-    
-    def set_architecture_document(self, architecture_document: str) -> None:
-        """Set the current architecture document."""
-        self.current_architecture_document = architecture_document
-    
     async def show_document_review_for_ba(self, session_id: str) -> None:
         """Show document review screen for the Business Analyst document."""
         # Get the session from the Business Analyst
@@ -177,7 +151,7 @@ class IdeasFactoryApp(App):
         
         # Switch to the document review screen
         self.action_switch_to_document_review()
-    
+
     async def show_document_review_for_pm(self, session_id: str) -> None:
         """Show document review screen for the Project Manager document."""
         # Get the session from the Project Manager
@@ -201,7 +175,7 @@ class IdeasFactoryApp(App):
         
         # Switch to the document review screen
         self.action_switch_to_document_review()
-    
+
     async def show_document_review_for_architect(self, session_id: str) -> None:
         """Show document review screen for the Architect document."""
         # Get the session from the Architect
@@ -225,35 +199,23 @@ class IdeasFactoryApp(App):
         
         # Switch to the document review screen
         self.action_switch_to_document_review()
-    
+
     async def _ba_revision_callback(self, session_id: str, feedback: str) -> str:
         """Callback for Business Analyst document revisions."""
         # Revise the document using the BA agent
         document = await self.business_analyst.revise_document(session_id, feedback)
-        
-        # Update the app's project vision
-        self.current_project_vision = document
-        
         return document
-    
+
     async def _pm_revision_callback(self, session_id: str, feedback: str) -> str:
         """Callback for Project Manager document revisions."""
         # Revise the report using the PM agent
         report = await self.project_manager.revise_report(session_id, feedback)
-        
-        # Update the app's research report
-        self.current_research_report = report
-        
         return report
-    
+
     async def _architect_revision_callback(self, session_id: str, feedback: str) -> str:
         """Callback for Architect document revisions."""
         # Revise the document using the Architect agent
         document = await self.architect.revise_document(session_id, feedback)
-        
-        # Update the app's architecture document
-        self.current_architecture_document = document
-        
         return document
     
     async def _ba_completion_callback(self) -> None:
@@ -261,14 +223,30 @@ class IdeasFactoryApp(App):
         # Complete the BA session
         if self.current_session_id:
             await self.business_analyst.complete_session(self.current_session_id)
+            self.notify("Project vision document completed", severity="success")
+
+             # Update workflow progress if you have a status indicator
+            if hasattr(self, "update_workflow_progress"):
+                self.update_workflow_progress("project_vision_completed")
     
     async def _pm_completion_callback(self) -> None:
         """Callback when Project Manager document is completed."""
-        # No specific completion action required for PM yet
-        pass
+        # Complete the PM session
+        if self.current_session_id:
+            # No specific completion method for PM yet, but we could add one
+            self.notify("Research report completed", severity="success")
+
+            # Update workflow progress if you have a status indicator
+            if hasattr(self, "update_workflow_progress"):
+                self.update_workflow_progress("research_report_completed")
     
     async def _architect_completion_callback(self) -> None:
         """Callback when Architect document is completed."""
         # Complete the Architect session
         if self.current_session_id:
             await self.architect.complete_session(self.current_session_id)
+            self.notify("Architecture document completed", severity="success")
+
+            # Update workflow progress if you have a status indicator
+            if hasattr(self, "update_workflow_progress"):
+                self.update_workflow_progress("architecture_document_completed")

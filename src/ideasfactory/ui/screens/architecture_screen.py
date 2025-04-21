@@ -123,25 +123,44 @@ class ArchitectureScreen(Screen):
     
     def on_screen_resume(self) -> None:
         """Handle screen being resumed."""
-        # When the screen is shown again, check if we have the required documents
-        if hasattr(self.app, "current_project_vision") and self.app.current_project_vision:
-            self.project_vision = self.app.current_project_vision
-        
-        if hasattr(self.app, "current_research_report") and self.app.current_research_report:
-            self.research_report = self.app.current_research_report
+        # Check if we have a session ID
+        if hasattr(self.app, "current_session_id") and self.app.current_session_id:
+            session_id = self.app.current_session_id
             
-        # If we have both documents, enable the start analysis button
-        if self.project_vision and self.research_report:
-            self.query_one("#analysis_status").update("Ready to start architecture analysis.")
-            self.query_one("#start_analysis_button").disabled = False
+            # Use DocumentManager to load required documents
+            doc_manager = DocumentManager()
+            
+            # Load project vision document
+            vision_document = doc_manager.get_latest_document_by_type("project-vision", session_id)
+            if vision_document and "content" in vision_document:
+                self.project_vision = vision_document["content"]
+            else:
+                self.project_vision = None
+                
+            # Load research report document
+            research_document = doc_manager.get_latest_document_by_type("research-report", session_id)
+            if research_document and "content" in research_document:
+                self.research_report = research_document["content"]
+            else:
+                self.research_report = None
+                
+            # Check if we have all required documents
+            if self.project_vision and self.research_report:
+                self.query_one("#analysis_status").update("Ready to start architecture analysis.")
+                self.query_one("#start_analysis_button").disabled = False
+            else:
+                missing = []
+                if not self.project_vision:
+                    missing.append("Project Vision")
+                if not self.research_report:
+                    missing.append("Research Report")
+                
+                self.query_one("#analysis_status").update(f"Missing required documents: {', '.join(missing)}")
+                self.query_one("#start_analysis_button").disabled = True
         else:
-            missing = []
-            if not self.project_vision:
-                missing.append("Project Vision")
-            if not self.research_report:
-                missing.append("Research Report")
-            
-            self.query_one("#analysis_status").update(f"Missing required documents: {', '.join(missing)}")
+            # No session ID
+            self.notify("No active session found", severity="error")
+            self.query_one("#analysis_status").update("No active session")
             self.query_one("#start_analysis_button").disabled = True
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -174,7 +193,7 @@ class ArchitectureScreen(Screen):
     def set_project_vision(self, project_vision: str) -> None:
         """Set the project vision document."""
         self.project_vision = project_vision
-    
+
     def set_research_report(self, research_report: str) -> None:
         """Set the research report document."""
         self.research_report = research_report

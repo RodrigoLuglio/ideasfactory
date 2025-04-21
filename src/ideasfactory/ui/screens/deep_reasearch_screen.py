@@ -102,21 +102,43 @@ class DeepResearchScreen(Screen):
 
     def on_screen_resume(self) -> None:
         """Handle screen being resumed."""
-        # When the screen is shown again, reload project vision if available
-        if hasattr(self.app, "current_project_vision") and self.app.current_project_vision:
-            self.set_project_vision(self.app.current_project_vision)
-            # Show a notification that we're ready to proceed
-            self.notify("Project vision loaded. Ready to conduct research.", severity="information")
+        # When the screen is shown again, check if we have a session ID
+        if hasattr(self.app, "current_session_id") and self.app.current_session_id:
+            session_id = self.app.current_session_id
             
+            # Use DocumentManager to load the project vision document
+            doc_manager = DocumentManager()
+            document = doc_manager.get_latest_document_by_type("project-vision", session_id)
+            
+            if document and "content" in document:
+                self.project_vision = document["content"]
+                self._load_project_vision()
+                
+                # Update UI to show we're ready for research
+                self.query_one("#research_status").update("Project vision loaded. Ready to start research.")
+                self.query_one("#start_research_button").disabled = False
+                
+                # Make the button more prominent
+                self.query_one("#start_research_button").variant = "success"
+            else:
+                # Vision document not found
+                self.project_vision = None
+                self._load_project_vision()
+                
+                # Update UI to show missing document
+                self.query_one("#research_status").update("Missing required document: Project Vision")
+                self.query_one("#start_research_button").disabled = True
+        else:
+            # No session ID
+            self.notify("No active session found", severity="error")
+            self.query_one("#research_status").update("No active session")
+            self.query_one("#start_research_button").disabled = True
+
     def set_project_vision(self, project_vision: str) -> None:
         """Set the project vision document."""
         self.project_vision = project_vision
         if self._is_mounted:
             self._load_project_vision()
-            # Make the research button prominent since we have a vision document
-            if hasattr(self, "start_research_button"):
-                button = self.query_one("#start_research_button")
-                button.variant = "success"
     
     def _load_project_vision(self) -> None:
         """Load the project vision document."""
