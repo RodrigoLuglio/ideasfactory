@@ -1,4 +1,4 @@
-# Updated app.py - Main application with Project Manager integration
+# app.py - Main application with generic document review integration
 
 """
 Main application for IdeasFactory.
@@ -9,7 +9,7 @@ This module defines the main Textual application for IdeasFactory.
 import os
 import sys
 import logging
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer
@@ -17,8 +17,10 @@ from textual.binding import Binding
 from textual.screen import Screen
 
 from ideasfactory.ui.screens.brainstorm_screen import BrainstormScreen
-from ideasfactory.ui.screens.document_review_screen import DocumentReviewScreen
+from ideasfactory.ui.screens.document_review_screen import DocumentReviewScreen, DocumentSource
 from ideasfactory.ui.screens.deep_reasearch_screen import DeepResearchScreen
+from ideasfactory.agents.business_analyst import BusinessAnalyst
+from ideasfactory.agents.project_manager import ProjectManager
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -44,9 +46,12 @@ class IdeasFactoryApp(App):
         super().__init__(*args, **kwargs)
         self.current_session_id: Optional[str] = None
         self.current_project_vision: Optional[str] = None
+        self.current_research_report: Optional[str] = None
         self.brainstorm_screen = None
         self.document_review_screen = None
         self.deep_research_screen = None
+        self.business_analyst = BusinessAnalyst()
+        self.project_manager = ProjectManager()
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
@@ -102,8 +107,6 @@ class IdeasFactoryApp(App):
         # Update screens with the session ID
         if self.brainstorm_screen:
             self.brainstorm_screen.set_session(session_id)
-        if self.document_review_screen:
-            self.document_review_screen.set_session(session_id)
     
     def set_project_vision(self, project_vision: str) -> None:
         """Set the current project vision document."""
@@ -112,3 +115,86 @@ class IdeasFactoryApp(App):
         # Update the project manager screen with the vision
         if self.deep_research_screen:
             self.deep_research_screen.set_project_vision(project_vision)
+    
+    def set_research_report(self, research_report: str) -> None:
+        """Set the current research report document."""
+        self.current_research_report = research_report
+    
+    async def show_document_review_for_ba(self, session_id: str) -> None:
+        """Show document review screen for the Business Analyst document."""
+        # Get the session from the Business Analyst
+        session = self.business_analyst.sessions.get(session_id)
+        if not session or not session.document:
+            self.notify("No document available for this session", severity="error")
+            return
+        
+        # Configure the document review screen for the BA document
+        self.document_review_screen.configure_for_agent(
+            document_source=DocumentSource.BUSINESS_ANALYST,
+            session_id=session_id,
+            document_content=session.document,
+            document_title=session.topic,
+            document_type="project-vision",
+            revision_callback=self._ba_revision_callback,
+            completion_callback=self._ba_completion_callback,
+            back_screen="brainstorm_screen",
+            next_screen="deep_research_screen"
+        )
+        
+        # Switch to the document review screen
+        self.action_switch_to_document_review()
+    
+    async def show_document_review_for_pm(self, session_id: str) -> None:
+        """Show document review screen for the Project Manager document."""
+        # Get the session from the Project Manager
+        session = self.project_manager.sessions.get(session_id)
+        if not session or not session.research_report:
+            self.notify("No research report available for this session", severity="error")
+            return
+        
+        # Configure the document review screen for the PM document
+        self.document_review_screen.configure_for_agent(
+            document_source=DocumentSource.PROJECT_MANAGER,
+            session_id=session_id,
+            document_content=session.research_report,
+            document_title="Project Research Report",
+            document_type="research-report",
+            revision_callback=self._pm_revision_callback,
+            completion_callback=self._pm_completion_callback,
+            back_screen="deep_research_screen",
+            next_screen=None  # Architecture screen not yet implemented
+        )
+        
+        # Switch to the document review screen
+        self.action_switch_to_document_review()
+    
+    async def _ba_revision_callback(self, session_id: str, feedback: str) -> str:
+        """Callback for Business Analyst document revisions."""
+        # Revise the document using the BA agent
+        document = await self.business_analyst.revise_document(session_id, feedback)
+        
+        # Update the app's project vision
+        self.current_project_vision = document
+        
+        return document
+    
+    async def _pm_revision_callback(self, session_id: str, feedback: str) -> str:
+        """Callback for Project Manager document revisions."""
+        # Revise the report using the PM agent
+        report = await self.project_manager.revise_report(session_id, feedback)
+        
+        # Update the app's research report
+        self.current_research_report = report
+        
+        return report
+    
+    async def _ba_completion_callback(self) -> None:
+        """Callback when Business Analyst document is completed."""
+        # Complete the BA session
+        if self.current_session_id:
+            await self.business_analyst.complete_session(self.current_session_id)
+    
+    async def _pm_completion_callback(self) -> None:
+        """Callback when Project Manager document is completed."""
+        # No specific completion action required for PM yet
+        pass

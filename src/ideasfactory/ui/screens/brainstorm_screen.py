@@ -1,3 +1,5 @@
+# brainstorm_screen.py - Updated to use generic document review
+
 """
 Brainstorm screen for IdeasFactory.
 
@@ -181,5 +183,9 @@ class BrainstormScreen(Screen):
         # Create the document
         document = await self.business_analyst.create_document(self.session_id)
         
-        # Switch to the document review screen
-        self.app.action_switch_to_document_review()
+        # Use the app's method to show document review for this document
+        if hasattr(self.app, "show_document_review_for_ba"):
+            await self.app.show_document_review_for_ba(self.session_id)
+        else:
+            # Fallback to old behavior
+            self.app.action_switch_to_document_review()

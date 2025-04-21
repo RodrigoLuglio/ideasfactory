@@ -1,4 +1,4 @@
-/* IdeasFactory Application Styles */
+/* IdeasFactory Application Styles with scroll improvements */
 
 Screen {
   background: $surface;
@@ -14,6 +14,17 @@ DocumentReviewScreen {
 
 DeepResearchScreen {
   layout: vertical;
+}
+
+/* Scrolling containers */
+#document_scroll {
+  width: 100%;
+  height: 100%;
+}
+
+#research_scroll {
+  width: 100%;
+  height: 100%;
 }
 
 /* Container styles */
@@ -86,7 +97,6 @@ Container {
   layout: horizontal;
   padding: 1;
   margin: 1 2;
-  dock: bottom;
 }
 
 /* Research screen containers */
@@ -94,6 +104,30 @@ Container {
   width: 100%;
   height: auto;
   layout: vertical;
+  padding: 1;
+  margin: 1 2;
+}
+
+#status_container {
+  width: 100%;
+  height: auto;
+  layout: vertical;
+  padding: 1;
+  margin: 1 2;
+}
+
+#report_container {
+  width: 100%;
+  height: auto;
+  layout: vertical;
+  padding: 1;
+  margin: 1 2;
+}
+
+#results_container {
+  width: 100%;
+  height: auto;
+  layout: horizontal;
   padding: 1;
   margin: 1 2;
 }
@@ -120,6 +154,31 @@ Label {
   padding: 1 2;
 }
 
+#research_header {
+  text-style: bold;
+  padding: 1 2;
+}
+
+#status_header {
+  text-style: bold;
+  padding: 1 2;
+}
+
+#report_header {
+  text-style: bold;
+  padding: 1 2;
+}
+
+#vision_header {
+  text-style: bold;
+  padding: 1 2;
+}
+
+#feedback_header {
+  text-style: bold;
+  padding: 1 2;
+}
+
 /* Inputs */
 Input {
   width: 3fr;
@@ -135,6 +194,12 @@ Input {
   margin-right: 1;
 }
 
+#feedback_input {
+  height: 3;
+  width: 100%;
+  margin-bottom: 1;
+}
+
 /* TextAreas */
 TextArea {
   width: 100%;
@@ -148,10 +213,14 @@ TextArea {
   margin: 1 2;
 }
 
-#feedback_input {
-  height: 5;
-  width: 3fr;
-  margin-right: 1;
+#vision_display {
+  height: 10;
+  margin: 1 2;
+}
+
+#report_display {
+  height: 20;
+  margin: 1 2;
 }
 
 /* Static elements */
@@ -163,6 +232,24 @@ Static {
 #conversation_display {
   background: $panel;
   color: $text;
+  border: solid $border;
+}
+
+#research_status {
+  background: $primary-darken-3;
+  color: $text;
+  text-align: center;
+  padding: 1;
+  margin: 1 0;
+  border: solid $border;
+}
+
+#document_status {
+  background: $primary-darken-3;
+  color: $text;
+  text-align: center;
+  padding: 1;
+  margin: 1 0;
   border: solid $border;
 }
 
@@ -185,6 +272,37 @@ Button {
   margin: 1 2;
 }
 
+#start_research_button {
+  margin: 1 2;
+}
+
+#revise_button {
+  width: auto;
+}
+
+#save_button {
+  width: auto;
+}
+
+#back_button {
+  width: auto;
+}
+
+#proceed_button {
+  width: auto;
+}
+
+#view_report_button {
+  width: auto;
+}
+
+/* Progress Bar */
+ProgressBar {
+  width: 100%;
+  height: 1;
+  margin: 1 2;
+}
+
 /* VerticalScroll */
 VerticalScroll {
   width: 100%;
@@ -197,4 +315,10 @@ VerticalScroll {
   width: 100%;
   padding: 1;
   background: $panel;
+}
+
+/* Document styles */
+.document {
+  border: solid $primary;
+  padding: 1;
 }
