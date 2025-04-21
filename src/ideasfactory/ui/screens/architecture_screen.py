@@ -190,10 +190,17 @@ class ArchitectureScreen(Screen):
         self.query_one("#analysis_status").update("Analyzing project requirements...")
         
         try:
-            # Generate a session ID if we don't have one
-            if not self.session_id:
+            # Use the app's session ID if available, or generate a new one
+            if hasattr(self.app, "current_session_id") and self.app.current_session_id:
+                self.session_id = self.app.current_session_id
+            else:
+                # Generate a session ID if we don't have one
                 import uuid
                 self.session_id = str(uuid.uuid4())
+                
+                # Update the app's current session if possible
+                if hasattr(self.app, "set_current_session"):
+                    self.app.set_current_session(self.session_id)
             
             # Create the session
             session = await self.architect.create_session(
@@ -243,10 +250,13 @@ class ArchitectureScreen(Screen):
         # Update the decision display
         self.query_one("#decision_title").update(f"**{decision.title}** ({self.current_decision_index + 1}/{len(self.decisions)})")
         self.query_one("#decision_description").update(decision.description)
-        
-        # Clear and rebuild the radio set
+
+        # Remove all radio buttons and rebuild the radio set
         radio_set = self.query_one("#options_radioset")
         radio_set.clear()
+        # Remove existing children
+        if hasattr(radio_set, "children"):
+            radio_set.remove_children()
         
         # Add options to the radio set
         for i, option in enumerate(decision.options):
@@ -265,7 +275,7 @@ class ArchitectureScreen(Screen):
                 option_text += "\n[Recommended]"
             
             radio_button = RadioButton(option_text, value=option_name)
-            radio_set.append(radio_button)
+            radio_set.mount(radio_button)
         
         # If a decision has already been made, select it
         if decision.completed and decision.decision:

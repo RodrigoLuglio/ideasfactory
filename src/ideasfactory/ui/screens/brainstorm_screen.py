@@ -112,17 +112,26 @@ class BrainstormScreen(Screen):
             self.notify("Please enter a topic for the brainstorming session", severity="error")
             return
         
-        # Generate a session ID
-        import uuid
-        session_id = str(uuid.uuid4())
+        # Use the app's session ID if available, or generate a new one
+        if hasattr(self.app, "current_session_id") and self.app.current_session_id:
+            session_id = self.app.current_session_id
+        else:
+            # Generate a session ID
+            import uuid
+            session_id = str(uuid.uuid4())
+            
+            # Update the app's current session if possible
+            if hasattr(self.app, "set_current_session"):
+                self.app.set_current_session(session_id)
+        
+        # Store the project name/topic in the app if possible
+        if hasattr(self.app, "current_project_name"):
+            self.app.current_project_name = topic
+            
+        self.session_id = session_id
         
         # Create the session
         session = await self.business_analyst.create_session(session_id, topic)
-        self.session_id = session_id
-        
-        # Update the app's current session
-        if hasattr(self.app, "set_current_session"):
-            self.app.set_current_session(session_id)
         
         # Start the brainstorming
         response = await self.business_analyst.start_brainstorming(session_id)

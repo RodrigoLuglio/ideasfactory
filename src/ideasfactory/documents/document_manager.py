@@ -32,20 +32,39 @@ class DocumentManager:
         self.base_dir = base_dir
         self._ensure_directories()
         self._init_git_repo()
-    
-    def _ensure_directories(self):
-        """Ensure all required directories exist."""
+
+    def _ensure_directories(self, session_id=None):
+        """
+        Ensure all required directories exist.
+        
+        Args:
+            session_id: Optional session ID to create session-specific directories
+        """
         # Create the base directory if it doesn't exist
         os.makedirs(self.base_dir, exist_ok=True)
         
-        # Create subdirectories for different document types
-        os.makedirs(os.path.join(self.base_dir, "project-vision"), exist_ok=True)
-        os.makedirs(os.path.join(self.base_dir, "research-report"), exist_ok=True)
-        os.makedirs(os.path.join(self.base_dir, "architecture"), exist_ok=True)
-        os.makedirs(os.path.join(self.base_dir, "task-list"), exist_ok=True)
-        os.makedirs(os.path.join(self.base_dir, "standards-patterns"), exist_ok=True)
-        os.makedirs(os.path.join(self.base_dir, "epics-stories"), exist_ok=True)
-        os.makedirs(os.path.join(self.base_dir, "stories"), exist_ok=True)
+        if session_id:
+            # Create session-specific directory
+            session_dir = os.path.join(self.base_dir, f"session-{session_id}")
+            os.makedirs(session_dir, exist_ok=True)
+            
+            # Create subdirectories for different document types within the session dir
+            os.makedirs(os.path.join(session_dir, "project-vision"), exist_ok=True)
+            os.makedirs(os.path.join(session_dir, "research-report"), exist_ok=True)
+            os.makedirs(os.path.join(session_dir, "architecture"), exist_ok=True)
+            os.makedirs(os.path.join(session_dir, "task-list"), exist_ok=True)
+            os.makedirs(os.path.join(session_dir, "standards-patterns"), exist_ok=True)
+            os.makedirs(os.path.join(session_dir, "epics-stories"), exist_ok=True)
+            os.makedirs(os.path.join(session_dir, "stories"), exist_ok=True)
+        else:
+            # Create global subdirectories for different document types
+            os.makedirs(os.path.join(self.base_dir, "project-vision"), exist_ok=True)
+            os.makedirs(os.path.join(self.base_dir, "research-report"), exist_ok=True)
+            os.makedirs(os.path.join(self.base_dir, "architecture"), exist_ok=True)
+            os.makedirs(os.path.join(self.base_dir, "task-list"), exist_ok=True)
+            os.makedirs(os.path.join(self.base_dir, "standards-patterns"), exist_ok=True)
+            os.makedirs(os.path.join(self.base_dir, "epics-stories"), exist_ok=True)
+            os.makedirs(os.path.join(self.base_dir, "stories"), exist_ok=True)
     
     def _init_git_repo(self):
         """Initialize a Git repository for version control."""
@@ -119,25 +138,59 @@ class DocumentManager:
         Returns:
             Path to the created document
         """
-        # Create a filename from the title
-        sanitized_title = title.replace(" ", "-").lower()
-        filename = f"{sanitized_title}.md"
+        # Use standardized filenames based on document type
+        filename_mapping = {
+            "project-vision": "project-vision.md",
+            "research-report": "research-report.md",
+            "architecture": "system-architecture.md",
+            "task-list": "task-list.md",
+            "standards-patterns": "standards-patterns.md",
+            "epics-stories": "epics-stories.md"
+        }
         
-        # Determine the directory based on the document type
+        # Get standardized filename or create from title
+        if document_type in filename_mapping:
+            filename = filename_mapping[document_type]
+        else:
+            # Fallback to title-based filename
+            sanitized_title = title.replace(" ", "-").lower()
+            filename = f"{sanitized_title}.md"
+        
+        # Check if we have a session_id in the metadata
+        session_id = None
+        if metadata and "session_id" in metadata:
+            session_id = metadata["session_id"]
+            
+        # Also store the original title in the metadata for display purposes
+        if metadata is None:
+            metadata = {}
+        metadata["display_title"] = title
+            
+        # Ensure directories exist for this session if applicable
+        if session_id:
+            self._ensure_directories(session_id)
+            
+        # Determine the directory based on the document type and session
         if document_type in ["project-vision", "research-report", "architecture",
                             "task-list", "standards-patterns", "epics-stories"]:
-            directory = os.path.join(self.base_dir, document_type)
+            if session_id:
+                directory = os.path.join(self.base_dir, f"session-{session_id}", document_type)
+            else:
+                directory = os.path.join(self.base_dir, document_type)
         else:
-            # Default to the base directory
-            directory = self.base_dir
+            # Default to the base directory or session directory
+            if session_id:
+                directory = os.path.join(self.base_dir, f"session-{session_id}")
+            else:
+                directory = self.base_dir
+        
+        # Ensure the directory exists
+        os.makedirs(directory, exist_ok=True)
         
         # Create the full path
         filepath = os.path.join(directory, filename)
         
         # Prepare metadata
-        if metadata is None:
-            metadata = {}
-        
         # Add standard metadata
         metadata.update({
             "title": title,
@@ -155,8 +208,13 @@ class DocumentManager:
         # Version control the document if Git is available
         if self.repo:
             try:
-                self.repo.git.add(filepath)
-                self.repo.git.commit("-m", f"Create {document_type}: {title}")
+                # Use relative path to avoid issues with Git
+                rel_path = os.path.relpath(filepath, self.base_dir)
+                
+                # Check if the file exists to avoid Git errors
+                if os.path.exists(filepath):
+                    self.repo.git.add(rel_path)
+                    self.repo.git.commit("-m", f"Create {document_type}: {title}")
             except Exception as e:
                 logger.error(f"Error committing document to Git: {str(e)}")
         
@@ -207,9 +265,14 @@ class DocumentManager:
             # Version control the document if Git is available
             if self.repo:
                 try:
-                    self.repo.git.add(filepath)
-                    message = commit_message or f"Update: {os.path.basename(filepath)}"
-                    self.repo.git.commit("-m", message)
+                    # Use relative path to avoid issues with Git
+                    rel_path = os.path.relpath(filepath, self.base_dir)
+                    
+                    # Check if the file exists to avoid Git errors
+                    if os.path.exists(filepath):
+                        self.repo.git.add(rel_path)
+                        message = commit_message or f"Update: {os.path.basename(filepath)}"
+                        self.repo.git.commit("-m", message)
                 except Exception as e:
                     logger.error(f"Error committing document update to Git: {str(e)}")
             
@@ -240,12 +303,13 @@ class DocumentManager:
             logger.error(f"Error reading document: {str(e)}")
             return None
     
-    def list_documents(self, document_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    def list_documents(self, document_type: Optional[str] = None, session_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         List available documents.
         
         Args:
             document_type: Type of documents to list (None for all)
+            session_id: Optional session ID to filter by session
             
         Returns:
             List of document information dictionaries
@@ -253,19 +317,61 @@ class DocumentManager:
         result = []
         
         try:
-            # Determine which directories to search
-            if document_type:
-                directories = [os.path.join(self.base_dir, document_type)]
+            # Check for session-specific directories
+            session_directories = []
+            if session_id:
+                # Only search in the specific session directory
+                session_path = os.path.join(self.base_dir, f"session-{session_id}")
+                if os.path.exists(session_path):
+                    if document_type:
+                        doc_type_path = os.path.join(session_path, document_type)
+                        if os.path.exists(doc_type_path):
+                            session_directories.append(doc_type_path)
+                    else:
+                        # Add all document type directories in this session
+                        for d in [
+                            "project-vision", "research-report", "architecture",
+                            "task-list", "standards-patterns", "epics-stories", "stories"
+                        ]:
+                            doc_type_path = os.path.join(session_path, d)
+                            if os.path.exists(doc_type_path):
+                                session_directories.append(doc_type_path)
             else:
-                directories = [
-                    os.path.join(self.base_dir, d) for d in [
+                # Search in all session directories and global directories
+                # First, check for session-specific directories
+                for dir_entry in os.listdir(self.base_dir):
+                    if dir_entry.startswith("session-") and os.path.isdir(os.path.join(self.base_dir, dir_entry)):
+                        session_path = os.path.join(self.base_dir, dir_entry)
+                        if document_type:
+                            doc_type_path = os.path.join(session_path, document_type)
+                            if os.path.exists(doc_type_path):
+                                session_directories.append(doc_type_path)
+                        else:
+                            # Add all document type directories in this session
+                            for d in [
+                                "project-vision", "research-report", "architecture",
+                                "task-list", "standards-patterns", "epics-stories", "stories"
+                            ]:
+                                doc_type_path = os.path.join(session_path, d)
+                                if os.path.exists(doc_type_path):
+                                    session_directories.append(doc_type_path)
+                
+                # Also check global directories
+                if document_type:
+                    global_dir = os.path.join(self.base_dir, document_type)
+                    if os.path.exists(global_dir):
+                        session_directories.append(global_dir)
+                else:
+                    for d in [
                         "project-vision", "research-report", "architecture",
                         "task-list", "standards-patterns", "epics-stories", "stories"
-                    ]
-                ]
+                    ]:
+                        global_dir = os.path.join(self.base_dir, d)
+                        if os.path.exists(global_dir):
+                            session_directories.append(global_dir)
             
-            # Collect documents from each directory
-            for directory in directories:
+            # Now collect documents from all identified directories
+            for directory in session_directories:
                 if os.path.exists(directory):
                     for filename in os.listdir(directory):
                         if filename.endswith(".md"):
@@ -278,6 +384,14 @@ class DocumentManager:
                             document_info = dict(post)
                             document_info["filepath"] = filepath
                             document_info["filename"] = filename
+                            
+                            # Determine session ID from path
+                            path_parts = os.path.normpath(filepath).split(os.sep)
+                            for part in path_parts:
+                                if part.startswith("session-"):
+                                    document_info["session_id"] = part[8:]  # Remove "session-" prefix
+                                    break
+                            
                             result.append(document_info)
             
             return result

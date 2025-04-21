@@ -48,6 +48,7 @@ class IdeasFactoryApp(App):
         """Initialize the application."""
         super().__init__(*args, **kwargs)
         self.current_session_id: Optional[str] = None
+        self.current_project_name: Optional[str] = None
         self.current_project_vision: Optional[str] = None
         self.current_research_report: Optional[str] = None
         self.current_architecture_document: Optional[str] = None
@@ -58,6 +59,10 @@ class IdeasFactoryApp(App):
         self.business_analyst = BusinessAnalyst()
         self.project_manager = ProjectManager()
         self.architect = Architect()
+        
+        # Generate a session ID for the entire workflow
+        import uuid
+        self.current_session_id = str(uuid.uuid4())
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""

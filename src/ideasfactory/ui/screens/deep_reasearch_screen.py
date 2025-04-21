@@ -177,9 +177,17 @@ class DeepResearchScreen(Screen):
         self.query_one("#start_research_button").disabled = True
         
         try:
-            # Generate a session ID
-            import uuid
-            session_id = str(uuid.uuid4())
+            # Use the app's session ID if available, or generate a new one
+            if hasattr(self.app, "current_session_id") and self.app.current_session_id:
+                session_id = self.app.current_session_id
+            else:
+                # Generate a session ID
+                import uuid
+                session_id = str(uuid.uuid4())
+                
+                # Update the app's current session if possible
+                if hasattr(self.app, "set_current_session"):
+                    self.app.set_current_session(session_id)
             
             # Create the research session
             session = await self.project_manager.create_session(session_id, self.project_vision)
