@@ -636,3 +636,76 @@ LiteLLM completion() model= gpt-4o; provider = openai
 2025-04-21 09:48:34,838 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
 2025-04-21 09:48:34,838 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
 2025-04-21 09:48:34,847 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 09:59:45,894 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 09:59:47,638 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 09:59:47,653 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 09:59:47,654 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 09:59:47,654 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 09:59:47,655 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 09:59:52,270 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 09:59:54,189 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 09:59:54,194 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 09:59:54,195 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 09:59:54,195 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 09:59:54,197 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:01:35,945 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 10:01:37,618 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 10:01:37,631 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 10:01:37,632 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:01:37,633 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:01:37,634 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:01:40,236 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 10:01:41,302 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 10:01:41,307 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 10:01:41,307 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:01:41,308 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:01:41,317 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:01:47,702 - ideasfactory.documents.document_manager - ERROR - Error committing document to Git: Cmd('git') failed due to: exit code(128)
+  cmdline: git add output/project-vision/any-idea.md
+  stderr: 'fatal: pathspec 'output/project-vision/any-idea.md' did not match any files'
+2025-04-21 10:01:51,146 - ideasfactory.ui.app - ERROR - Error switching to deep research screen: "No screen called 'deep_research_screen' installed"
+2025-04-21 10:01:57,339 - ideasfactory.ui.app - ERROR - Error switching to deep research screen: "No screen called 'deep_research_screen' installed"
+2025-04-21 10:02:48,348 - ideasfactory.ui.app - ERROR - Error switching to deep research screen: "No screen called 'deep_research_screen' installed"
+2025-04-21 10:02:58,952 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 10:03:00,806 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 10:03:00,818 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 10:03:00,818 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:03:00,819 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:03:00,819 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:03:02,037 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 10:03:03,821 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 10:03:03,825 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 10:03:03,825 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:03:03,826 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:03:03,837 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:03:05,308 - ideasfactory.documents.document_manager - ERROR - Error committing document to Git: Cmd('git') failed due to: exit code(128)
+  cmdline: git add output/project-vision/any-idea.md
+  stderr: 'fatal: pathspec 'output/project-vision/any-idea.md' did not match any files'
+2025-04-21 10:03:21,132 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 10:03:28,452 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 10:03:28,456 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 10:03:28,456 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:03:28,456 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:03:28,459 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:03:36,237 - ideasfactory.tools.web_search - ERROR - DuckDuckGo search error: 202
+2025-04-21 10:03:36,365 - ideasfactory.tools.web_search - ERROR - DuckDuckGo search error: 202
+2025-04-21 10:03:36,529 - ideasfactory.tools.web_search - ERROR - DuckDuckGo search error: 202
+2025-04-21 10:03:36,530 - ideasfactory.tools.web_search - ERROR - Error scraping www.mckinsey.com/capabilities/mckinsey-digital/our-insights/the-top-trends-in-tech: www.mckinsey.com/capabilities/mckinsey-digital/our-insights/the-top-trends-in-tech
+2025-04-21 10:03:36,531 - ideasfactory.tools.web_search - ERROR - Error scraping magneticmarketing.com/blog/the-importance-of-knowing-your-target-markets-demographics: magneticmarketing.com/blog/the-importance-of-knowing-your-target-markets-demographics
+2025-04-21 10:03:36,531 - ideasfactory.tools.web_search - ERROR - Error scraping www.weetechsolution.com/blog/top-tech-stack-examples: www.weetechsolution.com/blog/top-tech-stack-examples
+2025-04-21 10:03:36,531 - ideasfactory.tools.web_search - ERROR - Error scraping startupmindset.com/understanding-target-market-demographics/: startupmindset.com/understanding-target-market-demographics/
+2025-04-21 10:03:36,532 - ideasfactory.tools.web_search - ERROR - Error scraping www.thebusinessresearchcompany.com/report/services-global-market-report: www.thebusinessresearchcompany.com/report/services-global-market-report
+2025-04-21 10:03:36,538 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 10:03:51,963 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 10:03:51,965 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 10:03:51,966 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:03:51,966 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 10:03:51,974 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06

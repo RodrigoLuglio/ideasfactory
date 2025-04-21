@@ -182,4 +182,4 @@ class BrainstormScreen(Screen):
         document = await self.business_analyst.create_document(self.session_id)
         
         # Switch to the document review screen
-        self.app.action_switch_to_document()
+        self.app.action_switch_to_document_review()

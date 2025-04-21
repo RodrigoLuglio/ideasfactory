@@ -251,4 +251,4 @@ class DocumentReviewScreen(Screen):
         self.notify("Project vision completed, proceeding to Research phase", severity="information")
         
         # Switch to the project manager screen
-        self.app.action_switch_to_project_manager()
+        self.app.action_switch_to_deep_research()

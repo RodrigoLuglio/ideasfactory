@@ -24,7 +24,7 @@ from ideasfactory.documents.document_manager import DocumentManager
 logger = logging.getLogger(__name__)
 
 
-class ProjectManagerScreen(Screen):
+class DeepResearchScreen(Screen):
     """
     Screen for conducting research and producing PRDs/research reports.
     """
@@ -86,7 +86,7 @@ class ProjectManagerScreen(Screen):
                 id="action_container"
             ),
             
-            id="pm_container"
+            id="research_container"
         )
     
     def on_mount(self) -> None:
