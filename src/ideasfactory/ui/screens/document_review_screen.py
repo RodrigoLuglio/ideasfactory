@@ -222,7 +222,7 @@ class DocumentReviewScreen(Screen):
         await self.back_to_brainstorm()
     
     async def complete_session(self) -> None:
-        """Complete the current session."""
+        """Complete the current session and proceed to the Project Manager screen."""
         if not self._is_mounted:
             logger.error("Screen not mounted yet")
             return
@@ -231,7 +231,7 @@ class DocumentReviewScreen(Screen):
             self.notify("No active session", severity="error")
             return
         
-        # Ask for confirmation
+        # Check if document has been saved
         if not self.document_path:
             # Document hasn't been saved yet
             self.notify("Please save the document before completing the session", severity="warning")
@@ -240,16 +240,15 @@ class DocumentReviewScreen(Screen):
         # Complete the session
         await self.business_analyst.complete_session(self.session_id)
         
+        # Get the document content to pass to the next phase
+        session = self.business_analyst.sessions.get(self.session_id)
+        if session and session.document:
+            # Store the document in the app
+            if hasattr(self.app, "set_project_vision"):
+                self.app.set_project_vision(session.document)
+        
         # Notify the user
-        self.notify("Session completed", severity="information")
+        self.notify("Project vision completed, proceeding to Research phase", severity="information")
         
-        # Clear the session ID
-        self.session_id = None
-        
-        # Reset the UI
-        self.query_one("#document_display").text = "No active session"
-        self.query_one("#document_header").update("Document Review")
-        self.query_one("#document_status").update("No document loaded")
-        
-        # Go back to the brainstorm screen
-        self.app.pop_screen()
+        # Switch to the project manager screen
+        self.app.action_switch_to_project_manager()

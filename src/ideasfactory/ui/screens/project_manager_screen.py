@@ -12,7 +12,7 @@ from typing import Optional
 from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import (
-    Header, Footer, Button, Static, TextArea, Label, ProgressBar
+    Header, Footer, Button, Static, TextArea, Label, ProgressBar, Input
 )
 from textual.containers import Container
 from textual.binding import Binding
@@ -74,7 +74,7 @@ class ProjectManagerScreen(Screen):
             
             Container(
                 Label("Request changes to the report:", id="feedback_header"),
-                TextArea(id="feedback_input", placeholder="Enter your feedback here..."),
+                Input(id="feedback_input", placeholder="Enter your feedback here..."),
                 Button("Revise Report", id="revise_button", variant="primary"),
                 id="feedback_container"
             ),
@@ -103,6 +103,24 @@ class ProjectManagerScreen(Screen):
         
         # Try to load project vision if available
         self._load_project_vision()
+
+    def on_screen_resume(self) -> None:
+        """Handle screen being resumed."""
+        # When the screen is shown again, reload project vision if available
+        if hasattr(self.app, "current_project_vision") and self.app.current_project_vision:
+            self.set_project_vision(self.app.current_project_vision)
+            # Show a notification that we're ready to proceed
+            self.notify("Project vision loaded. Ready to conduct research.", severity="information")
+            
+    def set_project_vision(self, project_vision: str) -> None:
+        """Set the project vision document."""
+        self.project_vision = project_vision
+        if self._is_mounted:
+            self._load_project_vision()
+            # Make the research button prominent since we have a vision document
+            if hasattr(self, "start_research_button"):
+                button = self.query_one("#start_research_button")
+                button.variant = "success"
     
     def _load_project_vision(self) -> None:
         """Load the project vision document."""
@@ -202,7 +220,7 @@ class ProjectManagerScreen(Screen):
             return
         
         # Get the feedback from the input
-        feedback = self.query_one("#feedback_input").text
+        feedback = self.query_one("#feedback_input").value
         if not feedback:
             self.notify("Please enter feedback for revision", severity="error")
             return
@@ -222,7 +240,7 @@ class ProjectManagerScreen(Screen):
             self.query_one("#report_display").text = report
             
             # Clear the feedback input
-            self.query_one("#feedback_input").text = ""
+            self.query_one("#feedback_input").value = ""
             
             # Update status
             self.query_one("#research_status").update("Report updated successfully")
