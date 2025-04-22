@@ -144,6 +144,9 @@ class ProjectManager:
         Returns:
             The created research session
         """
+        # Log session creation
+        logger.info(f"Creating project manager session {session_id} with vision document of length {len(project_vision)}")
+        
         # Create a new session
         session = ResearchSession(
             id=session_id,
@@ -153,6 +156,7 @@ class ProjectManager:
         
         # Store the session
         self.sessions[session_id] = session
+        logger.info(f"Project manager session {session_id} created successfully")
         
         return session
     
@@ -288,11 +292,20 @@ class ProjectManager:
         Returns:
             The research report or None if session not found
         """
+        logger.info(f"Starting comprehensive research for session {session_id}")
+        
         # Get the session
         session = self.sessions.get(session_id)
         if not session:
             logger.error(f"Session not found: {session_id}")
             return None
+            
+        # Validate the project vision is available
+        if not session.project_vision:
+            logger.error(f"Project vision not found in session {session_id}")
+            return None
+            
+        logger.info(f"Session retrieved for {session_id} with vision of length: {len(session.project_vision)}")
         
         # Step 1: Analyze the project vision to determine research needs
         search_queries = await self._analyze_research_needs(session_id)

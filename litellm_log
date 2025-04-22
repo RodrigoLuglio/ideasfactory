@@ -1091,3 +1091,86 @@ LiteLLM completion() model= gpt-4o; provider = openai
 2025-04-21 18:51:29,561 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
 2025-04-21 18:51:29,564 - ideasfactory.ui.screens.architecture_screen - ERROR - Error during architecture analysis: 'RadioSet' object has no attribute 'clear'
 2025-04-21 18:51:29,564 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:11:35,633 - root - INFO - Starting IdeasFactory application...
+2025-04-21 22:11:35,633 - root - INFO - IdeasFactory version: 0.1.0
+2025-04-21 22:11:35,633 - root - INFO - Python version: 3.11.11 (main, Mar 23 2025, 13:13:05) [Clang 16.0.0 (clang-1600.0.26.6)]
+2025-04-21 22:11:35,633 - root - INFO - OS: posix
+2025-04-21 22:11:35,633 - root - INFO - Platform: darwin
+2025-04-21 22:11:35,633 - root - INFO - Architecture: arm64
+2025-04-21 22:11:35,633 - root - INFO - Environment variables: environ({'BAT_THEME': 'Nord', 'BUN_INSTALL': '/Users/rusty/.bun', 'COLORTERM': 'truecolor', 'COMMAND_MODE': 'unix2003', 'CONDA_CHANGEPS1': 'false', 'FNM_ARCH': 'arm64', 'FNM_COREPACK_ENABLED': 'false', 'FNM_DIR': '/Users/rusty/.local/share/fnm', 'FNM_LOGLEVEL': 'info', 'FNM_MULTISHELL_PATH': '/Users/rusty/.local/state/fnm_multishells/33944_1745284263384', 'FNM_NODE_DIST_MIRROR': 'https://nodejs.org/dist', 'FNM_RESOLVE_ENGINES': 'true', 'FNM_VERSION_FILE_STRATEGY': 'local', 'HOME': '/Users/rusty', 'HOMEBREW_CELLAR': '/opt/homebrew/Cellar', 'HOMEBREW_PREFIX': '/opt/homebrew', 'HOMEBREW_REPOSITORY': '/opt/homebrew', 'INFOPATH': '/opt/homebrew/share/info:', 'LC_CTYPE': 'UTF-8', 'LOGNAME': 'rusty', 'LaunchInstanceID': '606D1213-BB07-4EEC-ADE7-09561E6F60F2', 'OLDPWD': '/Users/rusty', 'PATH': '/Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory/.venv/bin:/Users/rusty/.local/bin:/Users/rusty/.codeium/windsurf/bin:/Users/rusty/.local/state/fnm_multishells/33944_1745284263384/bin:/Users/rusty/.pyenv/shims:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/rusty/.rife/bin:/Users/rusty/.bun/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Library/Apple/usr/bin:/usr/local/share/dotnet:~/.dotnet/tools:/opt/podman/bin:/Users/rusty/.cargo/bin:/Users/rusty/Library/Application Support/JetBrains/Toolbox/scripts:/Users/rusty/.orbstack/bin', 'PWD': '/Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory', 'PYENV_ROOT': '/Users/rusty/.pyenv', 'PYENV_SHELL': 'zsh', 'SECURITYSESSIONID': '186a2', 'SHELL': '/bin/zsh', 'SHLVL': '1', 'SSH_AUTH_SOCK': '/private/tmp/com.apple.launchd.17jAKVBVyP/Listeners', 'SSH_SOCKET_DIR': '~/.ssh', 'TERM': 'xterm-256color', 'TERM_PROGRAM': 'WarpTerminal', 'TERM_PROGRAM_VERSION': 'v0.2025.04.16.08.11.stable_02', 'TMPDIR': '/var/folders/01/py4rvp_n7ll1fy784d71fj1w0000gn/T/', 'USER': 'rusty', 'UV': '/Users/rusty/.local/bin/uv', 'UV_RUN_RECURSION_DEPTH': '1', 'VIRTUAL_ENV': '/Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory/.venv', 'WARP_HONOR_PS1': '0', 'WARP_IS_LOCAL_SHELL_SESSION': '1', 'WARP_USE_SSH_WRAPPER': '1', 'XPC_FLAGS': '0x0', 'XPC_SERVICE_NAME': '0', '_': '/Users/rusty/.local/bin/uv', '__CFBundleIdentifier': 'dev.warp.Warp-Stable', '__CF_USER_TEXT_ENCODING': '0x1F5:0x0:0x0', 'OPENAI_API_KEY': '[REDACTED_API_KEY]', 'IDEASFACTORY_DEFAULT_MODEL': 'gpt-4o', 'IDEASFACTORY_DEFAULT_TEMPERATURE': '0.7', 'IDEASFACTORY_DEFAULT_MAX_TOKENS': '4000', 'IDEASFACTORY_SEARCH_API_KEY': 'AIzaSyA9AdHVqQW0f2T9KEyIcyIOXH3TBmabIvU', 'IDEASFACTORY_SEARCH_ENGINE_ID': 'f36a681eae4ac4089', 'TIKTOKEN_CACHE_DIR': '/Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory/.venv/lib/python3.11/site-packages/litellm/litellm_core_utils/tokenizers'})
+2025-04-21 22:11:35,633 - root - INFO - Command line arguments: ['src/ideasfactory/__init__.py']
+2025-04-21 22:11:35,633 - root - INFO - Current working directory: /Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory
+2025-04-21 22:11:35,633 - root - INFO - Python path: ['/Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory/src/ideasfactory', '/Users/rusty/.pyenv/versions/3.11.11/lib/python311.zip', '/Users/rusty/.pyenv/versions/3.11.11/lib/python3.11', '/Users/rusty/.pyenv/versions/3.11.11/lib/python3.11/lib-dynload', '/Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory/.venv/lib/python3.11/site-packages', '/Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory/src', '/Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory']
+2025-04-21 22:11:35,723 - ideasfactory.ui.screens - WARNING - No active session when resuming screen
+2025-04-21 22:11:43,817 - ideasfactory.utils.session_manager - INFO - Created new session: 31ba42cd-7ab2-4891-9b97-494b6657f125 for project: A simple task manager
+2025-04-21 22:11:43,817 - ideasfactory.utils.session_manager - INFO - Set current session to: 31ba42cd-7ab2-4891-9b97-494b6657f125
+2025-04-21 22:11:43,817 - ideasfactory.utils.session_manager - INFO - Set current session to: 31ba42cd-7ab2-4891-9b97-494b6657f125
+2025-04-21 22:11:43,817 - ideasfactory.utils.session_manager - INFO - Set current session to: 31ba42cd-7ab2-4891-9b97-494b6657f125
+2025-04-21 22:11:43,817 - ideasfactory.utils.session_manager - INFO - Set current session to: 31ba42cd-7ab2-4891-9b97-494b6657f125
+2025-04-21 22:11:43,817 - ideasfactory.utils.session_manager - INFO - Set current session to: 31ba42cd-7ab2-4891-9b97-494b6657f125
+2025-04-21 22:11:43,822 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 22:11:45,610 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 22:11:45,622 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 22:11:45,623 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:11:45,623 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:11:45,625 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:12:03,994 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 22:12:05,424 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 22:12:05,428 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 22:12:05,429 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:12:05,429 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:12:05,439 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:12:47,382 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 22:12:48,783 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 22:12:48,787 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 22:12:48,787 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:12:48,788 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:12:48,790 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:13:44,773 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 22:13:46,445 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 22:13:46,448 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 22:13:46,448 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:13:46,449 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:13:46,457 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:14:16,717 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 22:14:18,403 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 22:14:18,406 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 22:14:18,407 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:14:18,407 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:14:18,409 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:14:37,907 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 22:14:39,520 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 22:14:39,523 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 22:14:39,523 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:14:39,523 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:14:39,534 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:14:45,151 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 22:14:51,894 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 22:14:51,898 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 22:14:51,899 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:14:51,899 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:14:51,900 - ideasfactory.utils.session_manager - INFO - Session 31ba42cd-7ab2-4891-9b97-494b6657f125 workflow state updated to: project_vision_completed
+2025-04-21 22:14:51,900 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:15:21,421 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-21 22:15:24,889 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-21 22:15:24,893 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-21 22:15:24,893 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:15:24,893 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:15:24,897 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-21 22:15:28,393 - ideasfactory.utils.session_manager - INFO - Added document of type project-vision to session 31ba42cd-7ab2-4891-9b97-494b6657f125
+2025-04-21 22:15:28,393 - ideasfactory.ui.screens.document_review_screen - INFO - Document saved to: output/session-31ba42cd-7ab2-4891-9b97-494b6657f125/project-vision/project-vision.md
+2025-04-21 22:15:37,624 - ideasfactory.ui.screens.deep_research_screen - ERROR - Screen not mounted or no project vision
+2025-04-21 22:15:37,959 - ideasfactory.ui.screens.deep_research_screen - ERROR - Screen not mounted or no project vision
+2025-04-21 22:15:41,137 - ideasfactory.ui.screens.deep_research_screen - ERROR - Screen not mounted or no project vision
+2025-04-21 22:15:56,516 - ideasfactory.ui.screens.deep_research_screen - ERROR - Screen not mounted or no project vision
+2025-04-21 22:15:57,818 - ideasfactory.ui.screens.deep_research_screen - ERROR - Screen not mounted or no project vision
+2025-04-21 22:15:58,487 - ideasfactory.ui.screens.deep_research_screen - ERROR - Screen not mounted or no project vision
+2025-04-21 22:15:58,940 - ideasfactory.ui.screens.deep_research_screen - ERROR - Screen not mounted or no project vision

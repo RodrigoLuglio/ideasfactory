@@ -39,8 +39,13 @@ async def load_document_content(session_id: str, document_type: str) -> Optional
             doc_manager = DocumentManager()
             document = doc_manager.get_document(document_path)
             if document and "content" in document:
-                logger.info(f"Document {document_type} loaded from path: {document_path}")
+                content_length = len(document["content"]) if document["content"] else 0
+                logger.info(f"Document {document_type} loaded from path: {document_path} with {content_length} chars")
+                if content_length == 0:
+                    logger.warning(f"Document {document_type} has zero length content")
                 return document["content"]
+            else:
+                logger.warning(f"Problem with document {document_type}: exists={document is not None}, has_content={'content' in document if document else False}")
         
         # Fallback to loading by type
         logger.info(f"No document path in session, trying to find document by type: {document_type}")

@@ -97,11 +97,19 @@ class DeepResearchScreen(BaseScreen):
         # Show the progress bar but set it to 0
         progress_bar = self.query_one("#research_progress")
         progress_bar.update(progress=0)
+        
+        # Load project vision if already available
+        if self.project_vision:
+            self._load_project_vision()
+        elif self.session_id:
+            # If we have a session but no vision loaded yet, create a task to load it
+            asyncio.create_task(self._load_session_documents())
 
     @handle_async_errors
     async def _load_session_documents(self) -> None:
         """Load documents for the current session."""
         if not self.session_id:
+            logger.error("Cannot load documents - no session ID")
             return
             
         # Use the centralized document loading utility
@@ -109,27 +117,29 @@ class DeepResearchScreen(BaseScreen):
         vision_content = await load_document_content(self.session_id, "project-vision")
         
         if vision_content:
+            # Store the vision and load it into the UI
             self.project_vision = vision_content
             self._load_project_vision()
             
-            # Update UI to show we're ready for research
-            if self._is_mounted:
-                self.query_one("#research_status").update("Project vision loaded. Ready to start research.")
-                self.query_one("#start_research_button").disabled = False
-                
-                # Make the button more prominent
-                self.query_one("#start_research_button").variant = "success"
+            # Enable research button
+            self.query_one("#research_status").update("Project vision loaded. Ready to start research.")
+            self.query_one("#start_research_button").disabled = False
+            self.query_one("#start_research_button").variant = "success"
         else:
-            # Vision document not found
+            logger.error(f"Project vision document not found for session {self.session_id}")
+            # Handle missing document
             self._handle_missing_document()
     
     @handle_async_errors
     async def on_screen_resume(self) -> None:
         """Handle screen being resumed."""
-        # Call the base class implementation which handles session retrieval and document loading
+        # Call the base class implementation which handles session retrieval
         await super().on_screen_resume()
         
-        if not self.session_id:
+        # We have a session, try to load the document if not already loaded
+        if self.session_id and not self.project_vision:
+            await self._load_session_documents()
+        elif not self.session_id:
             # No session
             self.notify("No active session found", severity="error")
             self.query_one("#research_status").update("No active session")
@@ -152,12 +162,12 @@ class DeepResearchScreen(BaseScreen):
             self._load_project_vision()
     
     def _load_project_vision(self) -> None:
-        """Load the project vision document."""
-        # This would be loaded from the document manager
+        """Load the project vision document into the UI."""
+        vision_area = self.query_one("#vision_display")
         if self.project_vision:
-            self.query_one("#vision_display").text = self.project_vision
+            vision_area.text = self.project_vision
         else:
-            self.query_one("#vision_display").text = "No project vision document loaded."
+            vision_area.text = "No project vision document loaded."
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button press events."""
@@ -195,14 +205,24 @@ class DeepResearchScreen(BaseScreen):
     @handle_async_errors
     async def start_research(self) -> None:
         """Start the research process."""
-        if not self._is_mounted or not self.project_vision:
-            logger.error("Screen not mounted or no project vision")
+        logger.info(f"Starting research. Screen mounted: {self._is_mounted}, Vision length: {len(self.project_vision) if self.project_vision else 0}")
+        
+        if not self._is_mounted:
+            logger.error("Screen not mounted")
+            return
+            
+        if not self.project_vision:
+            logger.error("No project vision available")
+            self.notify("Project vision document is required for research", severity="error")
             return
         
         # Reset progress tracking
         self._current_progress = 0
         progress_bar = self.query_one("#research_progress")
         progress_bar.update(progress=0)
+        
+        # Update status to show we're starting
+        self.query_one("#research_status").update("Initializing research process...")
         
         # Disable start button
         self.query_one("#start_research_button").disabled = True
@@ -235,38 +255,57 @@ class DeepResearchScreen(BaseScreen):
             # STAGE 1: Initialize research session
             await update_progress("init", "Initializing research session...", 5)
             
-            # Create the research session
-            session = await self.project_manager.create_session(session_id, self.project_vision)
-            self.session_id = session_id
+            logger.info(f"Creating research session with vision of length {len(self.project_vision)} characters")
             
-            # STAGE 2: Analyze research needs
-            await update_progress("analyze_needs", "Analyzing research needs...", 15)
-            
-            # Let's directly handle each stage without monkey patching
-            search_queries = await self.project_manager._analyze_research_needs(session_id)
-            
-            # STAGE 3: Perform web searches
-            await update_progress("search", "Performing web searches...", 30)
-            
-            # Simplified search process
-            all_search_results = []
-            for i, query in enumerate(search_queries):
-                await update_progress(
-                    "search", 
-                    f"Searching ({i+1}/{len(search_queries)}): {query[:30]}...", 
-                    30 + (i * 10 // len(search_queries))
-                )
-                results = await self.project_manager._perform_web_search(session_id, query)
-                all_search_results.extend(results)
-            
-            # STAGE 4: Gather detailed information
-            await update_progress("scrape", "Gathering detailed information...", 50)
-            
-            # STAGE 5: Generate research report
-            await update_progress("report", "Generating comprehensive research report...", 75)
-            
-            # Conduct the actual research (this will handle the remaining steps)
-            report = await self.project_manager.conduct_research(session_id)
+            try:
+                # Create the research session
+                session = await self.project_manager.create_session(session_id, self.project_vision)
+                self.session_id = session_id
+                logger.info(f"Research session created: {session_id}")
+                
+                # STAGE 2: Analyze research needs
+                await update_progress("analyze_needs", "Analyzing research needs...", 15)
+                
+                # Let's directly handle each stage without monkey patching
+                logger.info("Analyzing research needs")
+                search_queries = await self.project_manager._analyze_research_needs(session_id)
+                logger.info(f"Generated {len(search_queries)} search queries")
+                
+                if not search_queries:
+                    logger.error("No search queries generated")
+                    raise RuntimeError("Failed to generate search queries from project vision")
+                
+                # STAGE 3: Perform web searches
+                await update_progress("search", "Performing web searches...", 30)
+                
+                # Simplified search process
+                all_search_results = []
+                for i, query in enumerate(search_queries):
+                    logger.info(f"Searching for: {query}")
+                    await update_progress(
+                        "search", 
+                        f"Searching ({i+1}/{len(search_queries)}): {query[:30]}...", 
+                        30 + (i * 10 // len(search_queries))
+                    )
+                    results = await self.project_manager._perform_web_search(session_id, query)
+                    logger.info(f"Got {len(results)} results for query: {query}")
+                    all_search_results.extend(results)
+                
+                logger.info(f"Total search results: {len(all_search_results)}")
+                
+                # STAGE 4: Gather detailed information
+                await update_progress("scrape", "Gathering detailed information...", 50)
+                
+                # STAGE 5: Generate research report
+                await update_progress("report", "Generating comprehensive research report...", 75)
+                logger.info("Conducting full research process")
+                
+                # Conduct the actual research (this will handle the remaining steps)
+                report = await self.project_manager.conduct_research(session_id)
+                logger.info(f"Research report generated with length: {len(report) if report else 0}")
+            except Exception as e:
+                logger.error(f"Error in research process: {str(e)}")
+                raise
             
             # Update UI for completion
             await update_progress("complete", "Research completed successfully!", 100)
