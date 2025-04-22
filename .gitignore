@@ -15,3 +15,7 @@ wheels/
 
 # Environment variables
 .env
+
+# Logs
+*.log
+liltellm_log
