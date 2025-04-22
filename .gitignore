@@ -18,4 +18,4 @@ wheels/
 
 # Logs
 *.log
-liltellm_log
+liltellm_log.git-filter-patterns
