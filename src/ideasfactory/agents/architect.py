@@ -274,7 +274,7 @@ Research Report:
         
         return decisions
     
-    @handle_async_errorss
+    @handle_async_errors
     async def _extract_decisions(self, session_id: str, analysis_text: str) -> List[ArchitecturalDecision]:
         """
         Extract architectural decisions from the analysis text.

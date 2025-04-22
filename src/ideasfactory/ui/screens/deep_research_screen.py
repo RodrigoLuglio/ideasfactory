@@ -11,7 +11,6 @@ import asyncio
 from typing import Optional
 
 from textual.app import ComposeResult
-from textual.screen import Screen
 from textual.widgets import (
     Header, Footer, Button, Static, TextArea, Label, ProgressBar, Input
 )
@@ -20,6 +19,7 @@ from textual.binding import Binding
 
 from ideasfactory.agents.project_manager import ProjectManager
 from ideasfactory.documents.document_manager import DocumentManager
+from ideasfactory.ui.screens import BaseScreen
 
 from ideasfactory.utils.session_manager import SessionManager
 from ideasfactory.utils.error_handler import handle_async_errors
@@ -28,7 +28,7 @@ from ideasfactory.utils.error_handler import handle_async_errors
 logger = logging.getLogger(__name__)
 
 
-class DeepResearchScreen(Screen):
+class DeepResearchScreen(BaseScreen):
     """
     Screen for conducting research and producing PRDs/research reports.
     """
@@ -44,12 +44,9 @@ class DeepResearchScreen(Screen):
         super().__init__(*args, **kwargs)
         self.project_manager = ProjectManager()
         self.document_manager = DocumentManager()
-        self.session_id: Optional[str] = None
         self.project_vision: Optional[str] = None
         self.report_path: Optional[str] = None
         
-        # Track mount state
-        self._is_mounted = False
         # Track research stages for progress updates
         self._research_stages = {
             "init": {"weight": 5, "status": "Initializing research session..."},
@@ -95,66 +92,44 @@ class DeepResearchScreen(Screen):
     
     def on_mount(self) -> None:
         """Handle the screen's mount event."""
-        self._is_mounted = True
+        super().on_mount()
         
         # Show the progress bar but set it to 0
         progress_bar = self.query_one("#research_progress")
         progress_bar.update(progress=0)
-        
-        # Try to load project vision if available
-        self._load_project_vision()
 
+    @handle_async_errors
+    async def _load_session_documents(self) -> None:
+        """Load documents for the current session."""
+        if not self.session_id:
+            return
+            
+        # Use the centralized document loading utility
+        from ideasfactory.utils.file_manager import load_document_content
+        vision_content = await load_document_content(self.session_id, "project-vision")
+        
+        if vision_content:
+            self.project_vision = vision_content
+            self._load_project_vision()
+            
+            # Update UI to show we're ready for research
+            if self._is_mounted:
+                self.query_one("#research_status").update("Project vision loaded. Ready to start research.")
+                self.query_one("#start_research_button").disabled = False
+                
+                # Make the button more prominent
+                self.query_one("#start_research_button").variant = "success"
+        else:
+            # Vision document not found
+            self._handle_missing_document()
+    
+    @handle_async_errors
     async def on_screen_resume(self) -> None:
         """Handle screen being resumed."""
-        # Get the current session from the session manager
-        session_manager = SessionManager()
-        current_session = session_manager.get_current_session()
+        # Call the base class implementation which handles session retrieval and document loading
+        await super().on_screen_resume()
         
-        if current_session:
-            session_id = current_session.id
-            
-            # Check if we have the project vision document path in the session
-            vision_path = session_manager.get_document(session_id, "project-vision")
-            
-            if vision_path:
-                # Load the document directly
-                doc_manager = DocumentManager()
-                document = doc_manager.get_document(vision_path)
-                
-                if document and "content" in document:
-                    self.project_vision = document["content"]
-                    self._load_project_vision()
-                    
-                    # Update UI to show we're ready for research
-                    self.query_one("#research_status").update("Project vision loaded. Ready to start research.")
-                    self.query_one("#start_research_button").disabled = False
-                    
-                    # Make the button more prominent
-                    self.query_one("#start_research_button").variant = "success"
-                else:
-                    # Could not load document content
-                    self.notify("Could not load project vision content", severity="error")
-                    self._handle_missing_document()
-            else:
-                # Try loading from document manager by type (fallback method)
-                doc_manager = DocumentManager()
-                document = await doc_manager.get_latest_document_by_type("project-vision", session_id)
-                
-                if document and "content" in document:
-                    self.project_vision = document["content"]
-                    self._load_project_vision()
-                    
-                    # Store the path in session manager for future reference
-                    if "filepath" in document:
-                        session_manager.add_document(session_id, "project-vision", document["filepath"])
-                    
-                    # Update UI appropriately
-                    self.query_one("#research_status").update("Project vision loaded. Ready to start research.")
-                    self.query_one("#start_research_button").disabled = False
-                else:
-                    # Vision document not found
-                    self._handle_missing_document()
-        else:
+        if not self.session_id:
             # No session
             self.notify("No active session found", severity="error")
             self.query_one("#research_status").update("No active session")
@@ -233,17 +208,19 @@ class DeepResearchScreen(Screen):
         self.query_one("#start_research_button").disabled = True
         
         try:
-            # Use the app's session ID if available, or generate a new one
-            if hasattr(self.app, "current_session_id") and self.app.current_session_id:
-                session_id = self.app.current_session_id
+            # Get the session ID from session manager (single source of truth)
+            session_manager = SessionManager()
+            current_session = session_manager.get_current_session()
+            
+            if current_session:
+                session_id = current_session.id
+                self.session_id = session_id
             else:
-                # Generate a session ID
-                import uuid
-                session_id = str(uuid.uuid4())
-                
-                # Update the app's current session if possible
-                if hasattr(self.app, "set_current_session"):
-                    self.app.set_current_session(session_id)
+                # No active session - shouldn't happen but handle gracefully
+                logger.error("No active session when starting research")
+                self.notify("No active session found", severity="error")
+                self.query_one("#start_research_button").disabled = False
+                return
             
             # Create simple progress update function
             async def update_progress(stage, message, progress_value, completed=True):

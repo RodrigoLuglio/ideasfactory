@@ -12,7 +12,6 @@ from typing import Optional, Dict, Any, Callable, Tuple
 from enum import Enum
 
 from textual.app import ComposeResult
-from textual.screen import Screen
 from textual.widgets import (
     Header, Footer, Button, Input, Static, TextArea, Label
 )
@@ -21,7 +20,9 @@ from textual.binding import Binding
 
 from ideasfactory.agents.business_analyst import BusinessAnalyst
 from ideasfactory.agents.project_manager import ProjectManager
+from ideasfactory.agents.architect import Architect
 from ideasfactory.documents.document_manager import DocumentManager
+from ideasfactory.ui.screens import BaseScreen
 
 from ideasfactory.utils.error_handler import handle_async_errors, safe_execute_async
 from ideasfactory.utils.session_manager import SessionManager
@@ -40,7 +41,7 @@ class DocumentSource(str, Enum):
     SCRUM_MASTER = "scrum_master"
 
 
-class DocumentReviewScreen(Screen):
+class DocumentReviewScreen(BaseScreen):
     """
     Generic screen for reviewing and revising documents from any agent.
     """
@@ -57,10 +58,10 @@ class DocumentReviewScreen(Screen):
         super().__init__(*args, **kwargs)
         self.business_analyst = BusinessAnalyst()
         self.project_manager = ProjectManager()
+        self.architect = Architect()
         self.document_manager = DocumentManager()
         
-        # Session, document, and metadata tracking
-        self.session_id: Optional[str] = None
+        # Document and metadata tracking
         self.document_path: Optional[str] = None
         self.document_source: Optional[DocumentSource] = None
         self.document_type: Optional[str] = None
@@ -75,9 +76,6 @@ class DocumentReviewScreen(Screen):
         # Navigation info
         self._back_screen: Optional[str] = None
         self._next_screen: Optional[str] = None
-        
-        # Track mount state
-        self._is_mounted = False
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
@@ -105,13 +103,25 @@ class DocumentReviewScreen(Screen):
     
     def on_mount(self) -> None:
         """Handle the screen's mount event."""
-        self._is_mounted = True
+        super().on_mount()
         # Load document if we have session and document info already set
         if self.document_content:
             self._display_document()
     
+    async def _load_session_documents(self) -> None:
+        """
+        Load documents for the current session.
+        
+        For document review screen, we don't need to load documents automatically
+        as they are provided through configure_for_agent method.
+        """
+        pass
+    
     def on_screen_resume(self) -> None:
         """Handle screen being resumed."""
+        # Call parent method to get the session
+        super().on_screen_resume()
+        
         # When the screen is shown again, reload the document if available
         if self.document_content:
             self._display_document()
@@ -196,7 +206,6 @@ class DocumentReviewScreen(Screen):
             self.query_one("#back_button").label = "Back to Architecture"
             self.query_one("#proceed_button").label = "Continue to Task List"
         # Add more mappings for other agents as they're implemented
-        # Add more mappings for other agents as they're implemented
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button press events."""
@@ -263,6 +272,7 @@ class DocumentReviewScreen(Screen):
             # Re-enable the revise button
             revise_button.disabled = False
     
+    @handle_async_errors
     async def save_document(self) -> None:
         """Save the document to the file system."""
         if not self._is_mounted or not self.session_id or not self.document_content:
@@ -286,7 +296,7 @@ class DocumentReviewScreen(Screen):
                 )
                 
                 if self.document_path:
-                    self._store_document_path()
+                    self._store_document_path()  # Store path in session manager
                     self.notify(f"Document saved successfully", severity="success")
                     logger.info(f"Document saved to: {self.document_path}")
                 else:
@@ -303,7 +313,7 @@ class DocumentReviewScreen(Screen):
                 )
                 
                 if success:
-                    self._store_document_path()
+                    self._store_document_path()  # Store path in session manager
                     self.notify("Document updated successfully", severity="success")
                 else:
                     self.notify("Failed to update document", severity="error")

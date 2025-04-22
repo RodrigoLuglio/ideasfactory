@@ -10,7 +10,6 @@ import logging
 from typing import Optional
 
 from textual.app import ComposeResult
-from textual.screen import Screen
 from textual.widgets import (
     Header, Footer, Button, Input, Static, TextArea, Label, Markdown
 )
@@ -18,14 +17,15 @@ from textual.containers import Vertical, Horizontal, VerticalScroll, Container
 from textual.binding import Binding
 
 from ideasfactory.agents.business_analyst import BusinessAnalyst
+from ideasfactory.ui.screens import BaseScreen
 
+from ideasfactory.utils.error_handler import handle_errors, handle_async_errors
 from ideasfactory.utils.session_manager import SessionManager
-from ideasfactory.utils.error_handler import handle_async_errors
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-class BrainstormScreen(Screen):
+class BrainstormScreen(BaseScreen):
     """
     Screen for conducting brainstorming sessions with the Business Analyst.
     """
@@ -40,10 +40,6 @@ class BrainstormScreen(Screen):
         """Initialize the brainstorm screen."""
         super().__init__(*args, **kwargs)
         self.business_analyst = BusinessAnalyst()
-        self.session_manager = SessionManager()
-        
-        # Track mount state
-        self._is_mounted = False
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
@@ -73,7 +69,7 @@ class BrainstormScreen(Screen):
     
     def on_mount(self) -> None:
         """Handle the screen's mount event."""
-        self._is_mounted = True
+        super().on_mount()
         # Hide the conversation container initially
         self.query_one("#conversation_container").display = False
 
@@ -98,13 +94,15 @@ class BrainstormScreen(Screen):
         elif event.button.id == "create_document_button":
             await self.create_document()
     
-    def set_session(self, session_id: str) -> None:
-        """Set the current session ID."""
-        self.session_id = session_id
+    async def _load_session_documents(self) -> None:
+        """
+        Load documents for the current session.
         
-        # Also update the session manager's current session
-        self.session_manager.set_current_session(session_id)
+        For brainstorm screen, we don't need to load documents automatically.
+        """
+        pass
     
+    @handle_async_errors
     async def start_session(self) -> None:
         """Start a new brainstorming session."""
         if not self._is_mounted:
@@ -120,12 +118,11 @@ class BrainstormScreen(Screen):
         
         # Create a session through the session manager
         session_id = self.session_manager.create_session(topic)
+        self.session_id = session_id
         
         # Update the app's current session if possible
         if hasattr(self.app, "set_current_session"):
             self.app.set_current_session(session_id)
-            
-        self.session_id = session_id
         
         # Create the session
         session = await self.business_analyst.create_session(session_id, topic)

@@ -10,7 +10,6 @@ from typing import Optional, Dict, List, Any
 import asyncio
 
 from textual.app import ComposeResult
-from textual.screen import Screen
 from textual.widgets import (
     Header, Footer, Button, Static, TextArea, Label, Input, RadioButton, RadioSet
 )
@@ -19,6 +18,8 @@ from textual.binding import Binding
 
 from ideasfactory.agents.architect import Architect, ArchitecturalDecision
 from ideasfactory.documents.document_manager import DocumentManager
+from ideasfactory.ui.screens.document_review_screen import DocumentSource
+from ideasfactory.ui.screens import BaseScreen
 
 from ideasfactory.utils.session_manager import SessionManager
 from ideasfactory.utils.error_handler import handle_async_errors
@@ -27,7 +28,7 @@ from ideasfactory.utils.error_handler import handle_async_errors
 logger = logging.getLogger(__name__)
 
 
-class ArchitectureScreen(Screen):
+class ArchitectureScreen(BaseScreen):
     """
     Screen for conducting architecture definition sessions with the Architect agent.
     """
@@ -45,14 +46,10 @@ class ArchitectureScreen(Screen):
         super().__init__(*args, **kwargs)
         self.architect = Architect()
         self.document_manager = DocumentManager()
-        self.session_id: Optional[str] = None
         self.project_vision: Optional[str] = None
         self.research_report: Optional[str] = None
         self.decisions: List[ArchitecturalDecision] = []
         self.current_decision_index: int = 0
-        
-        # Track mount state
-        self._is_mounted = False
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
@@ -116,7 +113,7 @@ class ArchitectureScreen(Screen):
     
     def on_mount(self) -> None:
         """Handle the screen's mount event."""
-        self._is_mounted = True
+        super().on_mount()  # Call base class on_mount
         
         # Hide containers that aren't needed initially
         self.query_one("#decision_container").display = False
@@ -125,62 +122,24 @@ class ArchitectureScreen(Screen):
         self.query_one("#create_document_button").disabled = True
     
     @handle_async_errors
-    async def on_screen_resume(self) -> None:
-        """Handle screen being resumed."""
-        # Get the current session from the session manager
-        session_manager = SessionManager()
-        current_session = session_manager.get_current_session()
+    async def _load_session_documents(self) -> None:
+        """Load documents for the current session."""
+        if not self.session_id:
+            return
+            
+        # Use the centralized document loading utility
+        from ideasfactory.utils.file_manager import load_document_content
         
-        if current_session:
-            session_id = current_session.id
-            self.session_id = session_id
+        # Load required documents
+        vision_content = await load_document_content(self.session_id, "project-vision")
+        research_content = await load_document_content(self.session_id, "research-report")
+        
+        # Update local properties
+        self.project_vision = vision_content
+        self.research_report = research_content
             
-            # Check if we have the required documents' paths in the session
-            vision_path = session_manager.get_document(session_id, "project-vision")
-            research_path = session_manager.get_document(session_id, "research-report")
-            
-            # Initialize document content variables
-            vision_content = None
-            research_content = None
-            
-            # Document manager for loading documents
-            doc_manager = DocumentManager()
-            
-            # Load vision document if available
-            if vision_path:
-                vision_doc = doc_manager.get_document(vision_path)
-                if vision_doc and "content" in vision_doc:
-                    vision_content = vision_doc["content"]
-                    self.project_vision = vision_content
-            
-            # Load research document if available
-            if research_path:
-                research_doc = doc_manager.get_document(research_path)
-                if research_doc and "content" in research_doc:
-                    research_content = research_doc["content"]
-                    self.research_report = research_content
-            
-            # If paths weren't in session manager, try loading by type (fallback)
-            if not vision_content:
-                vision_doc = await doc_manager.get_latest_document_by_type("project-vision", session_id)
-                if vision_doc and "content" in vision_doc:
-                    vision_content = vision_doc["content"]
-                    self.project_vision = vision_content
-                    
-                    # Store the path in session manager for future reference
-                    if "filepath" in vision_doc:
-                        session_manager.add_document(session_id, "project-vision", vision_doc["filepath"])
-            
-            if not research_content:
-                research_doc = await doc_manager.get_latest_document_by_type("research-report", session_id)
-                if research_doc and "content" in research_doc:
-                    research_content = research_doc["content"]
-                    self.research_report = research_content
-                    
-                    # Store the path in session manager for future reference
-                    if "filepath" in research_doc:
-                        session_manager.add_document(session_id, "research-report", research_doc["filepath"])
-            
+        # Update UI based on document availability
+        if self._is_mounted:
             # Check if we have all required documents
             if vision_content and research_content:
                 self.query_one("#analysis_status").update("Ready to start architecture analysis.")
@@ -197,8 +156,15 @@ class ArchitectureScreen(Screen):
                 
                 # Log the issue
                 logger.warning(f"Missing required documents for architecture: {', '.join(missing)}")
-        else:
-            # No session
+    
+    @handle_async_errors
+    async def on_screen_resume(self) -> None:
+        """Handle screen being resumed."""
+        # Call the base class implementation which handles session retrieval and document loading
+        await super().on_screen_resume()
+        
+        # Additional screen-specific resume behavior
+        if not self.session_id:
             self.notify("No active session found", severity="error")
             self.query_one("#analysis_status").update("No active session")
             self.query_one("#start_analysis_button").disabled = True
@@ -227,10 +193,6 @@ class ArchitectureScreen(Screen):
         elif button_id == "view_report_button":
             await self.view_research_report()
     
-    def set_session(self, session_id: str) -> None:
-        """Set the current session ID."""
-        self.session_id = session_id
-    
     def set_project_vision(self, project_vision: str) -> None:
         """Set the project vision document."""
         self.project_vision = project_vision
@@ -251,17 +213,18 @@ class ArchitectureScreen(Screen):
         self.query_one("#analysis_status").update("Analyzing project requirements...")
         
         try:
-            # Use the app's session ID if available, or generate a new one
-            if hasattr(self.app, "current_session_id") and self.app.current_session_id:
-                self.session_id = self.app.current_session_id
+            # Get the session ID from session manager (single source of truth)
+            session_manager = SessionManager()
+            current_session = session_manager.get_current_session()
+            
+            if current_session:
+                self.session_id = current_session.id
             else:
-                # Generate a session ID if we don't have one
-                import uuid
-                self.session_id = str(uuid.uuid4())
-                
-                # Update the app's current session if possible
-                if hasattr(self.app, "set_current_session"):
-                    self.app.set_current_session(self.session_id)
+                # No active session - shouldn't happen but handle gracefully
+                logger.error("No active session when starting architecture analysis")
+                self.notify("No active session found", severity="error")
+                self.query_one("#start_analysis_button").disabled = False
+                return
             
             # Create the session
             session = await self.architect.create_session(
@@ -300,6 +263,7 @@ class ArchitectureScreen(Screen):
             self.query_one("#analysis_status").update("Error during analysis.")
             self.query_one("#start_analysis_button").disabled = False
     
+    @handle_async_errors
     async def display_current_decision(self) -> None:
         """Display the current architectural decision in the UI."""
         if not self.decisions or self.current_decision_index >= len(self.decisions):
@@ -539,22 +503,54 @@ class ArchitectureScreen(Screen):
         """Handle keyboard shortcut for going back."""
         await self.go_back()
     
+    @handle_async_errors
     async def view_project_vision(self) -> None:
         """View the project vision document."""
         if not self.project_vision:
             self.notify("No project vision document available", severity="error")
             return
         
-        # Create a popup or use the document review screen to display the vision
-        # For now, just show a notification
-        self.notify("Project vision viewing not implemented", severity="information")
+        # Use the document review screen to display the vision
+        if hasattr(self.app, "document_review_screen"):
+            # Configure the document review for viewing only
+            self.app.document_review_screen.configure_for_agent(
+                document_source=DocumentSource.BUSINESS_ANALYST,
+                session_id=self.session_id,
+                document_content=self.project_vision,
+                document_title="Project Vision",
+                document_type="project-vision",
+                revision_callback=None,  # No revision for viewing only
+                completion_callback=None,
+                back_screen="architecture_screen",
+                next_screen=None
+            )
+            # Show the document review screen
+            self.app.push_screen("document_review_screen")
+        else:
+            self.notify("Document review screen not available", severity="error")
     
+    @handle_async_errors
     async def view_research_report(self) -> None:
         """View the research report."""
         if not self.research_report:
             self.notify("No research report available", severity="error")
             return
         
-        # Create a popup or use the document review screen to display the report
-        # For now, just show a notification
-        self.notify("Research report viewing not implemented", severity="information")
+        # Use the document review screen to display the report
+        if hasattr(self.app, "document_review_screen"):
+            # Configure the document review for viewing only
+            self.app.document_review_screen.configure_for_agent(
+                document_source=DocumentSource.PROJECT_MANAGER,
+                session_id=self.session_id,
+                document_content=self.research_report,
+                document_title="Research Report",
+                document_type="research-report",
+                revision_callback=None,  # No revision for viewing only
+                completion_callback=None,
+                back_screen="architecture_screen",
+                next_screen=None
+            )
+            # Show the document review screen
+            self.app.push_screen("document_review_screen")
+        else:
+            self.notify("Document review screen not available", severity="error")

@@ -18,7 +18,7 @@ from textual.screen import Screen
 
 from ideasfactory.ui.screens.brainstorm_screen import BrainstormScreen
 from ideasfactory.ui.screens.document_review_screen import DocumentReviewScreen, DocumentSource
-from ideasfactory.ui.screens.deep_reasearch_screen import DeepResearchScreen
+from ideasfactory.ui.screens.deep_research_screen import DeepResearchScreen
 from ideasfactory.ui.screens.architecture_screen import ArchitectureScreen
 from ideasfactory.agents.business_analyst import BusinessAnalyst
 from ideasfactory.agents.project_manager import ProjectManager
@@ -50,7 +50,7 @@ class IdeasFactoryApp(App):
     def __init__(self, *args, **kwargs):
         """Initialize the application."""
         super().__init__(*args, **kwargs)
-        # Use the SessionManager
+        # Use the SessionManager as the central repository for session data
         self.session_manager = SessionManager()
         
         # Create agents
@@ -64,6 +64,10 @@ class IdeasFactoryApp(App):
         self.deep_research_screen = None
         self.architecture_screen = None
 
+    # Add get_current_session method that all screens can use
+    def get_current_session_id(self) -> Optional[str]:
+        """Get the current session ID."""
+        return self.session_manager.current_session_id
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
@@ -145,13 +149,15 @@ class IdeasFactoryApp(App):
     def set_current_session(self, session_id: str) -> None:
         """Set the current session ID."""
         if self.session_manager.set_current_session(session_id):
-            # Update screens with the session ID
+            # Update all screens with the session ID
             if self.brainstorm_screen:
                 self.brainstorm_screen.set_session(session_id)
             if self.deep_research_screen:
-                self.deep_research_screen.set_session(session_id) if hasattr(self.deep_research_screen, 'set_session') else None
+                self.deep_research_screen.set_session(session_id)
             if self.architecture_screen:
-                self.architecture_screen.set_session(session_id) if hasattr(self.architecture_screen, 'set_session') else None
+                self.architecture_screen.set_session(session_id)
+            if self.document_review_screen:
+                self.document_review_screen.set_session(session_id)
     
     
     @handle_async_errors
@@ -176,13 +182,8 @@ class IdeasFactoryApp(App):
             next_screen="deep_research_screen"
         )
         
-        # Store document path in session manager if saved
-        if hasattr(self.document_review_screen, 'document_path') and self.document_review_screen.document_path:
-            self.session_manager.add_document(
-                session_id, 
-                "project-vision", 
-                self.document_review_screen.document_path
-            )
+        # Update workflow state in session manager
+        self.session_manager.update_workflow_state(session_id, "project_vision_completed")
         
         # Switch to the document review screen
         self.action_switch_to_document_review()
@@ -209,13 +210,8 @@ class IdeasFactoryApp(App):
             next_screen="architecture_screen"
         )
         
-        # Store document path in session manager if saved
-        if hasattr(self.document_review_screen, 'document_path') and self.document_review_screen.document_path:
-            self.session_manager.add_document(
-                session_id, 
-                "research-report", 
-                self.document_review_screen.document_path
-            )
+        # Update workflow state in session manager
+        self.session_manager.update_workflow_state(session_id, "research_report_completed")
         
         # Switch to the document review screen
         self.action_switch_to_document_review()
@@ -242,13 +238,8 @@ class IdeasFactoryApp(App):
             next_screen=None  # Product Owner screen not yet implemented
         )
         
-        # Store document path in session manager if saved
-        if hasattr(self.document_review_screen, 'document_path') and self.document_review_screen.document_path:
-            self.session_manager.add_document(
-                session_id, 
-                "architecture", 
-                self.document_review_screen.document_path
-            )
+        # Update workflow state in session manager
+        self.session_manager.update_workflow_state(session_id, "architecture_document_completed")
         
         # Switch to the document review screen
         self.action_switch_to_document_review()
