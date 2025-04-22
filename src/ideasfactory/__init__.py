@@ -45,8 +45,6 @@ def main():
     logging.info("OS: %s", os.name)
     logging.info("Platform: %s", sys.platform)
     logging.info("Architecture: %s", os.uname().machine if hasattr(os, 'uname') else "Unknown")
-    from ideasfactory.utils.log_utils import get_safe_env_vars
-    logging.info("Environment variables: %s", get_safe_env_vars())
     logging.info("Command line arguments: %s", sys.argv)
     logging.info("Current working directory: %s", os.getcwd())
     logging.info("Python path: %s", sys.path)
