@@ -9,9 +9,15 @@ from typing import Optional
 import logging
 
 # Import key utility classes for easier access
-from ideasfactory.utils.llm_utils import (
-    Message, send_prompt, create_system_prompt, create_user_prompt,
-    create_assistant_prompt, LLMConfig, LLMResponse
+from ideasfactory.utils.file_manager import load_document_content
+from ideasfactory.utils.log_utils import (
+    get_safe_env_vars, sanitize_environment_variables, is_sensitive_variable
+)
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Add to utils/__init__.py
 )
 from ideasfactory.utils.error_handler import (
     handle_errors, handle_async_errors, safe_execute, safe_execute_async, AppError
