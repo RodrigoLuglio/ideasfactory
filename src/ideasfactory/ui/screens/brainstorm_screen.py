@@ -19,6 +19,9 @@ from textual.binding import Binding
 
 from ideasfactory.agents.business_analyst import BusinessAnalyst
 
+from ideasfactory.utils.session_manager import SessionManager
+from ideasfactory.utils.error_handler import handle_async_errors
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -37,7 +40,7 @@ class BrainstormScreen(Screen):
         """Initialize the brainstorm screen."""
         super().__init__(*args, **kwargs)
         self.business_analyst = BusinessAnalyst()
-        self.session_id: Optional[str] = None
+        self.session_manager = SessionManager()
         
         # Track mount state
         self._is_mounted = False
@@ -98,6 +101,9 @@ class BrainstormScreen(Screen):
     def set_session(self, session_id: str) -> None:
         """Set the current session ID."""
         self.session_id = session_id
+        
+        # Also update the session manager's current session
+        self.session_manager.set_current_session(session_id)
     
     async def start_session(self) -> None:
         """Start a new brainstorming session."""
@@ -112,21 +118,12 @@ class BrainstormScreen(Screen):
             self.notify("Please enter a topic for the brainstorming session", severity="error")
             return
         
-        # Use the app's session ID if available, or generate a new one
-        if hasattr(self.app, "current_session_id") and self.app.current_session_id:
-            session_id = self.app.current_session_id
-        else:
-            # Generate a session ID
-            import uuid
-            session_id = str(uuid.uuid4())
-            
-            # Update the app's current session if possible
-            if hasattr(self.app, "set_current_session"):
-                self.app.set_current_session(session_id)
+        # Create a session through the session manager
+        session_id = self.session_manager.create_session(topic)
         
-        # Store the project name/topic in the app if possible
-        if hasattr(self.app, "current_project_name"):
-            self.app.current_project_name = topic
+        # Update the app's current session if possible
+        if hasattr(self.app, "set_current_session"):
+            self.app.set_current_session(session_id)
             
         self.session_id = session_id
         
@@ -148,6 +145,7 @@ class BrainstormScreen(Screen):
         # Update the header
         self.query_one("#session_header").update(f"Brainstorming Session: {topic}")
     
+    @handle_async_errors
     async def send_message(self) -> None:
         """Send a message to the Business Analyst."""
         if not self._is_mounted:
@@ -179,6 +177,7 @@ class BrainstormScreen(Screen):
         current_text = conversation.renderable
         conversation.update(f"{current_text}\n\nBA: {response}")
     
+    @handle_async_errors
     async def create_document(self) -> None:
         """Create a document from the brainstorming session."""
         if not self._is_mounted:

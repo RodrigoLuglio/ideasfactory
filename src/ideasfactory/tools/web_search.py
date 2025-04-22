@@ -12,6 +12,8 @@ from typing import List, Dict, Any, Optional, Union
 from bs4 import BeautifulSoup
 import json
 
+from ideasfactory.utils.error_handler import handle_errors, handle_async_errors
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -20,6 +22,7 @@ DEFAULT_SEARCH_API_KEY = os.environ.get("IDEASFACTORY_SEARCH_API_KEY", "")
 DEFAULT_SEARCH_ENGINE_ID = os.environ.get("IDEASFACTORY_SEARCH_ENGINE_ID", "")
 
 
+@handle_async_errors
 async def search_web(query: str, num_results: int = 5) -> List[Dict[str, Any]]:
     """
     Search the web for information.
@@ -133,6 +136,7 @@ async def _fallback_search(query: str, num_results: int = 5) -> List[Dict[str, A
         return []
 
 
+@handle_async_errors
 async def scrape_webpage(url: str) -> Optional[Dict[str, Any]]:
     """
     Scrape content from a webpage.

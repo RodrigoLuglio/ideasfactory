@@ -12,6 +12,8 @@ from pydantic import BaseModel, Field
 import litellm
 from litellm import completion
 
+from ideasfactory.utils.error_handler import handle_errors, handle_async_errors
+
 # Configure logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="./litellm_log", level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -45,6 +47,7 @@ class LLMResponse(BaseModel):
     usage: Dict[str, int] = Field(default_factory=dict, description="Token usage information")
 
 
+@handle_async_errors
 async def send_prompt(
     messages: List[Message],
     config: Optional[LLMConfig] = None,
@@ -121,16 +124,19 @@ async def send_prompt(
         raise
 
 
+@handle_errors
 def create_system_prompt(content: str) -> Message:
     """Create a system prompt message."""
     return Message(role="system", content=content)
 
 
+@handle_errors
 def create_user_prompt(content: str) -> Message:
     """Create a user prompt message."""
     return Message(role="user", content=content)
 
 
+@handle_errors
 def create_assistant_prompt(content: str) -> Message:
     """Create an assistant prompt message."""
     return Message(role="assistant", content=content)
@@ -148,10 +154,12 @@ class PromptTemplate:
     def __init__(self, template: str):
         self.template = template
     
+    @handle_errors
     def format(self, **kwargs) -> str:
         """Format the template with the provided values."""
         return self.template.format(**kwargs)
     
+    @handle_errors
     def create_message(self, role: str, **kwargs) -> Message:
         """Create a message with the formatted template."""
         return Message(role=role, content=self.format(**kwargs))

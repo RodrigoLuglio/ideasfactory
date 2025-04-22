@@ -23,6 +23,9 @@ from ideasfactory.agents.business_analyst import BusinessAnalyst
 from ideasfactory.agents.project_manager import ProjectManager
 from ideasfactory.documents.document_manager import DocumentManager
 
+from ideasfactory.utils.error_handler import handle_async_errors, safe_execute_async
+from ideasfactory.utils.session_manager import SessionManager
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -158,6 +161,15 @@ class DocumentReviewScreen(Screen):
         # Update the document display if we're already mounted
         if self._is_mounted:
             self._display_document()
+
+    def _store_document_path(self):
+        """Store the document path in the session manager."""
+        if self.session_id and self.document_path and self.document_type:
+            self.session_manager.add_document(
+                self.session_id,
+                self.document_type,
+                self.document_path
+            )
     
     def _display_document(self) -> None:
         """Display the current document in the UI."""
@@ -255,34 +267,50 @@ class DocumentReviewScreen(Screen):
         """Save the document to the file system."""
         if not self._is_mounted or not self.session_id or not self.document_content:
             logger.error("Cannot save: screen not mounted, no session, or no document content")
+            self.notify("Cannot save document: missing required information", severity="error")
             return
         
-        # Save the document
-        if not self.document_path:
-            # Create a new document
-            self.document_path = self.document_manager.create_document(
-                content=self.document_content,
-                document_type=self.document_type,
-                title=self.document_title,
-                metadata={
-                    "session_id": self.session_id,
-                    "source": self.document_source.value if self.document_source else "unknown",
-                    "version": str(self._document_version)
-                }
-            )
-            self.notify(f"Document saved: {self.document_path}", severity="information")
-        else:
-            # Update the existing document
-            success = self.document_manager.update_document(
-                filepath=self.document_path,
-                content=self.document_content,
-                metadata={"version": str(self._document_version)},
-                commit_message=f"Update {self.document_type}: {self.document_title}"
-            )
-            if success:
-                self.notify(f"Document updated: {self.document_path}", severity="information")
+        try:
+            # Save the document
+            if not self.document_path:
+                # Create a new document
+                self.document_path = self.document_manager.create_document(
+                    content=self.document_content,
+                    document_type=self.document_type,
+                    title=self.document_title,
+                    metadata={
+                        "session_id": self.session_id,
+                        "source": self.document_source.value if self.document_source else "unknown",
+                        "version": str(self._document_version)
+                    }
+                )
+                
+                if self.document_path:
+                    self._store_document_path()
+                    self.notify(f"Document saved successfully", severity="success")
+                    logger.info(f"Document saved to: {self.document_path}")
+                else:
+                    self.notify("Failed to save document", severity="error")
+                    logger.error("Document path was not returned after save attempt")
             else:
-                self.notify("Failed to update document", severity="error")
+                # Update the existing document
+                logger.info(f"Updating document at path: {self.document_path}")
+                success = self.document_manager.update_document(
+                    filepath=self.document_path,
+                    content=self.document_content,
+                    metadata={"version": str(self._document_version)},
+                    commit_message=f"Update {self.document_type}: {self.document_title}"
+                )
+                
+                if success:
+                    self._store_document_path()
+                    self.notify("Document updated successfully", severity="success")
+                else:
+                    self.notify("Failed to update document", severity="error")
+                    logger.error(f"Failed to update document at path: {self.document_path}")
+        except Exception as e:
+            logger.error(f"Error saving document: {str(e)}")
+            self.notify(f"Error: {str(e)}", severity="error")
     
     async def go_back(self) -> None:
         """Go back to the previous screen."""

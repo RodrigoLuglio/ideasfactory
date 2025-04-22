@@ -13,6 +13,8 @@ from pathlib import Path
 import git
 import frontmatter
 
+from ideasfactory.utils.error_handler import handle_errors, safe_execute, handle_async_errors
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -119,6 +121,7 @@ class DocumentManager:
             with open(filepath, "rb") as f:
                 return frontmatter.loads(f.read().decode('utf-8'))
     
+    @handle_errors
     def create_document(
         self,
         content: str,
@@ -220,6 +223,7 @@ class DocumentManager:
         
         return filepath
     
+    @handle_errors
     def update_document(
         self,
         filepath: str,
@@ -240,8 +244,38 @@ class DocumentManager:
             True if the update was successful, False otherwise
         """
         try:
+            # Check if file exists
+            if not os.path.exists(filepath):
+                logger.error(f"Document not found at path: {filepath}")
+                return False
+                
             # Read the existing document
-            post = self._read_frontmatter(filepath)
+            try:
+                post = self._read_frontmatter(filepath)
+            except Exception as e:
+                logger.error(f"Error reading document frontmatter: {str(e)}")
+                # If we can't read the frontmatter, try to rewrite the file completely
+                try:
+                    # Create basic metadata as fallback
+                    basic_metadata = {
+                        "title": os.path.basename(filepath).replace(".md", ""),
+                        "updated_at": datetime.now().isoformat(),
+                        "version": "1.0.0"
+                    }
+                    # Update with provided metadata
+                    if metadata:
+                        basic_metadata.update(metadata)
+                    
+                    # Create a new post
+                    post = frontmatter.Post(content=content, **basic_metadata)
+                    
+                    # Write to file
+                    self._write_frontmatter(filepath, post)
+                    logger.info(f"Document recreated after frontmatter read error: {filepath}")
+                    return True
+                except Exception as inner_e:
+                    logger.error(f"Failed to recreate document: {str(inner_e)}")
+                    return False
             
             # Update content
             post.content = content
@@ -253,14 +287,36 @@ class DocumentManager:
             
             # Increment version
             if "version" in post:
-                major, minor, patch = post["version"].split(".")
-                post["version"] = f"{major}.{minor}.{int(patch) + 1}"
+                try:
+                    major, minor, patch = post["version"].split(".")
+                    post["version"] = f"{major}.{minor}.{int(patch) + 1}"
+                except (ValueError, TypeError):
+                    # If version parsing fails, just set a new version
+                    post["version"] = "1.0.0"
+            else:
+                post["version"] = "1.0.0"
             
             # Add last modified timestamp
             post["updated_at"] = datetime.now().isoformat()
             
             # Write the updated document
-            self._write_frontmatter(filepath, post)
+            try:
+                self._write_frontmatter(filepath, post)
+            except Exception as write_e:
+                logger.error(f"Error writing document: {str(write_e)}")
+                # Fallback to direct file write if frontmatter fails
+                try:
+                    with open(filepath, "w", encoding="utf-8") as f:
+                        f.write("---\n")
+                        for key, value in post.metadata.items():
+                            f.write(f"{key}: {value}\n")
+                        f.write("---\n\n")
+                        f.write(content)
+                    logger.info(f"Document updated using fallback method: {filepath}")
+                    return True
+                except Exception as fallback_e:
+                    logger.error(f"Fallback write failed: {str(fallback_e)}")
+                    return False
             
             # Version control the document if Git is available
             if self.repo:
@@ -275,12 +331,14 @@ class DocumentManager:
                         self.repo.git.commit("-m", message)
                 except Exception as e:
                     logger.error(f"Error committing document update to Git: {str(e)}")
+                    # Continue without Git - document is still updated
             
             return True
         except Exception as e:
             logger.error(f"Error updating document: {str(e)}")
             return False
     
+    @handle_errors
     def get_document(self, filepath: str) -> Optional[Dict[str, Any]]:
         """
         Get a document and its metadata.
@@ -303,6 +361,7 @@ class DocumentManager:
             logger.error(f"Error reading document: {str(e)}")
             return None
     
+    @handle_errors
     def list_documents(self, document_type: Optional[str] = None, session_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         List available documents.
@@ -399,6 +458,7 @@ class DocumentManager:
             logger.error(f"Error listing documents: {str(e)}")
             return []
     
+    @handle_errors
     def get_document_history(self, filepath: str) -> List[Dict[str, Any]]:
         """
         Get the version history of a document.
@@ -435,6 +495,8 @@ class DocumentManager:
             logger.error(f"Error getting document history: {str(e)}")
             return []
         
+    
+    @handle_async_errors
     async def get_latest_document_by_type(self, document_type: str, session_id: str) -> Optional[Dict[str, Any]]:
         """
         Get the latest version of a document of a specific type for a session.

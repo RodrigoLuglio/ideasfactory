@@ -24,6 +24,9 @@ from ideasfactory.tools import (
     categorize_information, extract_market_data
 )
 
+from ideasfactory.utils.error_handler import handle_async_errors
+from ideasfactory.utils.session_manager import SessionManager
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -129,6 +132,7 @@ class ProjectManager:
             self.system_prompt = create_system_prompt(PM_SYSTEM_PROMPT)
             self._initialized = True
     
+    @handle_async_errors
     async def create_session(self, session_id: str, project_vision: str) -> ResearchSession:
         """
         Create a new research session.
@@ -152,6 +156,7 @@ class ProjectManager:
         
         return session
     
+    @handle_async_errors
     async def _perform_web_search(self, session_id: str, query: str, num_results: int = 5) -> List[Dict[str, Any]]:
         """
         Perform a web search for the given query.
@@ -178,6 +183,7 @@ class ProjectManager:
         
         return results
     
+    @handle_async_errors
     async def _scrape_web_page(self, session_id: str, url: str) -> Optional[Dict[str, Any]]:
         """
         Scrape content from a web page.
@@ -200,6 +206,7 @@ class ProjectManager:
         
         return content
     
+    @handle_async_errors
     async def _analyze_research_needs(self, session_id: str) -> List[str]:
         """
         Analyze the project vision to determine research needs.
@@ -270,6 +277,7 @@ class ProjectManager:
             # Create simple search queries from key phrases
             return [f"{phrase} market analysis" for phrase in key_phrases[:5]]
     
+    @handle_async_errors
     async def conduct_research(self, session_id: str) -> Optional[str]:
         """
         Conduct research on the project.
@@ -359,6 +367,7 @@ class ProjectManager:
         
         return response.content
     
+    @handle_async_errors
     async def revise_report(self, session_id: str, feedback: str) -> Optional[str]:
         """
         Revise the research report based on feedback.

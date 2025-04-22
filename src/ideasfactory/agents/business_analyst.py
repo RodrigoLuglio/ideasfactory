@@ -18,6 +18,8 @@ from ideasfactory.utils.llm_utils import (
     create_assistant_prompt
 )
 
+from ideasfactory.utils.error_handler import handle_errors, handle_async_errors
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -136,6 +138,7 @@ class BusinessAnalyst:
             self.system_prompt = create_system_prompt(BA_SYSTEM_PROMPT)
             self._initialized = True
     
+    @handle_async_errors
     async def create_session(self, session_id: str, topic: str) -> BrainstormSession:
         """
         Create a new brainstorming session.
@@ -160,6 +163,7 @@ class BusinessAnalyst:
         
         return session
     
+    @handle_async_errors
     async def start_brainstorming(self, session_id: str) -> Optional[str]:
         """
         Start the brainstorming session.
@@ -194,6 +198,7 @@ class BusinessAnalyst:
         
         return response.content
     
+    @handle_async_errors
     async def send_message(self, session_id: str, content: str) -> Optional[str]:
         """
         Send a message to the agent during a brainstorming session.
@@ -232,6 +237,7 @@ class BusinessAnalyst:
         
         return response.content
     
+    @handle_async_errors
     async def create_document(self, session_id: str) -> Optional[str]:
         """
         Create a document based on the brainstorming session.
@@ -266,6 +272,7 @@ class BusinessAnalyst:
         
         return response.content
     
+    @handle_async_errors
     async def revise_document(self, session_id: str, feedback: str) -> Optional[str]:
         # Get the session
         session = self.sessions.get(session_id)
@@ -316,6 +323,7 @@ class BusinessAnalyst:
         
         return response.content
     
+    @handle_async_errors
     async def complete_session(self, session_id: str) -> bool:
         """
         Complete the brainstorming session.

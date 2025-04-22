@@ -7,6 +7,7 @@ This module defines the Textual screen for conducting research and producing PRD
 """
 
 import logging
+import asyncio
 from typing import Optional
 
 from textual.app import ComposeResult
@@ -19,6 +20,9 @@ from textual.binding import Binding
 
 from ideasfactory.agents.project_manager import ProjectManager
 from ideasfactory.documents.document_manager import DocumentManager
+
+from ideasfactory.utils.session_manager import SessionManager
+from ideasfactory.utils.error_handler import handle_async_errors
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -102,37 +106,69 @@ class DeepResearchScreen(Screen):
 
     async def on_screen_resume(self) -> None:
         """Handle screen being resumed."""
-        # When the screen is shown again, check if we have a session ID
-        if hasattr(self.app, "current_session_id") and self.app.current_session_id:
-            session_id = self.app.current_session_id
+        # Get the current session from the session manager
+        session_manager = SessionManager()
+        current_session = session_manager.get_current_session()
+        
+        if current_session:
+            session_id = current_session.id
             
-            # Use DocumentManager to load the project vision document
-            doc_manager = DocumentManager()
-            document = await doc_manager.get_latest_document_by_type("project-vision", session_id)
+            # Check if we have the project vision document path in the session
+            vision_path = session_manager.get_document(session_id, "project-vision")
             
-            if document and "content" in document:
-                self.project_vision = document["content"]
-                self._load_project_vision()
+            if vision_path:
+                # Load the document directly
+                doc_manager = DocumentManager()
+                document = doc_manager.get_document(vision_path)
                 
-                # Update UI to show we're ready for research
-                self.query_one("#research_status").update("Project vision loaded. Ready to start research.")
-                self.query_one("#start_research_button").disabled = False
-                
-                # Make the button more prominent
-                self.query_one("#start_research_button").variant = "success"
+                if document and "content" in document:
+                    self.project_vision = document["content"]
+                    self._load_project_vision()
+                    
+                    # Update UI to show we're ready for research
+                    self.query_one("#research_status").update("Project vision loaded. Ready to start research.")
+                    self.query_one("#start_research_button").disabled = False
+                    
+                    # Make the button more prominent
+                    self.query_one("#start_research_button").variant = "success"
+                else:
+                    # Could not load document content
+                    self.notify("Could not load project vision content", severity="error")
+                    self._handle_missing_document()
             else:
-                # Vision document not found
-                self.project_vision = None
-                self._load_project_vision()
+                # Try loading from document manager by type (fallback method)
+                doc_manager = DocumentManager()
+                document = await doc_manager.get_latest_document_by_type("project-vision", session_id)
                 
-                # Update UI to show missing document
-                self.query_one("#research_status").update("Missing required document: Project Vision")
-                self.query_one("#start_research_button").disabled = True
+                if document and "content" in document:
+                    self.project_vision = document["content"]
+                    self._load_project_vision()
+                    
+                    # Store the path in session manager for future reference
+                    if "filepath" in document:
+                        session_manager.add_document(session_id, "project-vision", document["filepath"])
+                    
+                    # Update UI appropriately
+                    self.query_one("#research_status").update("Project vision loaded. Ready to start research.")
+                    self.query_one("#start_research_button").disabled = False
+                else:
+                    # Vision document not found
+                    self._handle_missing_document()
         else:
-            # No session ID
+            # No session
             self.notify("No active session found", severity="error")
             self.query_one("#research_status").update("No active session")
             self.query_one("#start_research_button").disabled = True
+            
+    def _handle_missing_document(self):
+        """Handle the case where a required document is missing."""
+        self.project_vision = None
+        self._load_project_vision()
+        
+        # Update UI to show missing document
+        self.query_one("#research_status").update("Missing required document: Project Vision")
+        self.query_one("#start_research_button").disabled = True
+
 
     def set_project_vision(self, project_vision: str) -> None:
         """Set the project vision document."""
@@ -180,7 +216,8 @@ class DeepResearchScreen(Screen):
         # Update the status label
         if stage_info["status"]:
             self.query_one("#research_status").update(stage_info["status"])
-    
+
+    @handle_async_errors
     async def start_research(self) -> None:
         """Start the research process."""
         if not self._is_mounted or not self.project_vision:
@@ -191,9 +228,6 @@ class DeepResearchScreen(Screen):
         self._current_progress = 0
         progress_bar = self.query_one("#research_progress")
         progress_bar.update(progress=0)
-        
-        # Update status for initial stage
-        self._update_progress("init", False)
         
         # Disable start button
         self.query_one("#start_research_button").disabled = True
@@ -211,57 +245,54 @@ class DeepResearchScreen(Screen):
                 if hasattr(self.app, "set_current_session"):
                     self.app.set_current_session(session_id)
             
+            # Create simple progress update function
+            async def update_progress(stage, message, progress_value, completed=True):
+                self.query_one("#research_status").update(message)
+                progress_bar = self.query_one("#research_progress")
+                progress_bar.update(progress=progress_value)
+                # Force a UI refresh
+                self.refresh()
+                # Small pause to allow UI to update
+                await asyncio.sleep(0.1)
+            
+            # STAGE 1: Initialize research session
+            await update_progress("init", "Initializing research session...", 5)
+            
             # Create the research session
             session = await self.project_manager.create_session(session_id, self.project_vision)
             self.session_id = session_id
             
-            # Mark initialization as complete and start analysis
-            self._update_progress("init", True)
-            self._update_progress("analyze_needs", False)
+            # STAGE 2: Analyze research needs
+            await update_progress("analyze_needs", "Analyzing research needs...", 15)
             
-            # Hook into the research process for progress updates
+            # Let's directly handle each stage without monkey patching
+            search_queries = await self.project_manager._analyze_research_needs(session_id)
             
-            # Monkey patch the project manager methods to provide progress updates
-            original_analyze_needs = self.project_manager._analyze_research_needs
-            original_perform_search = self.project_manager._perform_web_search
-            original_scrape_webpage = self.project_manager._scrape_web_page
+            # STAGE 3: Perform web searches
+            await update_progress("search", "Performing web searches...", 30)
             
-            # Create wrapped methods with progress tracking
-            async def wrapped_analyze_needs(*args, **kwargs):
-                result = await original_analyze_needs(*args, **kwargs)
-                self._update_progress("analyze_needs", True)
-                self._update_progress("search", False)
-                return result
-                
-            async def wrapped_search(*args, **kwargs):
-                result = await original_perform_search(*args, **kwargs)
-                self._update_progress("search", True)
-                self._update_progress("scrape", False)
-                return result
-                
-            async def wrapped_scrape(*args, **kwargs):
-                result = await original_scrape_webpage(*args, **kwargs)
-                # Only mark as complete after the last scrape
-                return result
+            # Simplified search process
+            all_search_results = []
+            for i, query in enumerate(search_queries):
+                await update_progress(
+                    "search", 
+                    f"Searching ({i+1}/{len(search_queries)}): {query[:30]}...", 
+                    30 + (i * 10 // len(search_queries))
+                )
+                results = await self.project_manager._perform_web_search(session_id, query)
+                all_search_results.extend(results)
             
-            # Apply the monkey patches
-            self.project_manager._analyze_research_needs = wrapped_analyze_needs
-            self.project_manager._perform_web_search = wrapped_search
-            self.project_manager._scrape_web_page = wrapped_scrape
+            # STAGE 4: Gather detailed information
+            await update_progress("scrape", "Gathering detailed information...", 50)
             
-            # Conduct research (this will use our patched methods)
-            self._update_progress("scrape", False)
+            # STAGE 5: Generate research report
+            await update_progress("report", "Generating comprehensive research report...", 75)
+            
+            # Conduct the actual research (this will handle the remaining steps)
             report = await self.project_manager.conduct_research(session_id)
             
-            # Update for final stages
-            self._update_progress("scrape", True)
-            self._update_progress("categorize", True)
-            self._update_progress("report", True)
-            
-            # Restore original methods
-            self.project_manager._analyze_research_needs = original_analyze_needs
-            self.project_manager._perform_web_search = original_perform_search
-            self.project_manager._scrape_web_page = original_scrape_webpage
+            # Update UI for completion
+            await update_progress("complete", "Research completed successfully!", 100)
             
             # Enable the view report button
             view_button = self.query_one("#view_report_button")
@@ -270,14 +301,10 @@ class DeepResearchScreen(Screen):
             # Hide the start button
             self.query_one("#start_research_button").display = False
             
-            # Ensure progress is 100%
-            progress_bar.update(progress=100)
-            self.query_one("#research_status").update("Research completed")
-            
             # Store the session ID for later use
             self.session_id = session_id
             
-            # Update the app's research report storage
+            # Update the app's research report storage if applicable
             if hasattr(self.app, "set_research_report"):
                 self.app.set_research_report(report)
             
@@ -286,11 +313,12 @@ class DeepResearchScreen(Screen):
             
         except Exception as e:
             logger.error(f"Error during research: {e}")
-            self.notify("Failed to complete research", severity="error")
-            self.query_one("#research_status").update("Error during research")
+            self.notify(f"Research error: {str(e)}", severity="error")
+            self.query_one("#research_status").update(f"Error during research: {str(e)}")
             # Re-enable start button
             self.query_one("#start_research_button").disabled = False
     
+    @handle_async_errors
     async def view_report(self) -> None:
         """View the generated research report in the document review screen."""
         if not self.session_id:

@@ -10,9 +10,12 @@ import json
 import re
 from collections import Counter, defaultdict
 
+from ideasfactory.utils.error_handler import handle_errors, handle_async_errors
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
+@handle_errors
 def extract_key_phrases(text: str, min_count: int = 2) -> List[str]:
     """
     Extract key phrases from text.
@@ -46,6 +49,7 @@ def extract_key_phrases(text: str, min_count: int = 2) -> List[str]:
     return key_phrases
 
 
+@handle_errors
 def summarize_content(text: str, max_sentences: int = 5) -> str:
     """
     Generate a summary of the content.
@@ -95,6 +99,7 @@ def summarize_content(text: str, max_sentences: int = 5) -> str:
     return summary
 
 
+@handle_errors
 def categorize_information(texts: List[str], categories: List[str]) -> Dict[str, List[str]]:
     """
     Categorize information into predefined categories.
@@ -138,6 +143,7 @@ def categorize_information(texts: List[str], categories: List[str]) -> Dict[str,
     return dict(result)
 
 
+@handle_errors
 def extract_market_data(text: str) -> Dict[str, Any]:
     """
     Extract market-related data from text.

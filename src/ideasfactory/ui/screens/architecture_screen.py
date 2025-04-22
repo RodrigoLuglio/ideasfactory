@@ -20,6 +20,9 @@ from textual.binding import Binding
 from ideasfactory.agents.architect import Architect, ArchitecturalDecision
 from ideasfactory.documents.document_manager import DocumentManager
 
+from ideasfactory.utils.session_manager import SessionManager
+from ideasfactory.utils.error_handler import handle_async_errors
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -121,47 +124,85 @@ class ArchitectureScreen(Screen):
         # Disable buttons that shouldn't be clickable yet
         self.query_one("#create_document_button").disabled = True
     
+    @handle_async_errors
     async def on_screen_resume(self) -> None:
         """Handle screen being resumed."""
-        # Check if we have a session ID
-        if hasattr(self.app, "current_session_id") and self.app.current_session_id:
-            session_id = self.app.current_session_id
+        # Get the current session from the session manager
+        session_manager = SessionManager()
+        current_session = session_manager.get_current_session()
+        
+        if current_session:
+            session_id = current_session.id
+            self.session_id = session_id
             
-            # Use DocumentManager to load required documents
+            # Check if we have the required documents' paths in the session
+            vision_path = session_manager.get_document(session_id, "project-vision")
+            research_path = session_manager.get_document(session_id, "research-report")
+            
+            # Initialize document content variables
+            vision_content = None
+            research_content = None
+            
+            # Document manager for loading documents
             doc_manager = DocumentManager()
             
-            # Load project vision document
-            vision_document = await doc_manager.get_latest_document_by_type("project-vision", session_id)
-            if vision_document and "content" in vision_document:
-                self.project_vision = vision_document["content"]
-            else:
-                self.project_vision = None
-                
-            # Load research report document
-            research_document = await doc_manager.get_latest_document_by_type("research-report", session_id)
-            if research_document and "content" in research_document:
-                self.research_report = research_document["content"]
-            else:
-                self.research_report = None
-                
+            # Load vision document if available
+            if vision_path:
+                vision_doc = doc_manager.get_document(vision_path)
+                if vision_doc and "content" in vision_doc:
+                    vision_content = vision_doc["content"]
+                    self.project_vision = vision_content
+            
+            # Load research document if available
+            if research_path:
+                research_doc = doc_manager.get_document(research_path)
+                if research_doc and "content" in research_doc:
+                    research_content = research_doc["content"]
+                    self.research_report = research_content
+            
+            # If paths weren't in session manager, try loading by type (fallback)
+            if not vision_content:
+                vision_doc = await doc_manager.get_latest_document_by_type("project-vision", session_id)
+                if vision_doc and "content" in vision_doc:
+                    vision_content = vision_doc["content"]
+                    self.project_vision = vision_content
+                    
+                    # Store the path in session manager for future reference
+                    if "filepath" in vision_doc:
+                        session_manager.add_document(session_id, "project-vision", vision_doc["filepath"])
+            
+            if not research_content:
+                research_doc = await doc_manager.get_latest_document_by_type("research-report", session_id)
+                if research_doc and "content" in research_doc:
+                    research_content = research_doc["content"]
+                    self.research_report = research_content
+                    
+                    # Store the path in session manager for future reference
+                    if "filepath" in research_doc:
+                        session_manager.add_document(session_id, "research-report", research_doc["filepath"])
+            
             # Check if we have all required documents
-            if self.project_vision and self.research_report:
+            if vision_content and research_content:
                 self.query_one("#analysis_status").update("Ready to start architecture analysis.")
                 self.query_one("#start_analysis_button").disabled = False
             else:
                 missing = []
-                if not self.project_vision:
+                if not vision_content:
                     missing.append("Project Vision")
-                if not self.research_report:
+                if not research_content:
                     missing.append("Research Report")
                 
                 self.query_one("#analysis_status").update(f"Missing required documents: {', '.join(missing)}")
                 self.query_one("#start_analysis_button").disabled = True
+                
+                # Log the issue
+                logger.warning(f"Missing required documents for architecture: {', '.join(missing)}")
         else:
-            # No session ID
+            # No session
             self.notify("No active session found", severity="error")
             self.query_one("#analysis_status").update("No active session")
             self.query_one("#start_analysis_button").disabled = True
+            logger.error("No active session when resuming architecture screen")
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button press events."""
@@ -198,6 +239,7 @@ class ArchitectureScreen(Screen):
         """Set the research report document."""
         self.research_report = research_report
     
+    @handle_async_errors
     async def start_analysis(self) -> None:
         """Start the architecture analysis process."""
         if not self._is_mounted or not self.project_vision or not self.research_report:
@@ -320,6 +362,7 @@ class ArchitectureScreen(Screen):
         all_completed = all(d.completed for d in self.decisions)
         self.query_one("#create_document_button").disabled = not all_completed
     
+    @handle_async_errors
     async def make_decision(self) -> None:
         """Make or update the current architectural decision."""
         if not self.session_id or not self.decisions or self.current_decision_index >= len(self.decisions):
@@ -444,6 +487,7 @@ class ArchitectureScreen(Screen):
         # Focus the question input
         self.query_one("#question_input").focus()
     
+    @handle_async_errors
     async def create_document(self) -> None:
         """Create an architecture document based on the decisions made."""
         if not self.session_id:

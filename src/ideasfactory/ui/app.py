@@ -24,6 +24,9 @@ from ideasfactory.agents.business_analyst import BusinessAnalyst
 from ideasfactory.agents.project_manager import ProjectManager
 from ideasfactory.agents.architect import Architect
 
+from ideasfactory.utils.session_manager import SessionManager
+from ideasfactory.utils.error_handler import handle_async_errors, safe_execute_async, handle_errors
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -47,18 +50,20 @@ class IdeasFactoryApp(App):
     def __init__(self, *args, **kwargs):
         """Initialize the application."""
         super().__init__(*args, **kwargs)
-        self.current_session_id: Optional[str] = None
-        self.brainstorm_screen = None
-        self.document_review_screen = None
-        self.deep_research_screen = None
-        self.architecture_screen = None
+        # Use the SessionManager
+        self.session_manager = SessionManager()
+        
+        # Create agents
         self.business_analyst = BusinessAnalyst()
         self.project_manager = ProjectManager()
         self.architect = Architect()
         
-        # Generate a session ID for the entire workflow
-        import uuid
-        self.current_session_id = str(uuid.uuid4())
+        # Initialize screens
+        self.brainstorm_screen = None
+        self.document_review_screen = None
+        self.deep_research_screen = None
+        self.architecture_screen = None
+
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
@@ -81,7 +86,13 @@ class IdeasFactoryApp(App):
         
         # Show the brainstorm screen by default
         self.push_screen("brainstorm_screen")
+
+    def show_status(self, message: str, severity: str = "information") -> None:
+        """Show a status message in the application."""
+        self.notify(message, severity=severity)
+        # You could also update a status bar or other UI element here
     
+    @handle_errors
     def action_switch_to_brainstorm(self) -> None:
         """Switch to the brainstorm screen."""
         try:
@@ -90,7 +101,9 @@ class IdeasFactoryApp(App):
                 self.push_screen("brainstorm_screen")
         except Exception as e:
             logger.error(f"Error switching to brainstorm screen: {e}")
+            self.notify(f"Error switching screens: {str(e)}", severity="error")
     
+    @handle_errors
     def action_switch_to_document_review(self) -> None:
         """Switch to the document review screen."""
         try:
@@ -99,7 +112,9 @@ class IdeasFactoryApp(App):
                 self.push_screen("document_review_screen")
         except Exception as e:
             logger.error(f"Error switching to document screen: {e}")
+            self.notify(f"Error switching screens: {str(e)}", severity="error")
     
+    @handle_errors
     def action_switch_to_deep_research(self) -> None:
         """Switch to the deep research screen."""
         try:
@@ -108,7 +123,9 @@ class IdeasFactoryApp(App):
                 self.push_screen("deep_research_screen")
         except Exception as e:
             logger.error(f"Error switching to deep research screen: {e}")
+            self.notify(f"Error switching screens: {str(e)}", severity="error")
     
+    @handle_errors
     def action_switch_to_architecture(self) -> None:
         """Switch to the architecture screen."""
         try:
@@ -117,17 +134,27 @@ class IdeasFactoryApp(App):
                 self.push_screen("architecture_screen")
         except Exception as e:
             logger.error(f"Error switching to architecture screen: {e}")
+            self.notify(f"Error switching screens: {str(e)}", severity="error")
     
+    # Property to access current session ID
+    @property
+    def current_session_id(self) -> Optional[str]:
+        return self.session_manager.current_session_id
+    
+    @handle_errors
     def set_current_session(self, session_id: str) -> None:
         """Set the current session ID."""
-        self.current_session_id = session_id
-        
-        # Update screens with the session ID
-        if self.brainstorm_screen:
-            self.brainstorm_screen.set_session(session_id)
-        if self.architecture_screen:
-            self.architecture_screen.set_session(session_id)
+        if self.session_manager.set_current_session(session_id):
+            # Update screens with the session ID
+            if self.brainstorm_screen:
+                self.brainstorm_screen.set_session(session_id)
+            if self.deep_research_screen:
+                self.deep_research_screen.set_session(session_id) if hasattr(self.deep_research_screen, 'set_session') else None
+            if self.architecture_screen:
+                self.architecture_screen.set_session(session_id) if hasattr(self.architecture_screen, 'set_session') else None
     
+    
+    @handle_async_errors
     async def show_document_review_for_ba(self, session_id: str) -> None:
         """Show document review screen for the Business Analyst document."""
         # Get the session from the Business Analyst
@@ -149,9 +176,18 @@ class IdeasFactoryApp(App):
             next_screen="deep_research_screen"
         )
         
+        # Store document path in session manager if saved
+        if hasattr(self.document_review_screen, 'document_path') and self.document_review_screen.document_path:
+            self.session_manager.add_document(
+                session_id, 
+                "project-vision", 
+                self.document_review_screen.document_path
+            )
+        
         # Switch to the document review screen
         self.action_switch_to_document_review()
 
+    @handle_async_errors
     async def show_document_review_for_pm(self, session_id: str) -> None:
         """Show document review screen for the Project Manager document."""
         # Get the session from the Project Manager
@@ -173,9 +209,18 @@ class IdeasFactoryApp(App):
             next_screen="architecture_screen"
         )
         
+        # Store document path in session manager if saved
+        if hasattr(self.document_review_screen, 'document_path') and self.document_review_screen.document_path:
+            self.session_manager.add_document(
+                session_id, 
+                "research-report", 
+                self.document_review_screen.document_path
+            )
+        
         # Switch to the document review screen
         self.action_switch_to_document_review()
 
+    @handle_async_errors
     async def show_document_review_for_architect(self, session_id: str) -> None:
         """Show document review screen for the Architect document."""
         # Get the session from the Architect
@@ -197,27 +242,39 @@ class IdeasFactoryApp(App):
             next_screen=None  # Product Owner screen not yet implemented
         )
         
+        # Store document path in session manager if saved
+        if hasattr(self.document_review_screen, 'document_path') and self.document_review_screen.document_path:
+            self.session_manager.add_document(
+                session_id, 
+                "architecture", 
+                self.document_review_screen.document_path
+            )
+        
         # Switch to the document review screen
         self.action_switch_to_document_review()
 
+    @handle_async_errors
     async def _ba_revision_callback(self, session_id: str, feedback: str) -> str:
         """Callback for Business Analyst document revisions."""
         # Revise the document using the BA agent
         document = await self.business_analyst.revise_document(session_id, feedback)
         return document
 
+    @handle_async_errors
     async def _pm_revision_callback(self, session_id: str, feedback: str) -> str:
         """Callback for Project Manager document revisions."""
         # Revise the report using the PM agent
         report = await self.project_manager.revise_report(session_id, feedback)
         return report
-
+    
+    @handle_async_errors
     async def _architect_revision_callback(self, session_id: str, feedback: str) -> str:
         """Callback for Architect document revisions."""
         # Revise the document using the Architect agent
         document = await self.architect.revise_document(session_id, feedback)
         return document
     
+    @handle_async_errors
     async def _ba_completion_callback(self) -> None:
         """Callback when Business Analyst document is completed."""
         # Complete the BA session
@@ -225,10 +282,7 @@ class IdeasFactoryApp(App):
             await self.business_analyst.complete_session(self.current_session_id)
             self.notify("Project vision document completed", severity="success")
 
-             # Update workflow progress if you have a status indicator
-            if hasattr(self, "update_workflow_progress"):
-                self.update_workflow_progress("project_vision_completed")
-    
+    @handle_async_errors
     async def _pm_completion_callback(self) -> None:
         """Callback when Project Manager document is completed."""
         # Complete the PM session
@@ -236,17 +290,11 @@ class IdeasFactoryApp(App):
             # No specific completion method for PM yet, but we could add one
             self.notify("Research report completed", severity="success")
 
-            # Update workflow progress if you have a status indicator
-            if hasattr(self, "update_workflow_progress"):
-                self.update_workflow_progress("research_report_completed")
     
+    @handle_async_errors
     async def _architect_completion_callback(self) -> None:
         """Callback when Architect document is completed."""
         # Complete the Architect session
         if self.current_session_id:
             await self.architect.complete_session(self.current_session_id)
             self.notify("Architecture document completed", severity="success")
-
-            # Update workflow progress if you have a status indicator
-            if hasattr(self, "update_workflow_progress"):
-                self.update_workflow_progress("architecture_document_completed")

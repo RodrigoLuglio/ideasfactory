@@ -19,6 +19,9 @@ from ideasfactory.utils.llm_utils import (
     create_assistant_prompt
 )
 
+from ideasfactory.utils.error_handler import handle_async_errors
+from ideasfactory.utils.session_manager import SessionManager
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -181,6 +184,7 @@ class Architect:
             self.system_prompt = create_system_prompt(ARCHITECT_SYSTEM_PROMPT)
             self._initialized = True
     
+    @handle_async_errors
     async def create_session(
         self, 
         session_id: str, 
@@ -211,7 +215,8 @@ class Architect:
         self.sessions[session_id] = session
         
         return session
-    
+
+    @handle_async_errors    
     async def start_analysis(self, session_id: str) -> Optional[List[ArchitecturalDecision]]:
         """
         Start the architecture analysis process.
@@ -269,6 +274,7 @@ Research Report:
         
         return decisions
     
+    @handle_async_errorss
     async def _extract_decisions(self, session_id: str, analysis_text: str) -> List[ArchitecturalDecision]:
         """
         Extract architectural decisions from the analysis text.
@@ -379,6 +385,7 @@ Research Report:
             logger.error(f"Error extracting decisions: {str(e)}")
             return []
     
+    @handle_async_errors
     async def get_current_decision(self, session_id: str) -> Optional[ArchitecturalDecision]:
         """
         Get the current architectural decision being discussed.
@@ -402,6 +409,7 @@ Research Report:
             logger.error(f"Current decision index out of bounds: {session.current_decision_index}")
             return None
     
+    @handle_async_errors
     async def make_decision(
         self, 
         session_id: str, 
@@ -477,6 +485,7 @@ Research Report:
         # All decisions completed
         return None
     
+    @handle_async_errors
     async def ask_question(self, session_id: str, question: str) -> Optional[str]:
         """
         Ask a question during the architecture definition process.
@@ -507,6 +516,7 @@ Research Report:
         
         return response.content
     
+    @handle_async_errors
     async def create_document(self, session_id: str) -> Optional[str]:
         """
         Create an architecture document based on the decisions made.
@@ -562,6 +572,7 @@ Research Report:
         
         return response.content
     
+    @handle_async_errors
     async def revise_document(self, session_id: str, feedback: str) -> Optional[str]:
         """
         Revise the architecture document based on feedback.
@@ -620,6 +631,7 @@ Please provide the complete revised document in markdown format. Do not include 
         
         return response.content
     
+    @handle_async_errors
     async def complete_session(self, session_id: str) -> bool:
         """
         Complete the architecture definition session.
