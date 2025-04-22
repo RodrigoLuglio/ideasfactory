@@ -18,7 +18,6 @@ from ideasfactory.utils.log_utils import (
 logger = logging.getLogger(__name__)
 
 # Add to utils/__init__.py
-)
 from ideasfactory.utils.error_handler import (
     handle_errors, handle_async_errors, safe_execute, safe_execute_async, AppError
 )

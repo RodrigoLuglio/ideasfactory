@@ -27,98 +27,103 @@ logger = logging.getLogger(__name__)
 
 # Architect system prompt
 ARCHITECT_SYSTEM_PROMPT = """
-You are a senior solution architect with strong background in technology and innovation. 
+You are a visionary solution architect with deep expertise across the complete spectrum of technology paradigms, from traditional to cutting-edge.
 
-Your role is to define the architecture of a project based on the information provided by the Business Analyst and Project Manager. You will identify all the requirements and define the architecture of the project, including, but not limited to:
+Your role is to craft a truly custom architecture that perfectly embodies the unique essence of each project, based on the vision and research documents. You approach each project as fundamentally unique, requiring its own distinctive architectural thinking rather than applying standard patterns.
 
-- Tech stack definition
-- Project structure
-- Types of applications needed (web, mobile, desktop, etc.)
-- Database definition and schemas
-- Data models
-- Security requirements
-- Infrastructure
-- Deployment strategy
-- Any other relevant information needed for the implementation
+You will identify ALL requirements and define a bespoke architecture tailored to the project's specific nature and needs. Your architecture might include elements like:
 
-As each project is unique, you won't follow a fixed structure. Instead, you will define the best structure, topics, and requirements that each different project might need. 
+- Custom technology stack selection across multiple paradigms
+- Project structure designed specifically for this solution
+- Application modalities uniquely suited to the project's purpose
+- Data storage and modeling approaches that match the specific requirements
+- Distinctive security measures appropriate to the context
+- Infrastructure and deployment strategies optimized for this particular case
+- Any other elements that this specific project requires for success
 
-You will help the user make informed decisions by:
-1. Presenting options with clear pros and cons
-2. Explaining the implications of each decision
-3. Providing recommendations based on the project requirements
-4. Guiding the user through each architectural decision in a conversational manner
+You recognize that innovation often comes from unexpected combinations and approaches. You will:
+1. Present a COMPREHENSIVE range of options for each decision, including established, current, and emerging approaches
+2. Explain the implications and tradeoffs of each option with nuanced detail
+3. Provide thoughtful recommendations based on the unique requirements of THIS specific project
+4. Guide the user through each architectural decision in a conversational manner
 
-Once the user makes the decisions, you will document all the architectural decisions in a comprehensive markdown document containing all the necessary details to precisely describe the project from start to end, including all information needed for implementation.
+When documenting architectural decisions, you ensure EVERY feature and requirement is fully addressed somewhere in the architecture, with nothing overlooked or simplified. Your documentation completely reflects the project's unique character rather than following conventional patterns.
 
-You always make sure that everything is decided and the documents have everything in place so that when handled to the development agents, they have every detail needed to implement the project.
+Above all, you ensure that the final architecture fully captures BOTH the functional capabilities AND the distinctive vision behind the project, creating a blueprint that preserves what makes this idea special while making it technically feasible.
 """
 
 ARCHITECT_ANALYSIS_PROMPT = """
-Please analyze the project vision document and research report provided, then identify the key architectural decisions that need to be made.
+First, conduct a STRICT BOUNDARY ANALYSIS between the project vision document and research report:
+
+1. Extract ONLY the explicitly stated features and requirements from the vision document
+2. For each identified feature, locate all implementation approaches described in the research report
+
+This strict boundary preservation is critical - the architecture must implement EXACTLY what was envisioned, no more and no less.
+
+For each core feature from the vision document:
+- Document the precise feature description
+- Map all technology options explored in the research report
+- Identify any additional viable approaches not mentioned in the research
+
+Then determine the comprehensive set of architectural decisions needed, with these critical requirements:
+- Each decision must directly implement a specific feature from the vision document
+- Every feature from the vision document must have corresponding architectural decisions
+- The scope must remain absolutely faithful to the vision document
 
 For each decision point, provide:
-1. The decision that needs to be made
-2. 2-4 viable options with pros and cons
-3. Your recommendation with rationale
+1. The exact decision that needs to be made
+2. At least 5-7 different implementation options with detailed pros/cons for each
+3. Present all options neutrally, without recommendations
 
-Format your response as a structured list of decision points that we'll discuss one by one. Include high-level categories such as:
+Structure your response as follows:
 
-- Overall architecture approach
-- Frontend technology
-- Backend technology
-- Database selection
-- Authentication & security approach
-- Deployment & infrastructure
+## Core Feature Analysis
+[List each feature precisely as described in the vision document]
 
-Focus on the most important decisions first. We'll go through each decision point in our conversation.
+## Architectural Decisions
+[Only decisions that directly implement the identified features]
+
+For the architectural decisions:
+- Create categories based solely on this project's specific needs
+- For each feature, explore the complete spectrum of implementation approaches
+- Include traditional, current mainstream, and emerging implementation options
+- Present each option objectively with detailed analysis
+
+CRITICAL: The architecture must remain precisely within the boundaries of what was explicitly described in the vision document - no assumptions about additional functionality or standard features unless explicitly mentioned.
 """
 
 ARCHITECT_DOCUMENT_CREATION_PROMPT = """
-Based on our architectural discussion, please create a comprehensive architecture document in markdown format.
+Create an architecture document that PRECISELY implements the vision document's features - nothing more, nothing less. This document must maintain absolute scope discipline.
 
-The document should:
-- Contain all the architectural decisions we've made
-- Include detailed technical specifications
-- Cover all aspects of the solution architecture
-- Provide clear guidance for implementation
-- Include diagrams and models as textual descriptions (these will be converted to visual diagrams later)
-- Be written in a markdown format
-- Be structured in a way that makes sense for this specific project
+ESSENTIAL REQUIREMENTS:
 
-Include all these sections (and others if relevant to this project):
+1. SCOPE INTEGRITY:
+   - The functional requirements section must EXACTLY match the features in the vision document
+   - Include ONLY architectural elements that directly implement these explicit features
+   - NEVER add "standard" or "assumed" features not specified in the vision document
 
-# [Project Name] - Architecture Document
+2. IMPLEMENTATION CLARITY:
+   - For each feature from the vision document, document the implementation approach we selected
+   - Ensure the chosen implementation approach matches the option we actually selected during our discussion
+   - Provide detailed specifications for how each feature will be technically realized
 
-## Overview
-[Brief description of the architectural approach]
+3. DOCUMENT STRUCTURE:
+   - Create a document organization that perfectly reflects THIS project's specific nature
+   - The structure should emphasize the unique aspects of this particular solution
+   - Avoid generic template structures that could apply to any similar project
 
-## System Architecture
-[High-level architecture description]
+4. TECHNICAL FOCUS:
+   - Emphasize how the specific technical decisions support the project's unique needs
+   - Explain integration points between features to show how they work as a cohesive system
+   - Document any technical considerations specific to this project's distinctive approach
 
-## Technology Stack
-[Detailed list of technologies for each component]
+Before finalizing:
+- Verify that EVERY feature from the vision document is implemented in the architecture
+- Confirm that NO additional features have been introduced
+- Ensure the document maintains the essential character and vision of the original idea
+- Verify that the technical decisions match exactly what we agreed upon in our discussion
 
-## Component Breakdown
-[Description of each system component]
-
-## Data Model
-[Database schema and data structures]
-
-## Security Architecture
-[Security measures and implementations]
-
-## Integration Points
-[APIs, third-party services, etc.]
-
-## Deployment Architecture
-[Infrastructure and deployment strategy]
-
-## Development Guidelines
-[Coding standards, patterns, and practices]
-
-## Non-Functional Requirements
-[Performance, scalability, etc.]
+The final document should read as a precise blueprint for implementing exactly what was envisioned - a perfect translation from concept to technical specification, without scope creep or omissions.
 """
 
 
@@ -155,6 +160,7 @@ class ArchitectureSession(BaseModel):
     current_decision_index: Optional[int] = Field(None, description="Index of the current decision being discussed")
     state: SessionState = Field(default=SessionState.STARTED, description="Current state of the session")
     architecture_document: Optional[str] = Field(None, description="Generated architecture document content")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata for the session")
     
     class Config:
         """Pydantic model configuration."""
@@ -292,6 +298,19 @@ Research Report:
             logger.error(f"Session not found: {session_id}")
             return []
         
+        # Extract the requirements section for later use in document creation
+        import re
+        requirements_match = re.search(r'## Requirements Analysis\s*(.*?)(?=##|\Z)', analysis_text, re.DOTALL)
+        if requirements_match:
+            requirements_text = requirements_match.group(1).strip()
+            # Store the requirements in the session metadata for later use
+            if not hasattr(session, 'metadata'):
+                session.metadata = {}
+            session.metadata['requirements_analysis'] = requirements_text
+            logger.info(f"Extracted requirements analysis of length {len(requirements_text)}")
+        else:
+            logger.warning("Requirements Analysis section not found in architect's analysis")
+        
         # Create a prompt to extract decisions
         extraction_prompt = f"""
         Based on the analysis below, extract a structured list of architectural decisions that need to be made.
@@ -300,35 +319,49 @@ Research Report:
         {analysis_text}
         
         For each decision, extract:
-        1. A unique identifier (e.g., "frontend-framework")
-        2. The category (e.g., "Frontend", "Backend", "Database")
+        1. A unique identifier (e.g., "data-storage-approach")
+        2. A category that is specific to this project's domains
         3. The title of the decision
         4. A description of the decision
-        5. The options with pros and cons
+        5. A COMPREHENSIVE set of options with detailed pros and cons
         6. The recommended option (if any)
+        
+        CRITICAL REQUIREMENTS:
+        
+        1. COMPREHENSIVENESS: For each decision, include ALL viable options identified in the research, not just mainstream ones:
+           - Include established/traditional approaches
+           - Include current mainstream solutions
+           - Include cutting-edge/emerging approaches
+           - Include unconventional or cross-paradigm options
+        
+        2. COMPLETENESS: Ensure that every feature and requirement mentioned in the Requirements Analysis 
+           section is addressed by at least one decision. Add additional decisions if needed to cover ALL features.
+        
+        3. PROJECT-SPECIFIC: The decisions and categories must be specifically tailored to THIS project,
+           not based on generic web/mobile/software templates.
         
         Format your response as a JSON array of objects. Here's an example structure:
         
         ```json
         [
           {{
-            "id": "frontend-framework",
-            "category": "Frontend",
-            "title": "Frontend Framework Selection",
-            "description": "Choose the main frontend framework for the application",
+            "id": "unique-decision-id",
+            "category": "Project-Specific Category",
+            "title": "Clear Decision Title",
+            "description": "Detailed description of the decision to be made",
             "options": [
               {{
-                "name": "React",
-                "pros": ["Large ecosystem", "Flexible", "Well-established"],
-                "cons": ["Requires additional libraries for routing, state management"]
+                "name": "Option Name",
+                "pros": ["Advantage 1", "Advantage 2", "Advantage 3"],
+                "cons": ["Limitation 1", "Limitation 2"]
               }},
               {{
-                "name": "Angular",
-                "pros": ["Comprehensive solution", "Strong typing with TypeScript"],
-                "cons": ["Steeper learning curve", "More opinionated"]
+                "name": "Another Option",
+                "pros": ["Advantage 1", "Advantage 2"],
+                "cons": ["Limitation 1", "Limitation 2", "Limitation 3"]
               }}
             ],
-            "recommendation": "React"
+            "recommendation": "Recommended option if there is one"
           }}
         ]
         ```
@@ -450,6 +483,25 @@ Research Report:
                 )
                 session.messages.append(decision_message)
                 
+                # Store this decision in metadata for document creation
+                if not hasattr(session, 'metadata') or session.metadata is None:
+                    session.metadata = {}
+                
+                if 'selected_decisions' not in session.metadata:
+                    session.metadata['selected_decisions'] = []
+                
+                # Store full decision details including the selected option
+                session.metadata['selected_decisions'].append({
+                    'id': decision_id,
+                    'title': decision.title,
+                    'option': selected_option,
+                    'rationale': rationale,
+                    'category': decision.category
+                })
+                
+                # Log the selection for verification
+                logger.info(f"Decision recorded - ID: {decision_id}, Title: {decision.title}, Selected Option: {selected_option}")
+                
                 # Get the agent's acknowledgment
                 response = await send_prompt(session.messages)
                 
@@ -542,22 +594,129 @@ Research Report:
         # Update the session state
         session.state = SessionState.DOCUMENT_CREATION
         
-        # Create a summary of the decisions made
-        decisions_summary = "\n\n".join([
-            f"## {decision.title}\n" +
-            f"**Decision**: {decision.decision}\n" +
-            (f"**Rationale**: {decision.rationale}\n" if decision.rationale else "")
-            for decision in session.decisions
-            if decision.completed
-        ])
+        # Get stored user-selected decisions from metadata
+        selected_decisions = []
+        if hasattr(session, 'metadata') and session.metadata and 'selected_decisions' in session.metadata:
+            selected_decisions = session.metadata['selected_decisions']
+            logger.info(f"Found {len(selected_decisions)} stored decisions in metadata")
         
-        # Create and add the document creation message
+        # As a fallback, use the decision objects if metadata isn't available
+        if not selected_decisions:
+            logger.warning("No stored decisions found in metadata, using fallback")
+            completed_decisions = [d for d in session.decisions if d.completed]
+            
+            for decision in completed_decisions:
+                selected_decisions.append({
+                    'id': decision.id,
+                    'title': decision.title,
+                    'category': decision.category,
+                    'option': decision.decision,
+                    'rationale': decision.rationale or ""
+                })
+        
+        # Get detailed information about each decision and selected option
+        decision_details = []
+        for selected in selected_decisions:
+            # Find the original decision object to get the description and option details
+            decision_obj = next((d for d in session.decisions if d.id == selected['id']), None)
+            
+            if not decision_obj:
+                logger.warning(f"Decision object not found for ID: {selected['id']}")
+                continue
+                
+            # Find the details of the chosen option
+            option_details = next(
+                (opt for opt in decision_obj.options if opt.get("name") == selected['option']), 
+                {}
+            )
+            
+            decision_detail = {
+                "id": selected['id'],
+                "category": selected['category'],
+                "title": selected['title'],
+                "description": decision_obj.description if decision_obj else "",
+                "chosen_option": selected['option'],
+                "rationale": selected['rationale'],
+                "option_details": option_details
+            }
+            
+            decision_details.append(decision_detail)
+            
+        # Log the selected options for verification
+        for detail in decision_details:
+            logger.info(f"Documenting decision: {detail['title']} = {detail['chosen_option']}")
+        
+        # Group decisions by category for better organization
+        decisions_by_category = {}
+        for decision in decision_details:
+            category = decision["category"]
+            if category not in decisions_by_category:
+                decisions_by_category[category] = []
+            decisions_by_category[category].append(decision)
+        
+        # Format the structured decisions data
+        structured_decisions = "# Selected Architectural Decisions\n\n"
+        structured_decisions += "These are the specific implementation approaches we have chosen for each feature:\n\n"
+        
+        for category, decisions in decisions_by_category.items():
+            structured_decisions += f"## {category}\n\n"
+            
+            for decision in decisions:
+                structured_decisions += f"### {decision['title']}\n"
+                structured_decisions += f"{decision['description']}\n\n"
+                structured_decisions += f"**SELECTED OPTION: {decision['chosen_option']}**\n\n"
+                
+                if decision['rationale']:
+                    structured_decisions += f"**Implementation Rationale**: {decision['rationale']}\n\n"
+                
+                # Add details about the chosen option
+                option = decision['option_details']
+                if option:
+                    structured_decisions += "**Implementation Characteristics**:\n"
+                    
+                    if 'pros' in option and option['pros']:
+                        structured_decisions += "**Advantages**:\n"
+                        for pro in option['pros']:
+                            structured_decisions += f"- {pro}\n"
+                    
+                    if 'cons' in option and option['cons']:
+                        structured_decisions += "**Considerations**:\n"
+                        for con in option['cons']:
+                            structured_decisions += f"- {con}\n"
+                
+                structured_decisions += "\n"
+        
+        # Retrieve the requirements analysis if available
+        requirements_analysis = ""
+        if hasattr(session, 'metadata') and 'requirements_analysis' in session.metadata:
+            requirements_analysis = session.metadata['requirements_analysis']
+            
+        # Create and add the document creation message with rich structured data and requirements
         document_request = create_user_prompt(
-            f"""We've completed our architectural discussion and made the following decisions:
+            f"""We've completed our architectural discussion and made the following decisions.
+I'm providing you with a detailed breakdown of each decision including the category, chosen option,
+rationale, and the advantages/considerations of each choice:
 
-{decisions_summary}
+{structured_decisions}
 
-{ARCHITECT_DOCUMENT_CREATION_PROMPT}"""
+At the beginning of our process, we identified these requirements and features that must be fully 
+addressed in the architecture:
+
+{requirements_analysis}
+
+Using this detailed information about our architectural decisions and requirements, please create 
+a comprehensive architecture document following these guidelines:
+
+{ARCHITECT_DOCUMENT_CREATION_PROMPT}
+
+When creating this document, please:
+1. Begin with a complete Functional Requirements section that lists ALL identified features and requirements
+2. Incorporate the specific details from our decisions to ensure the architecture is precisely defined
+3. Ensure EVERY feature and requirement is addressed somewhere in the architecture
+4. Verify that all technical elements (data models, APIs, etc.) properly support the functional requirements
+
+The document must be comprehensive and leave no requirements or features unaddressed.
+"""
         )
         document_messages = session.messages + [document_request]
         

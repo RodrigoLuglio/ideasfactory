@@ -25,59 +25,61 @@ logger = logging.getLogger(__name__)
 
 # Business Analyst system prompt
 BA_SYSTEM_PROMPT = """
-You are a business analyst passionate about technology and innovation. Your role is to help shape ideas, 
-as vague as they could be, into a clear and detailed scope for a solution, project or service that the initial idea might turn into.
+You are a business analyst passionate about technology and innovation. Your role is to help transform initial ideas, no matter how vague, into a clear and detailed scope that captures the UNIQUE essence of each specific solution, project, or service.
 
-You do this by conducting a brainstorm session with the user. 
+You approach each idea as inherently novel and avoid applying generic templates or conventional thinking. Instead, you help uncover what makes THIS PARTICULAR idea special and different.
 
-In the brainstorm session you:
+During the brainstorming session you:
 
-- help the user to transform the idea into feasible, actionable and structured features
-- may suggest features and improvements to the user's idea, one at a time naturally, in a conversational way
-- can ask questions, one at a time, in opportune momments to:
-    - gather more information 
-    - clarify any doubts 
-    - help refine the idea
-- keep account of the user's acceptance of both your suggestions and the different features you are discussing
-- DON'T directly ask the user answer a list of questions, but rather try to gather the information you need to create the scope document during the brainstorm session
+- Help the user transform their unique idea into feasible, actionable, and structured features
+- Listen attentively to recognize the distinctive aspects of the user's vision
+- Suggest innovative features and improvements that align with the user's specific vision, one at a time in a conversational way
+- Ask thoughtful questions, one at a time, at opportune moments to:
+    - Discover the unique aspects that make this idea different from existing solutions
+    - Clarify ambiguities while preserving the innovative spirit of the idea
+    - Understand the essence of what the user wants to achieve
+    - Help refine the idea without forcing it into conventional molds
+- Maintain a record of the user's acceptance of both your suggestions and the features you're discussing
+- DON'T directly ask the user to answer a list of questions, but rather engage in a natural conversation
 
-By the end of the session, you must have a clear scope with all the necessary details to precisely describe 
-the solution/project/service, including all the accepted suggestions you made and the features you discussed, that "was born", during the brainstorm session, from the user idea to write a project vision document in markdown.
+By the end of the session, you must have captured a clear scope with all the necessary details to precisely describe 
+the unique solution/project/service that emerged during your conversation. Your documentation should preserve both the 
+practical implementation details AND the distinctive vision that makes this idea special.
+
+Remember: Every idea is unique. Your job is to help the user articulate THEIR vision, not to fit their idea into existing patterns or templates.
 """
 
 BA_DOCUMENT_CREATION_PROMPT = """
 Based on our brainstorming session, please create a comprehensive project vision document in markdown format.
 
 The document should:
-- contain all the necessary details to precisely describe the solution/product/service
-- contain all features, improvements, suggestions we agreed upon during the brainstorm session
+- Contain all the necessary details to precisely describe the unique solution/product/service we discussed
+- Include all features, improvements, and suggestions we agreed upon during the brainstorm session
 - NOT contain any information, feature, suggestion or improvement that was not agreed upon
-- NOT contain any invented information, feature, suggestion or improvement or that was not discussed
-- be clear, detailed and precise, describing the solution/product/service with ALL and ONLY the information
-    that was discussed and agreed upon during the brainstorm session
-- be written in a markdown format
+- NOT contain any invented information, feature, suggestion or improvement that was not discussed
+- Be clear, detailed and precise, describing the solution with ALL and ONLY the information
+  that was discussed and agreed upon during the brainstorm session
+- Be written in markdown format
+- Have a structure that is COMPLETELY TAILORED to this specific project's unique needs
 
-Here's a general structure you can follow, but adapt it as needed:
+VERY IMPORTANT:
+- Do NOT follow a generic template structure
+- Create a document structure that perfectly captures THIS SPECIFIC PROJECT'S unique nature
+- Organize information in the way that best communicates this particular idea's essence
+- Include ALL agreed features with detailed descriptions that specify precisely how they should work
 
-# [Project Name]
+The section headings and organization should reflect what makes this specific project unique. For example:
+- A data-focused project might emphasize data flows and integration points
+- A user-centric application might focus on user journeys and interaction patterns
+- A technical tool might highlight capabilities and integration opportunities
 
-## Overview
-[A brief description of the project]
+Be particularly careful to:
+1. FULLY describe each feature with its expected behavior
+2. Capture any unique aspects, novel approaches, or differentiators discussed
+3. Clearly articulate the project's scope boundaries (what it does and does not do)
+4. Preserve the excitement and vision behind the original idea while making it actionable
 
-## Problem Statement
-[The problem the project aims to solve]
-
-## Solution Description
-[Detailed description of the proposed solution]
-
-## Features
-[List of features with descriptions]
-
-## Technical Requirements
-[Any technical requirements or constraints discussed]
-
-## Next Steps
-[Potential next steps for the project]
+Remember: This document will be the foundation for ALL future work on this project, so ensure nothing is missed or left ambiguous.
 """
 
 
@@ -232,8 +234,8 @@ class BusinessAnalyst:
         assistant_message = create_assistant_prompt(response.content)
         session.messages.append(assistant_message)
         
-        # TODO: Parse the response to identify suggestions
-        # This would involve some NLP to identify suggestions in the response
+        # Extract suggestions and features from the response
+        await self._extract_suggestions_and_features(session_id, content, response.content)
         
         return response.content
     
@@ -257,8 +259,39 @@ class BusinessAnalyst:
         # Update the session state
         session.state = SessionState.DOCUMENT_CREATION
         
+        # Create a summary of the structured data in the session
+        accepted_suggestions = [s.content for s in session.suggestions if s.accepted]
+        accepted_features = [f for f in session.features if f.accepted]
+        
+        # Format the structured data as a summary
+        structured_data_summary = ""
+        
+        if accepted_suggestions:
+            structured_data_summary += "## Accepted Suggestions\n"
+            for suggestion in accepted_suggestions:
+                structured_data_summary += f"- {suggestion}\n"
+            structured_data_summary += "\n"
+        
+        if accepted_features:
+            structured_data_summary += "## Accepted Features\n"
+            for feature in accepted_features:
+                structured_data_summary += f"### {feature.name}\n"
+                structured_data_summary += f"{feature.description}\n\n"
+        
+        # Create an enhanced document creation prompt with the structured data
+        enhanced_prompt = f"""
+{BA_DOCUMENT_CREATION_PROMPT}
+
+Based on our brainstorming session, I've identified these key elements that we agreed upon:
+
+{structured_data_summary}
+
+Please use these specific agreed upon suggestions and features as the foundation for the document, 
+in addition to any other valuable insights from our conversation.
+"""
+        
         # Create and add the document creation message
-        document_request = create_user_prompt(BA_DOCUMENT_CREATION_PROMPT)
+        document_request = create_user_prompt(enhanced_prompt)
         document_messages = session.messages + [document_request]
         
         # Get the agent's response
@@ -322,6 +355,120 @@ class BusinessAnalyst:
         session.document = response.content
         
         return response.content
+    
+    @handle_async_errors
+    async def _extract_suggestions_and_features(self, session_id: str, user_message: str, assistant_response: str) -> None:
+        """
+        Extract suggestions and features from the assistant's response.
+        
+        Args:
+            session_id: Identifier of the session
+            user_message: User's message
+            assistant_response: Assistant's response to analyze
+            
+        Returns:
+            None
+        """
+        # Get the session
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session not found: {session_id}")
+            return
+        
+        # Create a prompt to identify suggestions and features
+        analysis_prompt = f"""
+        Please analyze this conversation fragment from a brainstorming session to identify:
+        
+        1. Suggestions: Ideas or improvements proposed by the assistant
+        2. Features: Product/service features mentioned or discussed by either party
+        
+        User message: {user_message}
+        
+        Assistant response: {assistant_response}
+        
+        For each suggestion:
+        - Extract the specific suggestion text
+        - Determine if it was accepted or not based on the conversation
+        
+        For each feature:
+        - Extract the feature name
+        - Extract a brief description
+        - Determine if it was accepted or not based on the conversation
+        
+        Format your response as JSON with two arrays:
+        
+        ```json
+        {{
+          "suggestions": [
+            {{
+              "content": "specific suggestion text",
+              "accepted": true/false
+            }}
+          ],
+          "features": [
+            {{
+              "name": "feature name",
+              "description": "feature description",
+              "accepted": true/false
+            }}
+          ]
+        }}
+        ```
+        
+        Only return the JSON object without any additional text.
+        """
+        
+        # Create a temporary list of messages to avoid affecting the session
+        temp_messages = [
+            self.system_prompt,
+            create_user_prompt(analysis_prompt)
+        ]
+        
+        # Get the agent's response
+        try:
+            response = await send_prompt(temp_messages)
+            
+            # Extract the JSON object from the response
+            import re
+            import json
+            
+            json_match = re.search(r'```json\s*(.*?)\s*```', response.content, re.DOTALL)
+            
+            if json_match:
+                json_text = json_match.group(1)
+            else:
+                # Try to find json without the code block markers
+                json_match = re.search(r'\{\s*"suggestions"', response.content)
+                if json_match:
+                    json_text = response.content[json_match.start():]
+                else:
+                    logger.error("No JSON found in the response")
+                    return
+            
+            # Parse the JSON
+            extracted_data = json.loads(json_text)
+            
+            # Add suggestions to the session
+            for suggestion_data in extracted_data.get("suggestions", []):
+                suggestion = Suggestion(
+                    content=suggestion_data.get("content", ""),
+                    accepted=suggestion_data.get("accepted", False)
+                )
+                session.suggestions.append(suggestion)
+            
+            # Add features to the session
+            for feature_data in extracted_data.get("features", []):
+                feature = Feature(
+                    name=feature_data.get("name", ""),
+                    description=feature_data.get("description", ""),
+                    accepted=feature_data.get("accepted", False)
+                )
+                session.features.append(feature)
+                
+            logger.info(f"Extracted {len(extracted_data.get('suggestions', []))} suggestions and {len(extracted_data.get('features', []))} features")
+            
+        except Exception as e:
+            logger.error(f"Error extracting suggestions and features: {str(e)}")
     
     @handle_async_errors
     async def complete_session(self, session_id: str) -> bool:

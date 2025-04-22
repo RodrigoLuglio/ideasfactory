@@ -61,6 +61,7 @@ class ArchitectureScreen(BaseScreen):
                 Container(
                     Button("View Project Vision", id="view_vision_button", variant="primary"),
                     Button("View Research Report", id="view_report_button", variant="primary"),
+                    Button("Reload Documents", id="reload_documents_button", variant="default"),
                     id="documents_container"
                 ),
                 
@@ -120,6 +121,10 @@ class ArchitectureScreen(BaseScreen):
         
         # Disable buttons that shouldn't be clickable yet
         self.query_one("#create_document_button").disabled = True
+        
+        # Load documents if session is available
+        if self.session_id:
+            asyncio.create_task(self._load_session_documents())
     
     @handle_async_errors
     async def _load_session_documents(self) -> None:
@@ -130,45 +135,45 @@ class ArchitectureScreen(BaseScreen):
         # Use the centralized document loading utility
         from ideasfactory.utils.file_manager import load_document_content
         
-        # Load required documents
+        # Load project vision document
         vision_content = await load_document_content(self.session_id, "project-vision")
+        if vision_content:
+            self.project_vision = vision_content
+            
+        # Load research report document
         research_content = await load_document_content(self.session_id, "research-report")
-        
-        # Update local properties
-        self.project_vision = vision_content
-        self.research_report = research_content
+        if research_content:
+            self.research_report = research_content
             
         # Update UI based on document availability
         if self._is_mounted:
-            # Check if we have all required documents
-            if vision_content and research_content:
+            if self.project_vision and self.research_report:
                 self.query_one("#analysis_status").update("Ready to start architecture analysis.")
                 self.query_one("#start_analysis_button").disabled = False
             else:
                 missing = []
-                if not vision_content:
+                if not self.project_vision:
                     missing.append("Project Vision")
-                if not research_content:
+                if not self.research_report:
                     missing.append("Research Report")
                 
                 self.query_one("#analysis_status").update(f"Missing required documents: {', '.join(missing)}")
                 self.query_one("#start_analysis_button").disabled = True
-                
-                # Log the issue
-                logger.warning(f"Missing required documents for architecture: {', '.join(missing)}")
     
     @handle_async_errors
     async def on_screen_resume(self) -> None:
         """Handle screen being resumed."""
-        # Call the base class implementation which handles session retrieval and document loading
+        # Call the base class implementation which handles session retrieval
         await super().on_screen_resume()
         
-        # Additional screen-specific resume behavior
-        if not self.session_id:
+        # If we have a session but no documents, try to load them
+        if self.session_id and (not self.project_vision or not self.research_report):
+            await self._load_session_documents()
+        elif not self.session_id:
+            # No session
             self.notify("No active session found", severity="error")
             self.query_one("#analysis_status").update("No active session")
             self.query_one("#start_analysis_button").disabled = True
-            logger.error("No active session when resuming architecture screen")
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button press events."""
