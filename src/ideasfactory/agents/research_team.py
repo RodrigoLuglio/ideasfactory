@@ -1,7 +1,7 @@
-"""Research Team module for IdeasFactory.
+"""Foundational Research Team module for IdeasFactory.
 
-This module implements the comprehensive Research Team that conducts exhaustive
-dimensional research across multiple paradigms to inform architectural decisions
+This module implements the comprehensive Research Team that conducts foundation-based
+research across multiple paradigms to inform architectural decisions
 while preserving innovation and uniqueness throughout the exploration process.
 """
 
@@ -73,13 +73,23 @@ class ResearchAgentType(Enum):
     SYNTHESIS = "synthesis"
 
 @dataclass
-class ResearchDimension:
-    """Class representing a research dimension."""
+class ProjectFoundation:
+    """Class representing a potential project foundation approach."""
     name: str
     description: str
+    paradigm_category: str
     research_areas: List[Dict[str, Any]] = field(default_factory=list)
-    dependencies: List[str] = field(default_factory=list)
-    foundation_impact: str = "Medium"
+    completed: bool = False
+    research_content: Dict[str, str] = field(default_factory=dict)
+    viability_score: float = 0.0  # How viable this foundation is for the project
+
+@dataclass
+class EmergentDimension:
+    """Class representing an aspect of implementation that emerges from a foundation choice."""
+    name: str
+    description: str
+    foundation_id: str  # Which foundation this dimension emerges from
+    research_areas: List[Dict[str, Any]] = field(default_factory=list)
     completed: bool = False
     research_content: Dict[str, str] = field(default_factory=dict)
 
@@ -88,7 +98,8 @@ class ResearchPath:
     """Class representing a research path based on foundation choices."""
     name: str
     description: str
-    dimensions: List[Dict[str, Any]] = field(default_factory=list)
+    foundation_id: str  # The foundation this path is based on
+    emergent_dimensions: List[EmergentDimension] = field(default_factory=list)
     research_content: Optional[str] = None
 
 @dataclass
@@ -104,27 +115,27 @@ class ResearchAgent:
     status: str = "initialized"
 
 @dataclass
-class ResearchSession:
-    """Class representing a research session."""
+class FoundationalResearchSession:
+    """Class representing a research session focused on emergent foundations."""
     id: str
     requirements: str
-    dimensions: Dict[str, ResearchDimension] = field(default_factory=dict)
-    foundation_choices: Dict[str, str] = field(default_factory=dict)
+    project_foundations: Dict[str, ProjectFoundation] = field(default_factory=dict)
+    emergent_dimensions: Dict[str, EmergentDimension] = field(default_factory=dict)
     research_paths: List[ResearchPath] = field(default_factory=list)
     cross_paradigm_opportunities: Optional[str] = None
     agents: List[ResearchAgent] = field(default_factory=list)
     research_report: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-class ResearchTeam:
+class FoundationalResearchTeam:
     """
-    Research Team that conducts comprehensive dimensional research.
+    Research Team that conducts comprehensive foundation-based research.
     
-    The Research Team uses a specialized multi-agent approach to explore
-    implementation possibilities across multiple paradigms and dimensions.
-    Each agent has access to powerful research tools but maintains full
-    autonomy in how they conduct their exploration, ensuring maximum
-    innovation potential without artificial constraints.
+    The Research Team uses a specialized multi-agent approach to discover
+    potential project foundations and explore implementation possibilities
+    across multiple paradigms. Each agent has access to powerful research
+    tools but maintains full autonomy in how they conduct their exploration,
+    ensuring maximum innovation potential without artificial constraints.
     """
     
     _instance = None
@@ -132,7 +143,7 @@ class ResearchTeam:
     def __new__(cls):
         """Ensure singleton pattern."""
         if cls._instance is None:
-            cls._instance = super(ResearchTeam, cls).__new__(cls)
+            cls._instance = super(FoundationalResearchTeam, cls).__new__(cls)
             cls._instance._initialized = False
         return cls._instance
     
@@ -144,50 +155,53 @@ class ResearchTeam:
         self._initialized = True
         self.session_manager = SessionManager()
         self.doc_manager = DocumentManager()
-        self.sessions: Dict[str, ResearchSession] = {}
+        self.sessions: Dict[str, FoundationalResearchSession] = {}
         
         # System prompts for different agent types
-        self.foundation_agent_prompt = """
-        You are a Foundation Research Agent with exceptional insight into architectural foundations.
+        self.foundation_discovery_agent_prompt = """
+        You are a Foundation Discovery Agent with exceptional insight into discovering viable project foundations.
         
-        Your mission is to DISCOVER the complete spectrum of foundation approaches for a specific dimension,
-        identifying both conventional AND unconventional options that could serve as the bedrock for all
-        subsequent architectural decisions.
+        Your mission is to DISCOVER the complete spectrum of FUNDAMENTAL APPROACHES for implementing this project,
+        identifying both conventional AND unconventional foundation options that could serve as the
+        basis for all subsequent architectural decisions.
         
         You have access to these research tools that you can use however you determine is most effective:
         
-        - Web search: search_web_multiple_sources(), search_custom(), fetch_full_page(), search_and_fetch()
-        - Data analysis: extract_text_features(), analyze_text_patterns(), analyze_text_clusters()
-        - Technology evaluation: create_evaluation_framework(), evaluate_technology(), compare_technologies()
-        - Visualization: create_ascii_table(), create_ascii_chart(), create_comparison_matrix()
+        - Web search: search_custom(), fetch_full_page(), search_and_fetch()
+        - Data analysis: extract_text_features()
+        - Technology evaluation: create_evaluation_framework(), evaluate_technology(), compare_technologies(), generate_evaluation_report()
+        - Visualization: create_ascii_table(), create_timeline()
         
         OBJECTIVES:
         
-        1. EXPLORE THE FULL SPECTRUM across ALL paradigms:
+        1. DISCOVER PROJECT FOUNDATIONS, not predefined components:
+           - Identify the complete spectrum of FUNDAMENTAL APPROACHES to building this project
+           - Avoid assuming any predetermined architecture or components
+           - Consider completely different ways the project could be approached
+           - Look beyond conventional software patterns to identify unique foundation options
+           
+        2. EXPLORE EACH FOUNDATION across the FULL SPECTRUM of paradigms:
            - Established approaches (traditional, proven methodologies)
            - Mainstream current (contemporary popular solutions)
            - Cutting-edge (emerging technologies gaining traction)
            - Experimental (research-stage approaches)
-           - Cross-paradigm (combinations of technologies from different domains)
+           - Cross-paradigm (combinations from different domains)
            - First-principles (custom approaches designed specifically for this project)
         
-        2. DISCOVER, not filter:
-           - Identify the COMPLETE range of foundation options, not just the popular ones
-           - Document BOTH widely-adopted AND unconventional approaches
-           - Preserve options that might seem unusual but could align with the project's unique nature
-           - Look for technologies with fundamentally different philosophies and characteristics
-        
-        3. MAP THE POSSIBILITY SPACE:
-           - Document how each foundation choice creates a different architectural trajectory
-           - Identify how foundation choices constrain or enable different technology paths
+        3. REMAIN COMPLETELY OPEN TO POSSIBILITIES:
+           - Consider traditional software platforms
+           - Explore hardware-software combinations
+           - Examine novel interaction paradigms
+           - Investigate pure algorithmic solutions
+           - Consider edge computing approaches
+           - Look for entirely new foundation types specific to this project
+           - Explore hybrid combinations that don't fit existing categories
+           
+        4. MAP THE POSSIBILITY SPACE:
+           - Document how each foundation approach creates a different implementation trajectory
+           - Identify how foundation choices enable or constrain different capabilities
            - Explore how unconventional foundations might open unique implementation opportunities
-           - Map the relationship between foundation approaches and downstream technology choices
-        
-        4. DOCUMENT SPECIFICS, not just concepts:
-           - Identify CONCRETE technologies and approaches, not just abstract patterns
-           - Document specific implementations, their capabilities, and limitations
-           - Explore real-world implementation examples across different scales
-           - Analyze how these specific technologies embody different architectural philosophies
+           - Map the relationship between foundation approaches and potential project success
         
         5. PRESERVE INNOVATION POTENTIAL:
            - Avoid normalizing toward conventional enterprise patterns
@@ -195,36 +209,87 @@ class ResearchTeam:
            - Preserve foundation options that enable the project's unique characteristics
            - Challenge foundational assumptions about how systems "should" be built
         
-        Your findings will define the trajectories for all subsequent architectural exploration.
+        Your discoveries will define the trajectories for all subsequent architectural exploration.
         DOCUMENT THE COMPLETE POSSIBILITY SPACE without bias toward conventional approaches.
+        """
+        
+        self.foundation_exploration_agent_prompt = """
+        You are a Foundation Exploration Agent with deep expertise in exploring a specific foundation approach.
+        
+        Your mission is to thoroughly explore a particular project foundation approach across the paradigm spectrum,
+        documenting how this foundation can be implemented in different ways and what emergent dimensions would
+        arise from choosing this foundation.
+        
+        You have access to these research tools that you can use however you determine is most effective:
+        
+        - Web search: search_custom(), fetch_full_page(), search_and_fetch()
+        - Data analysis: extract_text_features()
+        - Technology evaluation: create_evaluation_framework(), evaluate_technology(), compare_technologies(), generate_evaluation_report()
+        - Visualization: create_ascii_table()
+        
+        OBJECTIVES:
+        
+        1. EXPLORE THIS FOUNDATION ACROSS THE PARADIGM SPECTRUM:
+           - Document how this foundation can be implemented using approaches from different paradigms
+           - Identify established, mainstream, cutting-edge, experimental, and first-principles implementations
+           - Explore variations within this foundation that represent different philosophical approaches
+           - Document specific technologies and approaches for each paradigm within this foundation
+        
+        2. DISCOVER EMERGENT DIMENSIONS:
+           - Identify what aspects of implementation would emerge from choosing this foundation
+           - Document the unique dimensions that would need to be addressed in this foundation approach
+           - Explore how these dimensions differ from those that would emerge from other foundations
+           - Map relationships between emergent dimensions specific to this foundation
+        
+        3. EVALUATE FOUNDATION VIABILITY:
+           - Analyze how well this foundation aligns with the project's unique requirements
+           - Document strengths and limitations of this foundation approach
+           - Identify scenarios where this foundation would be particularly advantageous
+           - Assess implementation complexity, scalability, and other relevant factors
+        
+        4. PRESERVE INNOVATION POTENTIAL:
+           - Resist normalizing toward conventional implementations of this foundation
+           - Document unconventional approaches that might be particularly well-suited
+           - Explore how this foundation could enable unique project characteristics
+           - Challenge assumptions about how this foundation "should" be implemented
+        
+        5. IDENTIFY CROSS-FOUNDATION OPPORTUNITIES:
+           - Note potential integration points with other foundation approaches
+           - Identify where hybrid approaches might combine the strengths of multiple foundations
+           - Document how this foundation could complement or be complemented by others
+           - Explore potential novel combinations with other foundation approaches
+        
+        You have complete autonomy in how you approach this exploration. Your mission is to
+        thoroughly understand this foundation, its emergent dimensions, its viability for this
+        specific project, and how it could be implemented across the paradigm spectrum.
         """
         
         self.paradigm_agent_prompt = """
         You are a Paradigm Research Agent with deep expertise in a specific technological paradigm.
         
-        Your mission is to EXPLORE the complete range of technologies within your assigned paradigm
-        as they apply to multiple dimensions of a project, discovering how your paradigm's unique
-        philosophy can be expressed across different aspects of the architecture.
+        Your mission is to EXPLORE how your paradigm can be applied to different project foundations and their
+        emergent dimensions, discovering how your paradigm's unique philosophy can be expressed across
+        different aspects of the architecture.
         
         You have access to these research tools that you can use however you determine is most effective:
         
-        - Web search: search_web_multiple_sources(), search_custom(), fetch_full_page(), search_and_fetch()
-        - Data analysis: extract_text_features(), analyze_text_patterns(), analyze_text_clusters()
-        - Technology evaluation: create_evaluation_framework(), evaluate_technology(), compare_technologies()
-        - Visualization: create_ascii_table(), create_ascii_chart(), create_comparison_matrix()
+        - Web search: search_custom(), fetch_full_page(), search_and_fetch()
+        - Data analysis: extract_text_features()
+        - Technology evaluation: create_evaluation_framework(), evaluate_technology(), compare_technologies(), generate_evaluation_report()
+        - Visualization: create_ascii_table()
         
         OBJECTIVES:
         
-        1. EXPLORE THE FULL PARADIGM SPECTRUM:
-           - Document the COMPLETE range of technologies within your paradigm, not just popular ones
-           - Identify both mainstream and niche implementations that embody your paradigm's philosophy
-           - Explore how your paradigm's core principles are expressed in different technologies
-           - Discover variations within your paradigm that represent different philosophical approaches
+        1. EXPLORE YOUR PARADIGM ACROSS FOUNDATIONS:
+           - Document how your paradigm can be applied to different foundation approaches
+           - Identify where your paradigm is particularly well-suited and where it faces challenges
+           - Explore how your paradigm's philosophy would manifest within each foundation
+           - Document specific technologies and approaches within your paradigm for each foundation
         
         2. PARADIGM-DIMENSION MAPPING:
-           - For EACH dimension, identify specific technologies within your paradigm
-           - Explore how your paradigm addresses different architectural concerns in each dimension
-           - Document paradigm-specific implementations for each dimension's requirements
+           - For EACH emergent dimension, identify specific technologies within your paradigm
+           - Explore how your paradigm addresses different concerns in each dimension
+           - Document paradigm-specific implementations for each dimension within different foundations
            - Analyze how your paradigm's strengths align with different dimension requirements
         
         3. FOUNDATION RESPONSE:
@@ -247,40 +312,41 @@ class ResearchTeam:
         
         DOCUMENT THE FULL RANGE of technologies and approaches within your paradigm,
         not just the most popular or conventional options. Your mission is to map how your
-        paradigm's distinctive philosophy can be expressed across all dimensions of the project.
+        paradigm's distinctive philosophy can be expressed across all foundations and dimensions
+        of the project.
         """
         
         self.path_agent_prompt = """
-        You are a Path Research Agent with exceptional insight into creating cohesive technology stacks.
+        You are a Path Research Agent with exceptional insight into creating cohesive implementation paths.
         
         Your mission is to explore complete implementation paths that emerge from specific foundation choices,
-        tracing how these choices propagate through dependent dimensions to create distinct, cohesive
+        tracing how these choices propagate through emergent dimensions to create distinct, cohesive
         architectural trajectories.
         
         You have access to these research tools that you can use however you determine is most effective:
         
-        - Web search: search_web_multiple_sources(), search_custom(), fetch_full_page(), search_and_fetch()
-        - Data analysis: extract_text_features(), analyze_text_patterns(), analyze_text_clusters()
-        - Technology evaluation: create_evaluation_framework(), evaluate_technology(), compare_technologies()
-        - Visualization: create_ascii_table(), create_ascii_chart(), create_comparison_matrix()
+        - Web search: search_custom(), fetch_full_page(), search_and_fetch()
+        - Data analysis: extract_text_features()
+        - Technology evaluation: create_evaluation_framework(), evaluate_technology(), compare_technologies(), generate_evaluation_report()
+        - Visualization: create_ascii_table()
         
         OBJECTIVES:
         
-        1. MAP COMPLETE TECHNOLOGY PATHS:
-           - Trace how foundation choices create distinct implementation trajectories
-           - Follow the cascading impact of foundation decisions across dependent dimensions
-           - Document complete technology stacks that form coherent wholes
-           - Show how different choices create fundamentally different architectural approaches
+        1. MAP COMPLETE IMPLEMENTATION PATHS:
+           - Trace how a specific foundation choice creates a distinct implementation trajectory
+           - Follow how this foundation gives rise to emergent dimensions with unique characteristics
+           - Document a complete approach to implementing the project based on this foundation
+           - Show how this path differs fundamentally from paths based on other foundations
         
         2. DOCUMENT COHESIVE IMPLEMENTATIONS:
-           - Identify specific technology combinations that work together seamlessly
-           - Explore how technologies from different dimensions integrate in this path
+           - Identify specific implementation approaches for each dimension in this path
+           - Explore how different dimensions integrate cohesively within this path
            - Document communication patterns and data flows between components
-           - Analyze how architectural concerns are addressed across the full stack
+           - Analyze how architectural concerns are addressed across the full implementation
         
         3. REVEAL EMERGENT PROPERTIES:
-           - Identify unique capabilities that emerge from specific technology combinations
-           - Document how particular technology stacks enable distinctive project characteristics
+           - Identify unique capabilities that emerge from this specific implementation path
+           - Document how this path enables distinctive project characteristics
            - Analyze quality attributes of the complete path (performance, scalability, etc.)
            - Reveal trade-offs that only become apparent when viewing the complete path
         
@@ -291,53 +357,53 @@ class ResearchTeam:
            - Explore deployment patterns and infrastructure needs
         
         5. PRESERVE PATH UNIQUENESS:
-           - Maintain the distinctive characteristics of each implementation path
+           - Maintain the distinctive characteristics of this implementation path
            - Resist normalizing unique paths toward conventional patterns
-           - Document how each path embodies different architectural philosophies
-           - Highlight the unique advantages and capabilities of each approach
+           - Document how this path embodies a particular philosophical approach
+           - Highlight the unique advantages and capabilities of this approach
         
-        Your exploration should document MULTIPLE VIABLE PATHS with fundamentally different
-        characteristics, not converging toward a single "best" approach. Each path should
-        represent a coherent, implementable technology stack that addresses all project
-        requirements with different trade-offs and distinctive qualities.
+        Your exploration should document a COMPLETE, VIABLE IMPLEMENTATION PATH with
+        distinctive characteristics, not converging toward generic patterns. The path should
+        represent a coherent, implementable approach that addresses all project
+        requirements with unique trade-offs and qualities.
         """
         
         self.integration_agent_prompt = """
-        You are an Integration Research Agent with extraordinary ability to discover cross-paradigm opportunities.
+        You are an Integration Research Agent with extraordinary ability to discover cross-foundation opportunities.
         
-        Your mission is to identify novel integration patterns where technologies from different paradigms
-        and dimensions can be combined to create solutions that transcend the limitations of any single
+        Your mission is to identify novel integration patterns where different foundation approaches
+        can be combined to create solutions that transcend the limitations of any single
         approach, discovering unexpected combinations that enable unique project capabilities.
         
         You have access to these research tools that you can use however you determine is most effective:
         
-        - Web search: search_web_multiple_sources(), search_custom(), fetch_full_page(), search_and_fetch()
-        - Data analysis: extract_text_features(), analyze_text_patterns(), analyze_text_clusters()
-        - Technology evaluation: create_evaluation_framework(), evaluate_technology(), compare_technologies()
-        - Visualization: create_ascii_table(), create_ascii_chart(), create_comparison_matrix()
+        - Web search: search_custom(), fetch_full_page(), search_and_fetch()
+        - Data analysis: extract_text_features()
+        - Technology evaluation: create_evaluation_framework(), evaluate_technology(), compare_technologies(), generate_evaluation_report()
+        - Visualization: create_ascii_table()
         
         OBJECTIVES:
         
         1. DISCOVER UNEXPECTED COMBINATIONS:
-           - Identify non-obvious technology combinations across different paradigms
-           - Find complementary technologies that address each other's limitations
+           - Identify non-obvious ways to combine different foundation approaches
+           - Find complementary foundations that address each other's limitations
            - Discover integration patterns that create unique capabilities
            - Look beyond conventional integrations to find novel arrangements
         
-        2. MAP CROSS-CUTTING PATTERNS:
-           - Identify integration patterns that span multiple dimensions
-           - Document how concerns like security, performance, and reliability are addressed across dimensions
-           - Map communication protocols and data exchange patterns across technologies
-           - Discover architectural patterns that enable cross-dimensional integration
+        2. MAP HYBRID FOUNDATION APPROACHES:
+           - Document how different foundation approaches can be combined
+           - Explore what new dimensions might emerge from hybrid foundations
+           - Map communication protocols and data exchange patterns across foundation boundaries
+           - Discover architectural patterns that enable cross-foundation integration
         
         3. ANALYZE INTEGRATION MECHANICS:
-           - Document specific integration approaches for combining disparate technologies
+           - Document specific approaches for integrating disparate foundations
            - Explore interfaces, adapters, and communication mechanisms
            - Identify data transformation and translation requirements
            - Research implementation examples of similar integration patterns
         
         4. EVALUATE COMBINATORIAL VALUE:
-           - Assess how combinations create value beyond individual technologies
+           - Assess how combinations create value beyond individual foundations
            - Document unique capabilities that emerge from specific integrations
            - Analyze how combinations address limitations in individual approaches
            - Identify how integrations enable project-specific requirements
@@ -350,7 +416,7 @@ class ResearchTeam:
         
         Your exploration should REVEAL THE UNEXPECTED - finding integration opportunities
         that might not be immediately obvious but could create exceptional value for this
-        specific project. Focus on discovering how technologies from different paradigms
+        specific project. Focus on discovering how different foundation approaches
         can complement each other in ways that preserve the project's distinctive vision.
         """
         
@@ -363,36 +429,35 @@ class ResearchTeam:
         
         You have access to these research tools that you can use however you determine is most effective:
         
-        - Data analysis: extract_text_features(), analyze_text_patterns(), analyze_text_clusters()
-        - Technology evaluation: create_evaluation_framework(), evaluate_technology(), compare_technologies()
-        - Visualization: create_ascii_table(), create_ascii_chart(), create_text_graph(), create_comparison_matrix()
+        - Data analysis: extract_text_features()
+        - Technology evaluation: create_evaluation_framework(), evaluate_technology(), compare_technologies(), generate_evaluation_report()
+        - Visualization: create_ascii_table()
         
         OBJECTIVES:
         
         1. CREATE A COMPREHENSIVE MAP:
            - Synthesize all research findings into a cohesive whole
-           - Preserve the full richness of implementation options
-           - Show relationships between dimensions, paradigms, and paths
+           - Preserve the full richness of foundation approaches and their emergent dimensions
+           - Show relationships between foundations, paradigms, and implementation paths
            - Create visualizations that illuminate the multi-dimensional nature of choices
         
         2. DOCUMENT THE FULL POSSIBILITY SPACE:
-           - Present the complete spectrum of options for each dimension and paradigm
+           - Present the complete spectrum of foundation options discovered during research
            - Document multiple viable implementation paths with diverse characteristics
-           - Map cross-paradigm opportunities and integration patterns
+           - Map cross-foundation opportunities and integration patterns
            - Preserve distinctly different approaches rather than converging on a "best" solution
         
         3. ILLUMINATE ARCHITECTURAL IMPLICATIONS:
-           - Analyze how different choices create fundamentally different architectures
+           - Analyze how different foundation choices create fundamentally different architectures
            - Document trade-offs inherent in different approaches
-           - Show how foundation choices propagate through dependent dimensions
-           - Highlight unique capabilities enabled by specific technology combinations
+           - Show how foundation choices give rise to different emergent dimensions
+           - Highlight unique capabilities enabled by specific foundation approaches
         
         4. CREATE POWERFUL VISUALIZATIONS:
-           - Dimension maps showing relationships between research areas
-           - Paradigm comparison matrices highlighting different philosophical approaches
-           - Technology trees showing option branching based on foundation choices
-           - Path diagrams illustrating complete implementation stacks
-           - Integration maps showing cross-paradigm opportunities
+           - Foundation maps showing the spectrum of options
+           - Path diagrams illustrating complete implementation approaches
+           - Integration maps showing hybrid foundation opportunities
+           - Trade-off matrices comparing different approaches
         
         5. PRESERVE INNOVATION POTENTIAL:
            - Maintain the diversity of approaches without defaulting to conventions
@@ -407,7 +472,7 @@ class ResearchTeam:
         """
     
     @handle_errors
-    def get_session(self, session_id: Optional[str] = None) -> ResearchSession:
+    def get_session(self, session_id: Optional[str] = None) -> FoundationalResearchSession:
         """Get a session by ID or the current session."""
         if session_id:
             session = self.sessions.get(session_id)
@@ -428,7 +493,7 @@ class ResearchTeam:
         return session
     
     @handle_async_errors
-    async def create_session(self, session_id: str, research_requirements: str) -> ResearchSession:
+    async def create_session(self, session_id: str, research_requirements: str) -> FoundationalResearchSession:
         """
         Create a new research session.
         
@@ -442,106 +507,16 @@ class ResearchTeam:
         logger.info(f"Creating research session {session_id}")
         
         # Create a new session
-        session = ResearchSession(
+        session = FoundationalResearchSession(
             id=session_id,
             requirements=research_requirements
         )
         
-        # Extract dimensions from research requirements
-        dimensions = await self._extract_research_dimensions(research_requirements)
-        session.dimensions = dimensions
-        
         # Store in sessions dict
         self.sessions[session_id] = session
         
-        logger.info(f"Created research session with {len(dimensions)} dimensions")
+        logger.info(f"Created foundational research session")
         return session
-    
-    @handle_async_errors
-    async def _extract_research_dimensions(self, requirements_content: str) -> Dict[str, ResearchDimension]:
-        """Extract research dimensions from the requirements document."""
-        dimensions = {}
-        
-        # Extract dimensions from H2 headers
-        import re
-        dimension_matches = re.findall(r'^##\s+(.*?)$', requirements_content, re.MULTILINE)
-        
-        for match in dimension_matches:
-            dimension_name = match.strip()
-            
-            # Skip common headers that aren't dimensions
-            if dimension_name.lower() in ["introduction", "overview", "conclusion", "summary"]:
-                continue
-                
-            # Find the description that follows the H2 header
-            header_pattern = f"## {re.escape(dimension_name)}"
-            header_match = re.search(header_pattern, requirements_content)
-            
-            if header_match:
-                start_pos = header_match.end()
-                next_header_match = re.search(r'^##\s+', requirements_content[start_pos:], re.MULTILINE)
-                
-                if next_header_match:
-                    end_pos = start_pos + next_header_match.start()
-                    description = requirements_content[start_pos:end_pos].strip()
-                else:
-                    description = requirements_content[start_pos:].strip()
-                
-                # Create a dimension
-                dimension = ResearchDimension(
-                    name=dimension_name,
-                    description=description
-                )
-                
-                # Extract research areas from H3 headers within this dimension
-                area_start = start_pos
-                area_end = end_pos if next_header_match else len(requirements_content)
-                dimension_content = requirements_content[area_start:area_end]
-                
-                area_matches = re.findall(r'^###\s+(.*?)$', dimension_content, re.MULTILINE)
-                for area_match in area_matches:
-                    area_name = area_match.strip()
-                    
-                    # Extract the description of this research area
-                    area_pattern = f"### {re.escape(area_name)}"
-                    area_header_match = re.search(area_pattern, dimension_content)
-                    
-                    if area_header_match:
-                        area_start_pos = area_header_match.end()
-                        area_next_match = re.search(r'^###\s+', dimension_content[area_start_pos:], re.MULTILINE)
-                        
-                        if area_next_match:
-                            area_end_pos = area_start_pos + area_next_match.start()
-                            area_description = dimension_content[area_start_pos:area_end_pos].strip()
-                        else:
-                            area_description = dimension_content[area_start_pos:].strip()
-                        
-                        # Add research area to the dimension
-                        dimension.research_areas.append({
-                            "name": area_name,
-                            "description": area_description
-                        })
-                
-                # Add the dimension to our dictionary
-                dimensions[dimension_name] = dimension
-        
-        # Extract dependencies (looking for mentions of other dimensions)
-        for dimension_name, dimension in dimensions.items():
-            # Look for mentions of other dimensions in this dimension's description
-            for other_name in dimensions.keys():
-                if other_name != dimension_name and other_name.lower() in dimension.description.lower():
-                    # This dimension might depend on the other dimension
-                    dimension.dependencies.append(other_name)
-            
-            # Assign foundation impact based on number of dependencies
-            if not dimension.dependencies:
-                dimension.foundation_impact = "High"
-            elif len(dimension.dependencies) <= 2:
-                dimension.foundation_impact = "Medium"
-            else:
-                dimension.foundation_impact = "Low"
-        
-        return dimensions
     
     @handle_async_errors
     async def initialize_research_agents(self, session_id: str) -> List[ResearchAgent]:
@@ -559,23 +534,15 @@ class ResearchTeam:
         # Create specialized agents for different research aspects
         agents = []
         
-        # Identify foundation dimensions
-        foundation_dimensions = [
-            name for name, dim in session.dimensions.items() 
-            if dim.foundation_impact == "High"
-        ]
-        
-        # Create foundation agents (one per foundation dimension)
-        for i, dim_name in enumerate(foundation_dimensions):
-            dimension = session.dimensions[dim_name]
-            
+        # Create foundation discovery agents (to identify potential foundations)
+        for i in range(2):  # Start with 2 discovery agents
             agent = ResearchAgent(
-                id=f"foundation-{i+1}",
+                id=f"foundation-discovery-{i+1}",
                 type=ResearchAgentType.FOUNDATION,
-                name=f"Foundation Agent {i+1}",
-                focus_area=dim_name,
-                system_prompt=self.foundation_agent_prompt,
-                messages=[create_system_prompt(self.foundation_agent_prompt)]
+                name=f"Foundation Discovery Agent {i+1}",
+                focus_area="Project Foundation Discovery",
+                system_prompt=self.foundation_discovery_agent_prompt,
+                messages=[create_system_prompt(self.foundation_discovery_agent_prompt)]
             )
             agents.append(agent)
         
@@ -609,7 +576,7 @@ class ResearchTeam:
             id="integration-1",
             type=ResearchAgentType.INTEGRATION,
             name="Integration Research Agent",
-            focus_area="Cross-dimension Integration",
+            focus_area="Cross-foundation Integration",
             system_prompt=self.integration_agent_prompt,
             messages=[create_system_prompt(self.integration_agent_prompt)]
         )
@@ -633,75 +600,67 @@ class ResearchTeam:
         return agents
     
     @handle_async_errors
-    async def start_foundation_research(self, session_id: str) -> Dict[str, Any]:
+    async def discover_project_foundations(self, session_id: str) -> Dict[str, Any]:
         """
-        Start the foundation research phase.
+        Start the foundation discovery phase to identify potential project foundations.
         
         Args:
             session_id: Session ID
             
         Returns:
-            Results of the foundation research
+            Results of the foundation discovery
         """
         session = self.get_session(session_id)
         
-        # Get foundation agents
-        foundation_agents = [
+        # Get foundation discovery agents
+        discovery_agents = [
             agent for agent in session.agents 
-            if agent.type == ResearchAgentType.FOUNDATION
+            if agent.type == ResearchAgentType.FOUNDATION and "discovery" in agent.id
         ]
         
-        if not foundation_agents:
-            logger.error(f"No foundation agents available for session {session_id}")
-            return {"status": "error", "message": "No foundation agents available"}
+        if not discovery_agents:
+            logger.error(f"No foundation discovery agents available for session {session_id}")
+            return {"status": "error", "message": "No foundation discovery agents available"}
         
-        # Research all foundation dimensions concurrently
-        foundation_tasks = []
-        for agent in foundation_agents:
+        # Research potential foundations concurrently
+        discovery_tasks = []
+        for agent in discovery_agents:
             task = asyncio.create_task(
-                self._research_foundation_dimension(
+                self._discover_potential_foundations(
                     session_id=session_id, 
-                    agent_id=agent.id,
-                    dimension_name=agent.focus_area
+                    agent_id=agent.id
                 )
             )
-            foundation_tasks.append(task)
+            discovery_tasks.append(task)
         
-        # Wait for all foundation research to complete
-        foundation_results = await asyncio.gather(*foundation_tasks)
+        # Wait for all foundation discovery to complete
+        discovery_results = await asyncio.gather(*discovery_tasks)
         
-        # Update session with foundation choices from agent conversations
-        for result in foundation_results:
-            if result["status"] == "success":
-                agent_id = result["agent_id"]
-                agent = next((a for a in session.agents if a.id == agent_id), None)
-                if agent:
-                    # Last message from agent should contain foundation choices
-                    last_message = next((m for m in reversed(agent.messages) if m.role == "assistant"), None)
-                    if last_message:
-                        foundation_choice = f"{result['dimension_name']}: Based on agent research"
-                        session.foundation_choices[foundation_choice] = "See complete research"
+        # Process discovery results to extract foundation approaches
+        foundations = await self._extract_foundation_approaches(session_id, discovery_results)
         
-        logger.info(f"Completed foundation research for session {session_id}")
-        return {"status": "success", "results": foundation_results}
+        # Store foundations in session
+        for foundation_id, foundation in foundations.items():
+            session.project_foundations[foundation_id] = foundation
+        
+        logger.info(f"Discovered {len(foundations)} potential foundation approaches for session {session_id}")
+        return {"status": "success", "foundations": foundations}
     
     @handle_async_errors
-    async def _research_foundation_dimension(
+    async def _discover_potential_foundations(
         self, 
         session_id: str, 
-        agent_id: str, 
-        dimension_name: str
+        agent_id: str
     ) -> Dict[str, Any]:
         """
-        Research a foundation dimension using a specialized agent.
+        Use a specialized agent to discover potential project foundations.
         
         Args:
             session_id: Session ID
             agent_id: Agent ID
-            dimension_name: Name of the dimension to research
             
         Returns:
-            Research results
+            Discovery results
         """
         session = self.get_session(session_id)
         
@@ -711,69 +670,62 @@ class ResearchTeam:
             logger.error(f"Agent {agent_id} not found")
             return {"status": "error", "message": f"Agent {agent_id} not found"}
         
-        # Get the dimension
-        dimension = session.dimensions.get(dimension_name)
-        if not dimension:
-            logger.error(f"Dimension {dimension_name} not found")
-            return {"status": "error", "message": f"Dimension {dimension_name} not found"}
-        
         # Set agent status
-        agent.status = "researching"
+        agent.status = "discovering"
         
-        # Create research prompt
-        research_prompt = f"""
-        Research Task: Explore foundation dimension "{dimension_name}"
-        
-        Dimension Description:
-        {dimension.description}
-        
-        Research Areas:
-        {dimension.research_areas}
+        # Create discovery prompt
+        discovery_prompt = f"""
+        Research Task: Discover Potential Project Foundations
         
         Research Requirements:
         {session.requirements}
         
-        You are tasked with exploring this foundation dimension across the COMPLETE SPECTRUM of possibilities:
+        You are tasked with discovering the COMPLETE SPECTRUM of FOUNDATION APPROACHES
+        for implementing this project:
         
-        1. MAP THE FULL POSSIBILITY SPACE for this foundation dimension:
-           - Document approaches across ALL paradigms (established, mainstream, cutting-edge, experimental, etc.)
-           - Discover BOTH conventional AND unconventional foundation options
-           - Explore how fundamentally different philosophies express themselves in this dimension
-           - Identify concrete technologies and implementations, not just abstract concepts
+        1. DISCOVER FUNDAMENTALLY DIFFERENT APPROACHES:
+           - What are the completely different ways this project could be implemented?
+           - Identify a diverse range of foundation approaches, NOT just variations on the same theme
+           - Consider both conventional AND unconventional foundation options
+           - Look beyond standard software patterns to consider novel foundation approaches
+           
+        2. REMAIN COMPLETELY OPEN TO POSSIBILITIES:
+           - Consider traditional software platforms
+           - Explore hardware-software combinations
+           - Examine novel interaction paradigms
+           - Investigate pure algorithmic solutions
+           - Consider edge computing approaches
+           - Look for entirely new foundation types specific to this project
+           - Explore hybrid combinations that don't fit existing categories
         
-        2. DOCUMENT DIVERGENT FOUNDATION PATHS:
-           - Identify how different foundation choices create distinct architectural trajectories
-           - Document how foundation decisions affect options in dependent dimensions
-           - Explore how unique foundation choices might enable distinctive project capabilities
-           - Map foundation options that specifically preserve this project's unique characteristics
+        3. FOR EACH POTENTIAL FOUNDATION:
+           - Provide a clear name and description
+           - Identify which paradigm category it primarily belongs to
+           - Describe key characteristics and implications
+           - Note what makes this foundation approach distinctive
+           - Identify what kinds of dimensions would emerge from this foundation
         
-        3. PRESERVE THE COMPLETE RANGE OF OPTIONS:
-           - Resist normalizing toward conventional enterprise patterns
-           - Document approaches that might seem contradictory to mainstream thinking
-           - Preserve options that enable the project's distinctive vision
-           - Challenge fundamental assumptions about how systems "should" be architected
+        4. AVOID PREMATURE FILTERING:
+           - Do not eliminate options based on perceived difficulty
+           - Include approaches that seem unconventional or challenging
+           - Document the complete possibility space, not just "reasonable" options
+           - Include options from across the paradigm spectrum
         
-        4. DISCOVER CONCRETE IMPLEMENTATIONS:
-           - Identify specific technologies, not just abstract approaches
-           - Document real-world implementations with different characteristics
-           - Explore how specific technologies embody different architectural philosophies
-           - Map technology capabilities, limitations, and integration considerations
+        5. PRESERVE THE PROJECT'S UNIQUENESS:
+           - Consider how each foundation approach enables the unique aspects of this project
+           - Avoid forcing the project into conventional implementation patterns
+           - Identify approaches that preserve what makes this project distinctive
+           - Challenge assumptions about how systems "should" be built
         
-        5. CREATE A FOUNDATION REFERENCE MAP:
-           - Document how each foundation option affects the overall architectural approach
-           - Identify interdependencies between foundation choices
-           - Map how foundation decisions propagate through the technology stack
-           - Create visualizations that illuminate the foundation landscape
-        
-        You have complete autonomy in how you approach this research. Use the available tools
+        You have complete autonomy in how you approach this discovery. Use the available tools
         in whatever way you determine will produce the most comprehensive exploration.
         
-        Your findings will define the trajectories for all subsequent architectural exploration.
+        Your discoveries will define the starting points for all subsequent research.
         DOCUMENT THE COMPLETE POSSIBILITY SPACE without bias toward conventional approaches.
         """
         
-        # Add the research prompt to agent messages
-        agent.messages.append(create_user_prompt(research_prompt))
+        # Add the discovery prompt to agent messages
+        agent.messages.append(create_user_prompt(discovery_prompt))
         
         # Get the agent's response
         response = await send_prompt(agent.messages)
@@ -785,105 +737,192 @@ class ResearchTeam:
         agent.findings.append(response.content)
         agent.status = "completed"
         
-        # Store the raw research in the dimension
-        dimension.research_content[agent.id] = response.content
-        
-        # Mark dimension as completed
-        dimension.completed = True
-        
-        logger.info(f"Foundation research completed for dimension {dimension_name}")
+        logger.info(f"Foundation discovery completed by agent {agent_id}")
         return {
             "status": "success",
             "agent_id": agent_id,
-            "dimension_name": dimension_name
+            "content": response.content
         }
     
     @handle_async_errors
-    async def start_paradigm_research(self, session_id: str) -> Dict[str, Any]:
+    async def _extract_foundation_approaches(
+        self,
+        session_id: str,
+        discovery_results: List[Dict[str, Any]]
+    ) -> Dict[str, ProjectFoundation]:
         """
-        Start the paradigm research phase.
+        Extract foundation approaches from discovery results.
+        
+        Args:
+            session_id: Session ID
+            discovery_results: Results from foundation discovery agents
+            
+        Returns:
+            Dictionary of foundation approaches
+        """
+        session = self.get_session(session_id)
+        
+        # Create an agent to analyze and extract foundation approaches
+        analysis_prompt = """
+        You are a Foundation Analysis Agent. Your task is to analyze the discovery results from multiple agents
+        and extract a comprehensive list of distinct project foundation approaches.
+        
+        For each identified foundation approach, extract:
+        1. A clear name
+        2. A concise description
+        3. The paradigm category it belongs to (established, mainstream, cutting-edge, experimental, cross-paradigm, or first-principles)
+        4. Any research areas mentioned for this foundation
+        
+        Combine similar foundation approaches, but preserve truly distinct approaches even if they seem unusual.
+        
+        Return your analysis in a structured JSON format:
+        {
+          "foundations": [
+            {
+              "id": "foundation-1",
+              "name": "Foundation Name",
+              "description": "Description of the foundation approach",
+              "paradigm_category": "one of the paradigm categories",
+              "research_areas": [
+                {"name": "Research Area 1", "description": "Description of the research area"}
+              ]
+            }
+          ]
+        }
+        """
+        
+        # Combine all discovery results
+        all_content = "\n\n".join([result["content"] for result in discovery_results if result["status"] == "success"])
+        
+        # Create the complete prompt
+        complete_prompt = f"{analysis_prompt}\n\nDiscovery Results:\n{all_content}"
+        
+        # Create messages for the analysis
+        messages = [
+            create_system_prompt(analysis_prompt),
+            create_user_prompt(f"Discovery Results:\n{all_content}")
+        ]
+        
+        # Get analysis response
+        response = await send_prompt(messages)
+        
+        # Extract JSON from response
+        import json
+        import re
+        
+        # Look for JSON pattern in the response
+        json_match = re.search(r'```json\n(.*?)\n```', response.content, re.DOTALL)
+        if not json_match:
+            json_match = re.search(r'{.*}', response.content, re.DOTALL)
+        
+        if not json_match:
+            logger.error("Could not extract JSON from analysis response")
+            return {}
+        
+        json_str = json_match.group(1) if json_match.group(0).startswith('```') else json_match.group(0)
+        
+        try:
+            data = json.loads(json_str)
+            # Convert to dictionary of ProjectFoundation objects
+            foundations = {}
+            for foundation_data in data["foundations"]:
+                foundation = ProjectFoundation(
+                    name=foundation_data["name"],
+                    description=foundation_data["description"],
+                    paradigm_category=foundation_data["paradigm_category"],
+                    research_areas=foundation_data.get("research_areas", [])
+                )
+                foundations[foundation_data["id"]] = foundation
+            
+            return foundations
+        except Exception as e:
+            logger.error(f"Error parsing foundation approaches: {str(e)}")
+            return {}
+    
+    @handle_async_errors
+    async def explore_foundation_approaches(self, session_id: str) -> Dict[str, Any]:
+        """
+        Explore each viable foundation approach across paradigms.
         
         Args:
             session_id: Session ID
             
         Returns:
-            Results of the paradigm research
+            Results of the foundation exploration
         """
         session = self.get_session(session_id)
         
-        # Get paradigm agents
-        paradigm_agents = [
-            agent for agent in session.agents 
-            if agent.type == ResearchAgentType.PARADIGM
-        ]
+        # Check if foundations have been discovered
+        if not session.project_foundations:
+            logger.error(f"No project foundations discovered for session {session_id}")
+            return {"status": "error", "message": "No project foundations discovered"}
         
-        if not paradigm_agents:
-            logger.error(f"No paradigm agents available for session {session_id}")
-            return {"status": "error", "message": "No paradigm agents available"}
+        # Create foundation exploration agents for each foundation
+        exploration_agents = []
+        for i, (foundation_id, foundation) in enumerate(session.project_foundations.items()):
+            agent = ResearchAgent(
+                id=f"foundation-exploration-{foundation_id}",
+                type=ResearchAgentType.FOUNDATION,
+                name=f"Foundation Exploration Agent for {foundation.name}",
+                focus_area=foundation_id,
+                system_prompt=self.foundation_exploration_agent_prompt,
+                messages=[create_system_prompt(self.foundation_exploration_agent_prompt)]
+            )
+            exploration_agents.append(agent)
+            session.agents.append(agent)
         
-        # Check if foundation research has been completed
-        foundation_dimensions = [
-            name for name, dim in session.dimensions.items() 
-            if dim.foundation_impact == "High" and dim.completed
-        ]
-        
-        if not foundation_dimensions:
-            logger.error(f"Foundation research not completed for session {session_id}")
-            return {"status": "error", "message": "Foundation research not completed"}
-        
-        # Get non-foundation dimensions that need research
-        research_dimensions = [
-            name for name, dim in session.dimensions.items() 
-            if dim.foundation_impact != "High" and not dim.completed
-        ]
-        
-        if not research_dimensions:
-            logger.info(f"No non-foundation dimensions to research for session {session_id}")
-            return {"status": "success", "message": "No non-foundation dimensions to research"}
-        
-        # Research all paradigms concurrently
-        paradigm_tasks = []
-        for agent in paradigm_agents:
+        # Explore all foundations concurrently
+        exploration_tasks = []
+        for agent in exploration_agents:
+            foundation_id = agent.focus_area
             task = asyncio.create_task(
-                self._research_paradigm(
+                self._explore_foundation_approach(
                     session_id=session_id, 
                     agent_id=agent.id,
-                    dimensions=research_dimensions,
-                    foundation_dimensions=foundation_dimensions
+                    foundation_id=foundation_id
                 )
             )
-            paradigm_tasks.append(task)
+            exploration_tasks.append(task)
         
-        # Wait for all paradigm research to complete
-        paradigm_results = await asyncio.gather(*paradigm_tasks)
+        # Wait for all foundation exploration to complete
+        exploration_results = await asyncio.gather(*exploration_tasks)
         
-        # Mark dimensions as completed
-        for dim_name in research_dimensions:
-            if dim_name in session.dimensions:
-                session.dimensions[dim_name].completed = True
+        # Process exploration results to extract emergent dimensions
+        for result in exploration_results:
+            if result["status"] == "success":
+                foundation_id = result["foundation_id"]
+                
+                # Extract emergent dimensions from exploration results
+                dimensions = await self._extract_emergent_dimensions(
+                    session_id=session_id,
+                    foundation_id=foundation_id,
+                    exploration_content=result["content"]
+                )
+                
+                # Store emergent dimensions in session
+                for dimension_id, dimension in dimensions.items():
+                    session.emergent_dimensions[dimension_id] = dimension
         
-        logger.info(f"Completed paradigm research for session {session_id}")
-        return {"status": "success", "results": paradigm_results}
+        logger.info(f"Explored {len(exploration_results)} foundation approaches for session {session_id}")
+        return {"status": "success", "results": exploration_results}
     
     @handle_async_errors
-    async def _research_paradigm(
+    async def _explore_foundation_approach(
         self, 
         session_id: str, 
-        agent_id: str, 
-        dimensions: List[str],
-        foundation_dimensions: List[str]
+        agent_id: str,
+        foundation_id: str
     ) -> Dict[str, Any]:
         """
-        Research dimensions from a specific paradigm perspective.
+        Explore a specific foundation approach using a specialized agent.
         
         Args:
             session_id: Session ID
             agent_id: Agent ID
-            dimensions: List of dimensions to research
-            foundation_dimensions: List of foundation dimensions
+            foundation_id: Foundation ID to explore
             
         Returns:
-            Research results
+            Exploration results
         """
         session = self.get_session(session_id)
         
@@ -893,79 +932,73 @@ class ResearchTeam:
             logger.error(f"Agent {agent_id} not found")
             return {"status": "error", "message": f"Agent {agent_id} not found"}
         
+        # Get the foundation
+        foundation = session.project_foundations.get(foundation_id)
+        if not foundation:
+            logger.error(f"Foundation {foundation_id} not found")
+            return {"status": "error", "message": f"Foundation {foundation_id} not found"}
+        
         # Set agent status
-        agent.status = "researching"
+        agent.status = "exploring"
         
-        # Collect foundation research to share with the paradigm agent
-        foundation_research = []
-        for dim_name in foundation_dimensions:
-            dimension = session.dimensions.get(dim_name)
-            if dimension and dimension.research_content:
-                foundation_research.append(f"## {dim_name}\n\n{list(dimension.research_content.values())[0]}")
+        # Create exploration prompt
+        exploration_prompt = f"""
+        Research Task: Explore Foundation Approach "{foundation.name}"
         
-        # Create research prompt
-        dimensions_info = []
-        for dim_name in dimensions:
-            dimension = session.dimensions.get(dim_name)
-            if dimension:
-                dimensions_info.append(f"## {dim_name}\n{dimension.description}\n\nResearch Areas:\n{dimension.research_areas}")
+        Foundation Description:
+        {foundation.description}
         
-        research_prompt = f"""
-        Research Task: Explore multiple dimensions from the perspective of the {agent.focus_area} paradigm
+        Paradigm Category:
+        {foundation.paradigm_category}
         
-        Paradigm: {agent.focus_area}
-        
-        Dimensions to Research:
-        {"".join(dimensions_info)}
-        
-        Foundation Research:
-        {"".join(foundation_research)}
+        Research Areas:
+        {foundation.research_areas}
         
         Research Requirements:
         {session.requirements}
         
-        You are tasked with exploring these dimensions through the lens of YOUR SPECIFIC PARADIGM:
+        You are tasked with exploring this foundation approach in depth:
         
-        1. MAP YOUR PARADIGM'S COMPLETE EXPRESSION across each dimension:
-           - Document the FULL RANGE of technologies within your paradigm, not just popular ones
-           - Explore how your paradigm's philosophy manifests in different technologies
-           - Discover BOTH mainstream AND niche implementations within your paradigm
-           - Identify paradigm variations that represent different philosophical approaches
+        1. EXPLORE THIS FOUNDATION ACROSS THE PARADIGM SPECTRUM:
+           - How can this foundation be implemented using approaches from different paradigms?
+           - What established, mainstream, cutting-edge, experimental, and first-principles implementations exist?
+           - What variations exist within this foundation that represent different philosophical approaches?
+           - What specific technologies and approaches could be used for each paradigm within this foundation?
         
-        2. EXPLORE PARADIGM-DIMENSION INTERSECTIONS:
-           - For EACH dimension, identify specific technologies from your paradigm
-           - Document how your paradigm addresses the unique requirements of each dimension
-           - Explore how your paradigm's strengths align with different dimension needs
-           - Map limitations where your paradigm might struggle with dimension requirements
+        2. DISCOVER EMERGENT DIMENSIONS:
+           - What aspects of implementation would emerge from choosing this foundation?
+           - What unique dimensions would need to be addressed in this foundation approach?
+           - How do these dimensions differ from those that would emerge from other foundations?
+           - What relationships exist between emergent dimensions specific to this foundation?
         
-        3. ANALYZE FOUNDATION DEPENDENCIES:
-           - Explore how different foundation choices affect options within your paradigm
-           - Document how your paradigm technologies integrate with various foundation approaches
-           - Identify unique opportunities when your paradigm combines with specific foundations
-           - Map compatibility between foundation choices and your paradigm's technologies
+        3. EVALUATE FOUNDATION VIABILITY:
+           - How well does this foundation align with the project's unique requirements?
+           - What are the strengths and limitations of this foundation approach?
+           - In what scenarios would this foundation be particularly advantageous?
+           - What is the implementation complexity, scalability, and other relevant factors?
         
         4. PRESERVE INNOVATION POTENTIAL:
-           - Document technologies that align with this project's unique characteristics
-           - Resist normalizing toward conventional implementations
-           - Explore how your paradigm can enable innovative approaches to requirements
-           - Preserve the distinctive potential of your paradigm's philosophy
+           - Avoid normalizing toward conventional implementations of this foundation
+           - What unconventional approaches might be particularly well-suited?
+           - How could this foundation enable unique project characteristics?
+           - What assumptions about how this foundation "should" be implemented need challenging?
         
-        5. IDENTIFY CROSS-PARADIGM BOUNDARIES:
-           - Note potential integration points with other paradigms
-           - Document where your paradigm's limitations might be complemented by other approaches
-           - Identify boundary areas where cross-paradigm integration creates opportunities
-           - Map how technologies from your paradigm interact with those from other paradigms
+        5. IDENTIFY CROSS-FOUNDATION OPPORTUNITIES:
+           - What potential integration points exist with other foundation approaches?
+           - Where might hybrid approaches combine the strengths of multiple foundations?
+           - How could this foundation complement or be complemented by others?
+           - What novel combinations with other foundation approaches might be valuable?
         
-        You have complete autonomy in how you approach this research. Use the available tools
+        You have complete autonomy in how you approach this exploration. Use the available tools
         in whatever way you determine will produce the most comprehensive exploration.
         
-        DOCUMENT THE FULL RANGE of technologies and approaches within your paradigm,
-        not just the most popular or conventional options. Your mission is to map how your
-        paradigm's distinctive philosophy can be expressed across all dimensions of the project.
+        Your mission is to thoroughly understand this foundation, its emergent dimensions,
+        its viability for this specific project, and how it could be implemented across
+        the paradigm spectrum.
         """
         
-        # Add the research prompt to agent messages
-        agent.messages.append(create_user_prompt(research_prompt))
+        # Add the exploration prompt to agent messages
+        agent.messages.append(create_user_prompt(exploration_prompt))
         
         # Get the agent's response
         response = await send_prompt(agent.messages)
@@ -977,18 +1010,111 @@ class ResearchTeam:
         agent.findings.append(response.content)
         agent.status = "completed"
         
-        # Store the raw research in each dimension
-        for dim_name in dimensions:
-            if dim_name in session.dimensions:
-                dimension = session.dimensions[dim_name]
-                dimension.research_content[agent.id] = response.content
+        # Store the raw research in the foundation
+        foundation.research_content[agent.id] = response.content
         
-        logger.info(f"Paradigm research completed for {agent.focus_area}")
+        # Mark foundation as completed
+        foundation.completed = True
+        
+        logger.info(f"Foundation exploration completed for {foundation.name}")
         return {
             "status": "success",
             "agent_id": agent_id,
-            "paradigm": agent.focus_area
+            "foundation_id": foundation_id,
+            "content": response.content
         }
+    
+    @handle_async_errors
+    async def _extract_emergent_dimensions(
+        self,
+        session_id: str,
+        foundation_id: str,
+        exploration_content: str
+    ) -> Dict[str, EmergentDimension]:
+        """
+        Extract emergent dimensions from foundation exploration results.
+        
+        Args:
+            session_id: Session ID
+            foundation_id: Foundation ID
+            exploration_content: Content from foundation exploration
+            
+        Returns:
+            Dictionary of emergent dimensions
+        """
+        session = self.get_session(session_id)
+        
+        # Create an agent to analyze and extract emergent dimensions
+        analysis_prompt = """
+        You are a Dimension Analysis Agent. Your task is to analyze the foundation exploration results
+        and extract all emergent dimensions that would arise from this foundation approach.
+        
+        For each identified emergent dimension, extract:
+        1. A clear name
+        2. A concise description
+        3. Any research areas mentioned for this dimension
+        
+        Return your analysis in a structured JSON format:
+        {
+          "dimensions": [
+            {
+              "id": "dimension-1",
+              "name": "Dimension Name",
+              "description": "Description of the dimension",
+              "research_areas": [
+                {"name": "Research Area 1", "description": "Description of the research area"}
+              ]
+            }
+          ]
+        }
+        """
+        
+        # Create the complete prompt
+        complete_prompt = f"{analysis_prompt}\n\nFoundation Exploration Results:\n{exploration_content}"
+        
+        # Create messages for the analysis
+        messages = [
+            create_system_prompt(analysis_prompt),
+            create_user_prompt(f"Foundation Exploration Results:\n{exploration_content}")
+        ]
+        
+        # Get analysis response
+        response = await send_prompt(messages)
+        
+        # Extract JSON from response
+        import json
+        import re
+        
+        # Look for JSON pattern in the response
+        json_match = re.search(r'```json\n(.*?)\n```', response.content, re.DOTALL)
+        if not json_match:
+            json_match = re.search(r'{.*}', response.content, re.DOTALL)
+        
+        if not json_match:
+            logger.error("Could not extract JSON from analysis response")
+            return {}
+        
+        json_str = json_match.group(1) if json_match.group(0).startswith('```') else json_match.group(0)
+        
+        try:
+            data = json.loads(json_str)
+            # Convert to dictionary of EmergentDimension objects
+            dimensions = {}
+            for dimension_data in data["dimensions"]:
+                dimension = EmergentDimension(
+                    name=dimension_data["name"],
+                    description=dimension_data["description"],
+                    foundation_id=foundation_id,
+                    research_areas=dimension_data.get("research_areas", [])
+                )
+                # Create unique ID for dimension that includes foundation ID
+                dimension_id = f"{foundation_id}-{dimension_data['id']}"
+                dimensions[dimension_id] = dimension
+            
+            return dimensions
+        except Exception as e:
+            logger.error(f"Error parsing emergent dimensions: {str(e)}")
+            return {}
     
     @handle_async_errors
     async def generate_research_paths(self, session_id: str) -> List[ResearchPath]:
@@ -1003,103 +1129,42 @@ class ResearchTeam:
         """
         session = self.get_session(session_id)
         
-        # Check if all dimensions have been researched
-        dimensions = [
-            name for name, dim in session.dimensions.items() 
-            if dim.completed
+        # Check if foundations have been explored
+        completed_foundations = [
+            foundation_id for foundation_id, foundation in session.project_foundations.items() 
+            if foundation.completed
         ]
         
-        if len(dimensions) < len(session.dimensions):
-            logger.warning(f"Not all dimensions have been researched for session {session_id}")
+        if not completed_foundations:
+            logger.warning(f"No completed foundations found for session {session_id}")
+            return []
         
-        # Create paths
+        # Create paths for each foundation
         paths = []
         
-        # Create a primary path
-        primary_path = ResearchPath(
-            name="Primary Implementation Path",
-            description="Implementation path based on primary foundation choices"
-        )
-        
-        # Add dimensions based on their dependencies
-        dependency_map = {}
-        for dim_name, dimension in session.dimensions.items():
-            dependency_map[dim_name] = dimension.dependencies
-        
-        # Sort dimensions by dependency order
-        sorted_dimensions = self._topological_sort(dependency_map)
-        
-        # Add dimensions to path in dependency order
-        for dim_name in sorted_dimensions:
-            if dim_name in session.dimensions:
-                dimension = session.dimensions[dim_name]
-                
-                # Add dimension to path
-                primary_path.dimensions.append({
-                    "name": dim_name,
-                    "description": dimension.description,
-                    "foundation_impact": dimension.foundation_impact
-                })
-        
-        paths.append(primary_path)
-        
-        # Create one alternative path
-        alt_path = ResearchPath(
-            name="Alternative Implementation Path",
-            description="Alternative implementation path with different foundation choices"
-        )
-        
-        # Add the same dimensions in the same order
-        for dim_info in primary_path.dimensions:
-            alt_path.dimensions.append(dim_info.copy())
-        
-        paths.append(alt_path)
+        for foundation_id in completed_foundations:
+            foundation = session.project_foundations[foundation_id]
+            
+            # Create a path for this foundation
+            path = ResearchPath(
+                name=f"{foundation.name} Implementation Path",
+                description=f"Implementation path based on the {foundation.name} foundation approach",
+                foundation_id=foundation_id
+            )
+            
+            # Add relevant emergent dimensions to the path
+            path_dimensions = []
+            for dimension_id, dimension in session.emergent_dimensions.items():
+                if dimension.foundation_id == foundation_id:
+                    path_dimensions.append(dimension)
+            
+            path.emergent_dimensions = path_dimensions
+            paths.append(path)
         
         # Add paths to the session
         session.research_paths = paths
         
         return paths
-    
-    def _topological_sort(self, dependency_map: Dict[str, List[str]]) -> List[str]:
-        """
-        Sort dimensions in topological order based on dependencies.
-        
-        Args:
-            dependency_map: Map of dimension names to their dependencies
-            
-        Returns:
-            List of dimension names in topological order
-        """
-        # Create a set of all dimensions
-        dimensions = set(dependency_map.keys())
-        
-        # Create a result list
-        result = []
-        
-        # Process dimensions with no dependencies first
-        no_deps = [dim for dim, deps in dependency_map.items() if not deps]
-        result.extend(no_deps)
-        
-        # Process remaining dimensions
-        remaining = dimensions - set(no_deps)
-        while remaining:
-            # Find dimensions whose dependencies are all in the result
-            next_batch = []
-            for dim in remaining:
-                if all(dep in result for dep in dependency_map[dim]):
-                    next_batch.append(dim)
-            
-            # If no progress was made, there might be a cycle
-            if not next_batch:
-                # Just add remaining dimensions in any order
-                result.extend(remaining)
-                break
-            
-            # Add the batch to the result
-            result.extend(next_batch)
-            remaining -= set(next_batch)
-        
-        return result
     
     @handle_async_errors
     async def start_path_research(self, session_id: str) -> Dict[str, Any]:
@@ -1128,24 +1193,29 @@ class ResearchTeam:
         if not session.research_paths:
             session.research_paths = await self.generate_research_paths(session_id)
         
-        # Assign paths to path agents
+        # Assign paths to path agents (round-robin if more paths than agents)
         path_assignments = {}
-        for i, (agent, path) in enumerate(zip(path_agents, session.research_paths)):
-            if i >= len(session.research_paths):
-                break
-            path_assignments[agent.id] = path.name
+        for i, path in enumerate(session.research_paths):
+            agent_index = i % len(path_agents)
+            path_agent = path_agents[agent_index]
+            
+            if path_agent.id not in path_assignments:
+                path_assignments[path_agent.id] = []
+            
+            path_assignments[path_agent.id].append(path.name)
         
         # Research all paths concurrently
         path_tasks = []
-        for agent_id, path_name in path_assignments.items():
-            task = asyncio.create_task(
-                self._research_path(
-                    session_id=session_id, 
-                    agent_id=agent_id,
-                    path_name=path_name
+        for agent_id, path_names in path_assignments.items():
+            for path_name in path_names:
+                task = asyncio.create_task(
+                    self._research_path(
+                        session_id=session_id, 
+                        agent_id=agent_id,
+                        path_name=path_name
+                    )
                 )
-            )
-            path_tasks.append(task)
+                path_tasks.append(task)
         
         # Wait for all path research to complete
         path_results = await asyncio.gather(*path_tasks)
@@ -1185,72 +1255,74 @@ class ResearchTeam:
             logger.error(f"Path {path_name} not found")
             return {"status": "error", "message": f"Path {path_name} not found"}
         
+        # Get the foundation
+        foundation = session.project_foundations.get(path.foundation_id)
+        if not foundation:
+            logger.error(f"Foundation {path.foundation_id} not found")
+            return {"status": "error", "message": f"Foundation {path.foundation_id} not found"}
+        
         # Set agent status
         agent.status = "researching"
         
-        # Collect all dimension research to share with the path agent
-        dimension_research = []
-        for dim_info in path.dimensions:
-            dim_name = dim_info["name"]
-            dimension = session.dimensions.get(dim_name)
-            if dimension and dimension.research_content:
-                for agent_id, content in dimension.research_content.items():
-                    dimension_research.append(f"## {dim_name} (Agent: {agent_id})\n\n{content}")
+        # Collect foundation research to share with the path agent
+        foundation_research = ""
+        for agent_id, content in foundation.research_content.items():
+            foundation_research += f"## Foundation Research (Agent: {agent_id})\n\n{content}\n\n"
         
         # Create research prompt
         research_prompt = f"""
         Research Task: Explore implementation path "{path_name}"
         
-        Path Description:
-        {path.description}
+        Foundation:
+        {foundation.name}: {foundation.description}
         
-        Dimensions in this path:
-        {path.dimensions}
+        Foundation Research:
+        {foundation_research}
         
-        Dimension Research:
-        {"".join(dimension_research)}
+        Emergent Dimensions:
+        {[f"{d.name}: {d.description}" for d in path.emergent_dimensions]}
         
         Research Requirements:
         {session.requirements}
         
-        You are tasked with exploring a COMPLETE IMPLEMENTATION PATH across dimensions:
+        You are tasked with exploring a COMPLETE IMPLEMENTATION PATH based on this foundation:
         
-        1. MAP A COHESIVE TECHNOLOGY STACK:
-           - Document how foundation choices create a distinctive implementation trajectory
-           - Trace how decisions propagate through dependent dimensions
-           - Identify specific technology combinations that form a coherent whole
-           - Show how this path creates a fundamentally different architecture than alternatives
+        1. MAP A COHESIVE IMPLEMENTATION APPROACH:
+           - How would this foundation choice be implemented in practice?
+           - How would each emergent dimension be addressed within this approach?
+           - What specific implementation strategies would work well together?
+           - How does this implementation path differ from paths based on other foundations?
         
         2. CREATE A COMPLETE IMPLEMENTATION MAP:
-           - Identify specific technologies for each dimension that work together seamlessly
-           - Document communication patterns and data flows between components
-           - Explore how architectural concerns are addressed across the full stack
-           - Map deployment and operational considerations for the complete path
+           - What specific implementation approach would be used for each dimension?
+           - How would different dimensions integrate cohesively?
+           - What communication patterns and data flows would exist?
+           - How would architectural concerns be addressed across the implementation?
         
         3. DISCOVER EMERGENT PROPERTIES:
-           - Identify unique capabilities that emerge from this specific combination of technologies
-           - Document how this path enables distinctive project characteristics
-           - Analyze quality attributes of the complete stack (performance, scalability, etc.)
-           - Reveal trade-offs that only become apparent when viewing the complete path
+           - What unique capabilities would emerge from this implementation path?
+           - How would this path enable distinctive project characteristics?
+           - What quality attributes would this path provide (performance, scalability, etc.)?
+           - What trade-offs would this path involve?
         
         4. DOCUMENT IMPLEMENTATION CONSIDERATIONS:
-           - Analyze practical implementation approaches for this specific stack
-           - Identify development and operational considerations unique to this path
-           - Map team expertise requirements and learning curves
-           - Document deployment patterns and infrastructure needs
+           - What practical implementation approaches would be most suitable?
+           - What development and operational considerations would be important?
+           - What team expertise would be required?
+           - What deployment patterns and infrastructure would be needed?
         
         5. PRESERVE PATH UNIQUENESS:
            - Maintain the distinctive characteristics of this implementation path
            - Resist normalizing toward conventional architectural patterns
-           - Document how this path embodies a particular architectural philosophy
-           - Highlight the unique advantages and capabilities of this approach
+           - How does this path embody a particular philosophical approach?
+           - What are the unique advantages and capabilities of this approach?
         
         You have complete autonomy in how you approach this research. Use the available tools
         in whatever way you determine will produce the most comprehensive exploration.
         
         Your exploration should document a COMPLETE, VIABLE IMPLEMENTATION PATH with
         distinctive characteristics, not converging toward generic patterns. The path should
-        represent a coherent, implementable technology stack that addresses all project
+        represent a coherent, implementable approach that addresses all project
         requirements with unique trade-offs and qualities.
         """
         
@@ -1303,66 +1375,68 @@ class ResearchTeam:
         # Set agent status
         integration_agent.status = "researching"
         
-        # Collect all agent findings to share with the integration agent
-        agent_findings = []
-        for agent in session.agents:
-            if agent.type != ResearchAgentType.INTEGRATION and agent.type != ResearchAgentType.SYNTHESIS and agent.findings:
-                agent_findings.append(f"## {agent.name} ({agent.type.value}) Findings\n\n{agent.findings[0]}")
+        # Collect information about foundations and paths
+        foundations_info = []
+        for foundation_id, foundation in session.project_foundations.items():
+            if foundation.completed:
+                foundations_info.append(f"## {foundation.name}\n{foundation.description}")
+        
+        paths_info = []
+        for path in session.research_paths:
+            if path.research_content:
+                paths_info.append(f"## {path.name}\n{path.description}\n\nResearch Content:\n{path.research_content}")
         
         # Create research prompt
         research_prompt = f"""
-        Research Task: Identify cross-paradigm integration opportunities
+        Research Task: Identify cross-foundation integration opportunities
         
-        Dimensions:
-        {session.dimensions}
-        
-        Agent Findings:
-        {"".join(agent_findings)}
+        Project Foundations:
+        {"".join(foundations_info)}
         
         Research Paths:
-        {session.research_paths}
+        {"".join(paths_info)}
         
         Research Requirements:
         {session.requirements}
         
-        You are tasked with discovering NOVEL INTEGRATION OPPORTUNITIES across paradigms:
+        You are tasked with discovering NOVEL INTEGRATION OPPORTUNITIES across foundation approaches:
         
-        1. IDENTIFY UNEXPECTED COMBINATIONS:
-           - Discover non-obvious technology combinations across different paradigms
-           - Find complementary technologies that address each other's limitations
-           - Identify integration patterns that create unique capabilities
-           - Look beyond conventional integrations to find novel arrangements
+        1. DISCOVER UNEXPECTED COMBINATIONS:
+           - What non-obvious ways could different foundation approaches be combined?
+           - How might complementary foundations address each other's limitations?
+           - What integration patterns could create unique capabilities?
+           - What novel arrangements might exist beyond conventional integrations?
         
-        2. MAP CROSS-CUTTING PATTERNS:
-           - Document integration patterns that span multiple dimensions
-           - Identify how cross-cutting concerns are addressed across diverse technologies
-           - Map communication protocols and data exchange patterns
-           - Discover architectural patterns that enable cross-dimensional integration
+        2. MAP HYBRID FOUNDATION APPROACHES:
+           - How could different foundation approaches be combined?
+           - What new dimensions might emerge from hybrid foundations?
+           - What communication protocols could enable cross-foundation integration?
+           - What architectural patterns could enable combinations of foundations?
         
-        3. DESIGN INTEGRATION MECHANICS:
-           - Document specific approaches for integrating disparate technologies
-           - Explore adapters, interfaces, and communication mechanisms
-           - Identify data transformation and translation requirements
-           - Research implementation examples of similar integration patterns
+        3. ANALYZE INTEGRATION MECHANICS:
+           - What specific approaches could integrate disparate foundations?
+           - What interfaces, adapters, or communication mechanisms would be needed?
+           - What data transformation requirements would exist?
+           - Are there existing implementation examples of similar integration patterns?
         
         4. EVALUATE COMBINATORIAL VALUE:
-           - Assess how combinations create value beyond individual technologies
-           - Document unique capabilities that emerge from specific integrations
-           - Analyze how combinations address limitations in individual approaches
-           - Identify how integrations enable project-specific requirements
+           - How would combinations create value beyond individual foundations?
+           - What unique capabilities would emerge from specific integrations?
+           - How would combinations address limitations in individual approaches?
+           - How would integrations enable project-specific requirements?
         
         5. PRESERVE INNOVATION INTEGRITY:
            - Focus on combinations that maintain the project's unique characteristics
            - Avoid defaulting to conventional integration patterns
-           - Document how novel integrations can enable distinctive project qualities
-           - Preserve architectural diversity rather than normalizing to standards
+           - How could novel integrations enable distinctive project qualities?
+           - How could we preserve architectural diversity rather than normalizing to standards?
         
         You have complete autonomy in how you approach this research. Use the available tools
         in whatever way you determine will produce the most comprehensive exploration.
         
         Your exploration should REVEAL THE UNEXPECTED - finding integration opportunities
         that might not be immediately obvious but could create exceptional value for this
-        specific project. Focus on discovering how technologies from different paradigms
+        specific project. Focus on discovering how different foundation approaches
         can complement each other in ways that preserve the project's distinctive vision.
         """
         
@@ -1414,63 +1488,75 @@ class ResearchTeam:
         # Set agent status
         synthesis_agent.status = "synthesizing"
         
-        # Collect all agent findings to share with the synthesis agent
-        agent_findings = []
-        for agent in session.agents:
-            if agent.type != ResearchAgentType.SYNTHESIS and agent.findings:
-                agent_findings.append(f"## {agent.name} ({agent.type.value}) Findings\n\n{agent.findings[0]}")
+        # Collect all foundation information
+        foundations_info = []
+        for foundation_id, foundation in session.project_foundations.items():
+            if foundation.completed:
+                foundation_content = f"## {foundation.name}\n{foundation.description}\n\n"
+                if foundation.research_content:
+                    # Include first 1000 characters of research content for each foundation
+                    for agent_id, content in foundation.research_content.items():
+                        content_preview = content[:1000] + "..." if len(content) > 1000 else content
+                        foundation_content += f"### Research by {agent_id}:\n{content_preview}\n\n"
+                foundations_info.append(foundation_content)
+        
+        # Collect all path information
+        paths_info = []
+        for path in session.research_paths:
+            if path.research_content:
+                path_content = f"## {path.name}\n{path.description}\n\n"
+                # Include first 1000 characters of research content
+                content_preview = path.research_content[:1000] + "..." if len(path.research_content) > 1000 else path.research_content
+                path_content += f"### Research Content:\n{content_preview}\n\n"
+                paths_info.append(path_content)
         
         # Create research prompt
         report_prompt = f"""
-        Research Task: Create a comprehensive research report
+        Research Task: Create a comprehensive foundational research report
         
         Research Requirements:
         {session.requirements}
         
-        Dimensions:
-        {session.dimensions}
-        
-        Agent Findings:
-        {"".join(agent_findings)}
+        Project Foundations:
+        {"".join(foundations_info)}
         
         Research Paths:
-        {session.research_paths}
+        {"".join(paths_info)}
         
-        Cross-Paradigm Opportunities:
+        Cross-Foundation Opportunities:
         {session.cross_paradigm_opportunities}
         
         You are tasked with creating a DEFINITIVE RESEARCH REPORT that:
         
-        1. CREATES A COMPREHENSIVE POSSIBILITY MAP:
-           - Synthesizes all research findings into a cohesive, multi-dimensional map
-           - Preserves the full richness of implementation options
-           - Documents relationships between dimensions, paradigms, and paths
-           - Creates visualizations that illuminate the multi-dimensional nature of choices
+        1. CREATES A COMPREHENSIVE FOUNDATION MAP:
+           - Synthesize all research findings into a cohesive whole
+           - Present the full spectrum of foundation approaches discovered
+           - Document relationships between foundations, their emergent dimensions, and implementation paths
+           - Create visualizations that illuminate the multi-dimensional nature of choices
         
-        2. DOCUMENTS THE COMPLETE SPECTRUM:
-           - Presents the full range of options for each dimension and paradigm
-           - Documents multiple viable implementation paths with diverse characteristics
-           - Maps cross-paradigm opportunities and integration patterns
-           - Preserves distinctly different approaches rather than converging on a "best" solution
+        2. DOCUMENT THE COMPLETE POSSIBILITY SPACE:
+           - Present all viable foundation approaches with their characteristics
+           - Document multiple implementation paths with their distinctive qualities
+           - Map cross-foundation opportunities and integration patterns
+           - Preserve distinctly different approaches rather than converging on a "best" solution
         
-        3. ILLUMINATES ARCHITECTURAL IMPLICATIONS:
-           - Analyzes how different choices create fundamentally different architectures
-           - Documents trade-offs inherent in different approaches
-           - Shows how foundation choices propagate through dependent dimensions
-           - Highlights unique capabilities enabled by specific technology combinations
+        3. ILLUMINATE ARCHITECTURAL IMPLICATIONS:
+           - Analyze how different foundation choices create fundamentally different architectures
+           - Document trade-offs inherent in different approaches
+           - Show how foundation choices give rise to different emergent dimensions
+           - Highlight unique capabilities enabled by specific foundation approaches
         
-        4. CREATES POWERFUL VISUALIZATIONS:
-           - Dimension maps showing relationships between research areas
-           - Paradigm comparison matrices highlighting different philosophical approaches
-           - Technology trees showing option branching based on foundation choices
-           - Path diagrams illustrating complete implementation stacks
-           - Integration maps showing cross-paradigm opportunities
+        4. CREATE POWERFUL VISUALIZATIONS:
+           - Foundation maps showing the spectrum of options
+           - Path diagrams illustrating complete implementation approaches
+           - Integration maps showing hybrid foundation opportunities
+           - Trade-off matrices comparing different approaches
         
-        5. PRESERVES INNOVATION POTENTIAL:
-           - Maintains the diversity of approaches without defaulting to conventions
-           - Presents findings without bias toward mainstream solutions
-           - Preserves the project's unique characteristics across all options
-           - Highlights unconventional approaches that align with the project's distinctive nature
+        5. PRESERVE INNOVATION POTENTIAL:
+           - Maintain the diversity of approaches without defaulting to conventions
+           - Present findings without bias toward mainstream solutions
+           - Preserve the project's unique characteristics across all options
+           - Highlight unconventional approaches that align with the project's distinctive nature
         
         You have complete autonomy in how you approach this task. Use the available visualization
         tools in whatever way you determine will create the most illuminating representations.
@@ -1501,131 +1587,6 @@ class ResearchTeam:
         
         logger.info(f"Research report created for session {session_id}")
         return report_path
-        
-    @handle_async_errors
-    async def _find_synthesis_report(self, session_id: str) -> Optional[str]:
-        """
-        Find the synthesis report in the session.
-        
-        Args:
-            session_id: Session ID
-            
-        Returns:
-            Path to the saved report if found, otherwise None
-        """
-        try:
-            # Check session for stored report path
-            session_manager = SessionManager()
-            report_path = session_manager.get_document(session_id, "research-report")
-            
-            if report_path:
-                # Verify report exists
-                import os
-                if os.path.exists(report_path):
-                    logger.info(f"Found existing synthesis report at {report_path}")
-                    return report_path
-            
-            # Check for report from session metadata
-            session = session_manager.get_session(session_id)
-            if session and "metadata" in session:
-                metadata = session["metadata"]
-                if "dimensional_research_repository" in metadata:
-                    repo_data = metadata["dimensional_research_repository"]
-                    if "research_report_path" in repo_data:
-                        path = repo_data["research_report_path"]
-                        if os.path.exists(path):
-                            logger.info(f"Found existing report reference in repository: {path}")
-                            return path
-            
-            logger.info(f"No synthesis report found for session {session_id}")
-            return None
-            
-        except Exception as e:
-            logger.error(f"Error finding synthesis report: {str(e)}")
-            return None
-            
-    @handle_async_errors
-    async def conduct_research_with_specialized_agents(self, session_id: str) -> Optional[str]:
-        """
-        Conduct comprehensive research using specialized agent teams.
-        
-        This method orchestrates the entire research workflow using specialized agents,
-        including foundation research, path exploration, integration analysis, and 
-        research synthesis.
-        
-        Args:
-            session_id: Session ID
-            
-        Returns:
-            Path to the final research report
-        """
-        logger.info(f"Starting specialized agent research for session {session_id}")
-        
-        try:
-            # Verify the session exists
-            session_manager = SessionManager()
-            session = session_manager.get_session(session_id)
-            if not session:
-                logger.error(f"Session {session_id} not found")
-                return None
-                
-            # 1. Set up the agent coordinator
-            from ideasfactory.agents.research_agents.coordinator import AgentCoordinator
-            
-            coordinator = AgentCoordinator()
-            
-            # 2. Create specialized agents
-            await coordinator.create_specialized_agents(
-                session_id=session_id,
-                foundation_count=2,  # Number of foundation agents
-                paradigm_counts={    # Number of paradigm specialists per type
-                    "established": 1,
-                    "mainstream": 1,
-                    "cutting_edge": 1,
-                    "experimental": 1,
-                    "cross_paradigm": 1,
-                    "first_principles": 1
-                },
-                path_count=3,        # Number of path exploration agents
-                integration_count=2,  # Number of integration agents
-                synthesis_count=1     # Number of synthesis agents
-            )
-            
-            # 3. Start the foundation research phase
-            logger.info(f"Starting foundation research phase for session {session_id}")
-            await coordinator.start_foundation_research_phase()
-            
-            # 4. Let the coordinator manage the entire workflow
-            # The coordinator will automatically progress through all phases
-            # and generate the final report
-            
-            # 5. Wait for research to complete (poll for report)
-            max_wait_time = 300  # Maximum time to wait in seconds
-            poll_interval = 10   # Check every 10 seconds
-            
-            for _ in range(0, max_wait_time, poll_interval):
-                # Check if research report exists
-                report_path = await self._find_synthesis_report(session_id)
-                if report_path:
-                    logger.info(f"Research completed successfully with report at {report_path}")
-                    return report_path
-                    
-                # Wait before checking again
-                await asyncio.sleep(poll_interval)
-                
-            # If we get here, research may not have finished in time
-            # Create a final report using any available data
-            logger.warning(f"Research timeout reached, generating report from available data")
-            return await self.create_research_report(session_id)
-            
-        except Exception as e:
-            logger.error(f"Error in specialized agent research: {str(e)}")
-            # Attempt to create a report even if process failed
-            try:
-                return await self.create_research_report(session_id)
-            except Exception as report_error:
-                logger.error(f"Failed to create fallback report: {str(report_error)}")
-                return None
     
     @handle_async_errors
     async def _save_research_report(self, session_id: str, content: str) -> str:
@@ -1649,7 +1610,7 @@ class ResearchTeam:
         report_path = self.doc_manager.create_document(
             content=content,
             document_type="research-report",
-            title="Dimensional Research Report",
+            title="Foundational Research Report",
             metadata=metadata
         )
         
@@ -1658,29 +1619,59 @@ class ResearchTeam:
         
         logger.info(f"Research report saved to {report_path}")
         return report_path
-
+    
     @handle_async_errors
-    async def complete_session(self, session_id: str) -> bool:
+    async def conduct_research(self, session_id: str) -> Optional[str]:
         """
-        Complete a research session.
+        Conduct full research workflow.
         
         Args:
             session_id: Session ID
             
         Returns:
-            True if completed successfully
+            Path to the final research report
         """
+        logger.info(f"Starting complete research workflow for session {session_id}")
+        
+        # Step 1: Create session if it doesn't exist
         session = self.sessions.get(session_id)
         if not session:
-            logger.error(f"Session {session_id} not found")
-            return False
+            # Get research requirements from architecture research requirements document
+            session_manager = SessionManager()
+            requirements_path = session_manager.get_document(session_id, "architecture_research_requirements")
+            if not requirements_path:
+                logger.error(f"No architecture research requirements found for session {session_id}")
+                return None
+            
+            requirements_content = await load_document_content(requirements_path)
+            session = await self.create_session(session_id, requirements_content)
         
-        # Add completed status to metadata
-        session.metadata["completed"] = True
-        session.metadata["completed_at"] = datetime.now().isoformat()
+        # Step 2: Initialize research agents
+        if not session.agents:
+            await self.initialize_research_agents(session_id)
         
-        # Save the session
-        self.sessions[session_id] = session
+        # Step 3: Discover project foundations
+        if not session.project_foundations:
+            await self.discover_project_foundations(session_id)
         
-        logger.info(f"Research session {session_id} completed")
-        return True
+        # Step 4: Explore foundation approaches
+        if all(not foundation.completed for foundation in session.project_foundations.values()):
+            await self.explore_foundation_approaches(session_id)
+        
+        # Step 5: Generate research paths
+        if not session.research_paths:
+            await self.generate_research_paths(session_id)
+        
+        # Step 6: Conduct path research
+        if all(not path.research_content for path in session.research_paths):
+            await self.start_path_research(session_id)
+        
+        # Step 7: Conduct integration research
+        if not session.cross_paradigm_opportunities:
+            await self.start_integration_research(session_id)
+        
+        # Step 8: Create comprehensive research report
+        report_path = await self.create_research_report(session_id)
+        
+        logger.info(f"Completed research workflow for session {session_id}")
+        return report_path

@@ -8,7 +8,7 @@ The Architect's first pass is a critical phase in the IdeasFactory workflow, ser
 
 The Architect's first pass follows these key principles:
 
-1. **Multi-Level Research Framework**: Creates a hierarchical approach to research with foundations first
+1. **Dimensional Research Framework**: Creates a hierarchical approach to research with foundations first
 2. **Complete Technical Requirements**: Identifies ALL aspects needed for full implementation
 3. **Interdependency Mapping**: Shows how choices in one area affect options in others
 4. **Full-Spectrum Exploration**: Directs research across established to experimental approaches
@@ -19,6 +19,7 @@ The Architect's first pass follows these key principles:
 ### 1. Identify ALL Technical Requirements
 
 The Architect must:
+
 - Document EVERY technical need necessary for complete implementation
 - Uncover both explicit requirements (mentioned in PRD) and implicit requirements
 - Consider the entire implementation journey from foundation to user-facing features
@@ -27,6 +28,7 @@ The Architect must:
 ### 2. Establish a Clear Research Hierarchy
 
 The research framework should:
+
 - Identify foundational technical requirements that must be researched FIRST
 - Show how choices at the foundation level create different paths for feature implementation
 - Establish clear dependencies between research areas
@@ -35,6 +37,7 @@ The research framework should:
 ### 3. Map Interdependency Relationships
 
 The document must:
+
 - Show how discoveries in foundational areas will shape exploration in dependent areas
 - Create a network of interconnected research pathways rather than isolated topics
 - Illustrate how decisions branch from foundational choices through implementation details
@@ -43,6 +46,7 @@ The document must:
 ### 4. Direct Full-Spectrum Exploration
 
 For each research area, guide exploration across:
+
 - Established approaches (traditional, proven methodologies)
 - Mainstream solutions (contemporary popular solutions)
 - Cutting-edge technologies (emerging technologies gaining traction)
@@ -53,6 +57,7 @@ For each research area, guide exploration across:
 ### 5. Craft Illuminating Questions
 
 Include questions that:
+
 - Challenge fundamental assumptions about how the project "should" be implemented
 - Reveal possibilities that conventional thinking would overlook
 - Connect directly to what makes the project distinctive and valuable
@@ -62,6 +67,7 @@ Include questions that:
 ### 6. Maintain Clear Role Separation
 
 The document should:
+
 - Avoid naming specific technologies, frameworks, or implementation approaches
 - Explicitly direct the Research Team to identify and evaluate specific technologies
 - Make clear that the Research Team's primary responsibility is to discover ALL viable implementation options

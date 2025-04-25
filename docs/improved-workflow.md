@@ -5,72 +5,80 @@ This document outlines the enhanced workflow for the IdeasFactory project, desig
 ## Core Workflow
 
 ### 1. Vision Creation (Business Analyst)
+
 - **Input**: Initial project idea
 - **Process**: Brainstorming session with user
 - **Output**: Project Vision Document
 - **Purpose**: Capture the core concept, primary features, and unique value proposition
 
 ### 2. Detailed Requirements (Product Manager)
+
 - **Input**: Project Vision Document
 - **Process**: Expansion of vision into comprehensive requirements
 - **Output**: Product Requirements Document (PRD)
 - **Purpose**: Document complete functional and non-functional requirements, including implicit needs
 
 ### 3. Technical Research Requirements (Architect - First Pass)
+
 - **Input**: PRD and Vision Document
 - **Process**: Analysis of what technical components need investigation, with exploration across multiple paradigms
 - **Output**: Technical Research Requirements Specification with multi-paradigm directives
 - **Purpose**: Create targeted research questions for all technical aspects, spanning established, mainstream, cutting-edge, experimental, cross-paradigm, and first-principles approaches
 
 ### 4. Multi-faceted Research (Research Team)
-- **Input**: PRD and Technical Research Requirements
-- **Process**: Parallel research streams
+
+- **Input**: Project Vision, PRD and Technical Research Requirements
+- **Process**: New process to be implemented according to foundational-research-implementation.md document.
   - **Market Research**: Competitors, trends, user needs, unique opportunities
-  - **Technical Research**: Implementation options for each component
+  - **Technical Research**: Foundational research across paradigms and dimentions
   - **Domain Research**: Field-specific insights and best practices
 - **Output**: Comprehensive Research Document
-- **Purpose**: Provide deep, thorough exploration of all implementation possibilities
+- **Purpose**: Provide deep, unbiased, thorough exploration of all implementation possibilities while keeping maximum room for the innovation each idea might require or bring.
 
 ### 5. Architecture Design (Architect - Final Pass)
+
 - **Input**: PRD and Research Documents
 - **Process**: Technical design based on complete information
 - **Output**: Architecture Document
 - **Purpose**: Define the technical approach, component boundaries, and integration points
 
 ### 6. Standards and Patterns (Standards Engineer)
+
 - **Input**: Architecture Document and Task List
-- **Process**: 
+- **Process**:
   - Cross-reference tasks to identify shared aspects and integration points
   - Define standards, patterns and interfaces that ensure complete integration
   - Identify and address potential integration gaps and duplication risks
   - Create concrete examples of proper component integration
-- **Output**: 
+- **Output**:
   - Comprehensive Standards and Patterns Document
   - Integration guidelines for shared components
-- **Purpose**: 
+- **Purpose**:
   - Ensure seamless integration between independently implemented components
   - Prevent loose ends, inconsistencies, and duplication
   - Provide the "glue" that turns individual story implementations into a cohesive system
 
 ### 7. Task List Creation (Product Owner)
+
 - **Input**: All previous documents
 - **Process**: Breaking down implementation into granular tasks
 - **Output**: Detailed Task List
 - **Purpose**: Create a complete, sequential list of implementation steps
 
 ### 8. Story Creation (Scrum Master)
+
 - **Input**: Task List, Standards Document, and all previous documents
-- **Process**: 
+- **Process**:
   - Organize tasks into logical user stories grouped by epics
   - Work closely with Standards Engineer to ensure integration completeness
   - Package each story with ALL information needed for implementation
   - Reference relevant sections of Standards Document for each story
   - Ensure every integration point is explicitly documented
-- **Output**: 
+- **Output**:
   - Epics/Stories index document with completion tracking
   - Individual self-contained story documents with integration references
   - Complete Developer Packages that combine story docs with relevant standards
-- **Purpose**: 
+- **Purpose**:
   - Create truly self-contained implementation units that an AI can implement
   - Ensure each story's implementation will integrate seamlessly with the rest
   - Enable independent development while maintaining system-level cohesion
@@ -95,8 +103,8 @@ The key improvements in this workflow compared to the original approach:
 
 1. **Addition of PRD step**: Ensures complete requirements, including implicit needs
 2. **Split architecture into two phases**: Requirements identification then design
-3. **Multi-paradigm research exploration**: Research requirements that direct exploration across the full spectrum of approaches - from established to experimental, with emphasis on cross-paradigm combinations and first-principles innovation
-4. **Enhanced integration focus**: 
+3. **Dimensional research exploration**: Research requirements that direct exploration across the full spectrum of approaches - from established to experimental, with emphasis on cross-paradigm combinations and first-principles innovation
+4. **Enhanced integration focus**:
    - Standards Engineer specifically identifies shared aspects across tasks
    - Integration patterns define precise component interactions
    - Concrete examples of proper integration included in standards
