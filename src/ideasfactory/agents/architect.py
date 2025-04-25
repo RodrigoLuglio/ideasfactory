@@ -22,34 +22,111 @@ from ideasfactory.utils.llm_utils import (
 from ideasfactory.utils.error_handler import handle_async_errors
 from ideasfactory.utils.session_manager import SessionManager
 
+# Make enhanced tools available to the architect
+from ideasfactory.tools.enhanced_web_search import (
+    search_custom,
+    fetch_full_page,
+    search_and_fetch,
+)
+from ideasfactory.tools.enhanced_data_analysis import (
+    extract_text_features,
+)
+from ideasfactory.tools.tech_evaluation import (
+    create_evaluation_framework,
+    evaluate_technology,
+    compare_technologies,
+    generate_evaluation_report
+)
+from ideasfactory.tools.research_visualization import (
+    create_ascii_table,
+    create_timeline,
+)
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
 # Architect system prompt
 ARCHITECT_SYSTEM_PROMPT = """
-You are a visionary solution architect with deep expertise across the complete spectrum of technology paradigms, from traditional to cutting-edge.
+You are a visionary solution architect with endless creativity and analytical insight.
 
-Your role is to craft a truly custom architecture that perfectly embodies the unique essence of each project, based on the vision and research documents. You approach each project as fundamentally unique, requiring its own distinctive architectural thinking rather than applying standard patterns.
+Your role is to discover and articulate ALL technical aspects of a project while preserving its unique essence. You approach each project as fundamentally distinctive, requiring its own emergent architectural thinking rather than following industry standards or conventional patterns.
 
-You will identify ALL requirements and define a bespoke architecture tailored to the project's specific nature and needs. Your architecture might include elements like:
+In your first phase, you identify what aspects need deeper research. You create a comprehensive framework that guides exploration across the complete spectrum of possibilities without biasing toward any particular approach. You help uncover ALL requirements needed to fully implement the project, whether explicitly stated or implicitly needed.
 
-- Custom technology stack selection across multiple paradigms
-- Project structure designed specifically for this solution
-- Application modalities uniquely suited to the project's purpose
-- Data storage and modeling approaches that match the specific requirements
-- Distinctive security measures appropriate to the context
-- Infrastructure and deployment strategies optimized for this particular case
-- Any other elements that this specific project requires for success
+The research framework you create should:
+- Emerge organically from the project's unique nature rather than predetermined categories
+- Enable exploration across ALL possible approaches from established to experimental
+- Preserve what makes this specific idea innovative and distinctive
+- Challenge fundamental assumptions about how features "should" be implemented
+- Open pathways to discovering solutions uniquely suited to THIS specific project
 
-You recognize that innovation often comes from unexpected combinations and approaches. You will:
-1. Present a COMPREHENSIVE range of options for each decision, including established, current, and emerging approaches
-2. Explain the implications and tradeoffs of each option with nuanced detail
-3. Provide thoughtful recommendations based on the unique requirements of THIS specific project
-4. Guide the user through each architectural decision in a conversational manner
+You never make assumptions about "standard" components or implementation details, and you don't use prescriptive language that might limit creative exploration. Your guidance enables discovery rather than prescription.
 
-When documenting architectural decisions, you ensure EVERY feature and requirement is fully addressed somewhere in the architecture, with nothing overlooked or simplified. Your documentation completely reflects the project's unique character rather than following conventional patterns.
+In your second phase (after research), you help define a bespoke architecture that perfectly embodies the project's distinctive vision. You present comprehensive options across the full spectrum of possibilities for each architectural aspect, explaining implications without imposing biases.
 
-Above all, you ensure that the final architecture fully captures BOTH the functional capabilities AND the distinctive vision behind the project, creating a blueprint that preserves what makes this idea special while making it technically feasible.
+Above all, you ensure that each document you produce fully captures the project's unique character, preserving what makes this idea special while making it technically feasible. You resist defaulting to mainstream solutions and instead facilitate the discovery of approaches that might best serve THIS specific project's distinctive nature.
+"""
+
+ARCHITECT_RESEARCH_REQUIREMENTS_PROMPT = """
+Create a comprehensive multi-level research framework that identifies ALL aspects requiring exploration before architectural decisions can be made. This framework must guide the research team to identify and evaluate specific implementation options across the COMPLETE spectrum for each research area.
+
+While YOU should avoid naming specific technologies in this document, you must EXPLICITLY DIRECT the research team to discover and evaluate specific technologies and approaches in their research. Their job is to identify concrete implementation options from established to experimental for each aspect of the project.
+
+ESSENTIAL MULTI-LEVEL APPROACH:
+
+1. IDENTIFY ALL TECHNICAL REQUIREMENTS for complete implementation:
+   - Document EVERY technical need necessary to fully implement this project
+   - Uncover both explicit requirements mentioned in the vision/PRD AND implicit requirements not directly stated
+   - Consider the complete implementation journey from foundation to user-facing features
+   - Focus on WHAT needs to be implemented, not HOW to implement it
+   
+2. ESTABLISH A CLEAR RESEARCH HIERARCHY that:
+   - Identifies foundational technical requirements that must be researched FIRST
+   - Shows how choices at the foundation level will create different paths for feature implementation
+   - Establishes clear dependencies between research areas
+   - Guides researchers to explore complete technological paths, not isolated components
+
+3. MAP INTERDEPENDENCY RELATIONSHIPS between research areas:
+   - Show how discoveries in foundational areas will shape exploration in dependent areas
+   - Create a network of interconnected research pathways rather than isolated topics
+   - Illustrate how decisions branch from foundational choices through implementation details
+   - Identify where different paths may converge or create novel integration opportunities
+
+4. DIRECT FULL-SPECTRUM EXPLORATION across all research areas:
+   - Guide researchers to explore foundation options across the COMPLETE spectrum for EACH area:
+     * From established approaches to experimental innovations
+     * From mainstream solutions to first-principles thinking
+     * From conventional patterns to revolutionary concepts
+   - Show how different spectrum positions might create unique advantages for THIS project
+
+5. CRAFT ILLUMINATING QUESTIONS that:
+   - Challenge fundamental assumptions about how this project "should" be implemented
+   - Reveal possibilities that conventional thinking would overlook
+   - Connect directly to what makes this project distinctive and valuable
+   - Push exploration beyond the boundaries of established practice
+   - Encourage researchers to discover approaches uniquely suited to THIS SPECIFIC project
+
+6. MAINTAIN ABSOLUTE INNOVATION INTEGRITY by:
+   - NEVER naming specific technologies, frameworks, or implementation approaches in YOUR document (that is the research team's job)
+   - CLEARLY STATING that the research team MUST identify and evaluate specific technologies and frameworks across the entire spectrum
+   - ACTIVELY RESISTING conventional patterns and mainstream defaults in your requirements
+   - EMPHASIZING the project's unique essence throughout the framework
+   - ENABLING the research team to discover ALL possible implementation options, not merely validate conventional approaches
+   - PRESERVING what makes this project distinctive through the entire research process
+
+Your document should provide:
+- A comprehensive list of ALL technical requirements needed for complete implementation
+- A clear hierarchy showing which areas must be researched first (foundations) and how other areas depend on those choices
+- A map of interdependencies between different research areas
+- Guidance for exploring the full spectrum of possibilities in each area without biasing toward any particular approach
+- Questions that challenge assumptions and connect to the project's distinctive aspects
+
+CRITICALLY IMPORTANT: 
+1. YOU should avoid prescribing specific technologies, frameworks, or implementation approaches in your document.
+2. EXPLICITLY DIRECT the research team to identify and evaluate specific technologies, frameworks, and implementation approaches across the FULL spectrum for each research area.
+3. Make it clear that the research team's PRIMARY RESPONSIBILITY is to discover ALL viable implementation options (from established to experimental) for each research area.
+
+Your document should give the research team both clear structure (what to research and in what order) and clear direction to identify specific implementation options across the entire spectrum.
 """
 
 ARCHITECT_ANALYSIS_PROMPT = """
@@ -130,6 +207,7 @@ The final document should read as a precise blueprint for implementing exactly w
 class SessionState(Enum):
     """State of the architecture definition session."""
     STARTED = "started"
+    RESEARCH_REQUIREMENTS = "research_requirements"
     ANALYZING = "analyzing"
     DECISION_MAKING = "decision_making"
     DOCUMENT_CREATION = "document_creation"
@@ -154,7 +232,9 @@ class ArchitectureSession(BaseModel):
     """An architecture definition session with the Architect."""
     id: str = Field(..., description="Unique identifier for the session")
     project_vision: str = Field(..., description="Project vision document content")
-    research_report: str = Field(..., description="Research report content")
+    prd_document: Optional[str] = Field(None, description="Product Requirements Document content")
+    research_report: Optional[str] = Field(None, description="Research report content")
+    research_requirements: Optional[str] = Field(None, description="Technical research requirements document content")
     messages: List[Message] = Field(default_factory=list, description="Messages in the session")
     decisions: List[ArchitecturalDecision] = Field(default_factory=list, description="Architectural decisions to be made")
     current_decision_index: Optional[int] = Field(None, description="Index of the current decision being discussed")
@@ -195,7 +275,8 @@ class Architect:
         self, 
         session_id: str, 
         project_vision: str, 
-        research_report: str
+        prd_document: Optional[str] = None,
+        research_report: Optional[str] = None
     ) -> ArchitectureSession:
         """
         Create a new architecture definition session.
@@ -203,7 +284,8 @@ class Architect:
         Args:
             session_id: Unique identifier for the session
             project_vision: Project vision document content
-            research_report: Research report content
+            prd_document: Product Requirements Document content (optional)
+            research_report: Research report content (optional)
             
         Returns:
             The created architecture session
@@ -212,6 +294,7 @@ class Architect:
         session = ArchitectureSession(
             id=session_id,
             project_vision=project_vision,
+            prd_document=prd_document,
             research_report=research_report,
             messages=[self.system_prompt],
             state=SessionState.STARTED
@@ -221,6 +304,60 @@ class Architect:
         self.sessions[session_id] = session
         
         return session
+        
+    @handle_async_errors
+    async def create_research_requirements(self, session_id: str) -> Optional[str]:
+        """
+        Create technical research requirements document based on the PRD.
+        
+        Args:
+            session_id: Identifier of the session
+            
+        Returns:
+            The research requirements document content or None if session not found
+        """
+        # Get the session
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session not found: {session_id}")
+            return None
+            
+        # Ensure we have a PRD document
+        if not session.prd_document:
+            logger.error(f"No PRD document available for session {session_id}")
+            return None
+            
+        # Update session state
+        session.state = SessionState.RESEARCH_REQUIREMENTS
+        
+        # Create the research requirements prompt
+        requirements_prompt = f"""
+        Analyze the Project Vision and Product Requirements Document (PRD) to create a comprehensive research framework that enables exploration of ALL aspects needed to bring this unique idea to life. 
+
+        # Project Vision
+        {session.project_vision}
+
+        # Product Requirements Document (PRD)
+        {session.prd_document}
+
+        {ARCHITECT_RESEARCH_REQUIREMENTS_PROMPT}
+        """
+        
+        # Create the message
+        requirements_request = create_user_prompt(requirements_prompt)
+        session.messages.append(requirements_request)
+        
+        # Get the agent's response
+        response = await send_prompt(session.messages)
+        
+        # Add the response to the session
+        assistant_message = create_assistant_prompt(response.content)
+        session.messages.append(assistant_message)
+        
+        # Store the research requirements
+        session.research_requirements = response.content
+        
+        return response.content
 
     @handle_async_errors    
     async def start_analysis(self, session_id: str) -> Optional[List[ArchitecturalDecision]]:
@@ -728,6 +865,61 @@ The document must be comprehensive and leave no requirements or features unaddre
         
         # Update the session state
         session.state = SessionState.DOCUMENT_REVIEW
+        
+        return response.content
+    
+    @handle_async_errors
+    async def revise_research_requirements(self, session_id: str, feedback: str) -> Optional[str]:
+        """
+        Revise the technical research requirements document based on feedback.
+        
+        Args:
+            session_id: Identifier of the session
+            feedback: Feedback for the research requirements document
+            
+        Returns:
+            The revised research requirements content or None if session not found
+        """
+        # Get the session
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session not found: {session_id}")
+            return None
+        
+        # Ensure we have a research requirements document
+        if not session.research_requirements:
+            logger.error(f"No research requirements document available for session {session_id}")
+            return None
+        
+        # Create the revision prompt
+        revision_prompt = f"""
+        Please revise the Technical Research Requirements document based on this feedback:
+        
+        {feedback}
+        
+        When revising, maintain the focus on identifying all technical components that need research before architectural decisions can be made. Ensure your revised document:
+        
+        1. Preserves the unique aspects of the project vision
+        2. Provides clear, focused research questions for each technical component
+        3. Offers guidance on what technical approaches to explore
+        4. Ensures comprehensive coverage of all technical aspects
+        
+        Please provide the complete revised document in markdown format.
+        """
+        
+        # Create the message
+        revision_request = create_user_prompt(revision_prompt)
+        session.messages.append(revision_request)
+        
+        # Get the agent's response
+        response = await send_prompt(session.messages)
+        
+        # Add the response to the session
+        assistant_message = create_assistant_prompt(response.content)
+        session.messages.append(assistant_message)
+        
+        # Update the research requirements
+        session.research_requirements = response.content
         
         return response.content
     

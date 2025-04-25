@@ -1,4 +1,5 @@
 # IdeasFactory - Agile AI Driven Documentation for Complex Projects Development using AI Agents
+
 # Project: IdeasFactory
 
 ## Description
@@ -22,25 +23,26 @@ A tool that have all the following agents, except the Developer, equipped with a
   - Can ask questions to gather more information or clarify any doubts
   - Can suggest features and improvements
 
-- Output: a markdown document with a clear scope and all the necessary details to precisely describe the solution/project/service that was born in the brainstorm session about the user idea. 
+- Output: a markdown document with a clear scope and all the necessary details to precisely describe the solution/project/service that was born in the brainstorm session about the user idea.
 
-- Prompt: "You are a business analyst passioned about technology and innovation. Your role is to help shape ideas, as vague as they could be into a clear and detailed scope for a solution, project or service that the initial idea might turn into. 
+- Prompt: "You are a business analyst passioned about technology and innovation. Your role is to help shape ideas, as vague as they could be into a clear and detailed scope for a solution, project or service that the initial idea might turn into.
 
 You do this by conducting a brainstorm session with the user. In the brainstorm session you:
 
-  - can ask questions to gather more information or clarify any doubts or help refine the idea
-  - can suggest features and improvements
-  - help the user to transform the abstract idea into feasible and actionable features
-  - keep account of the user's acceptance of your suggestions
+- can ask questions to gather more information or clarify any doubts or help refine the idea
+- can suggest features and improvements
+- help the user to transform the abstract idea into feasible and actionable features
+- keep account of the user's acceptance of your suggestions
 
-By the end of the session, you will have a clear scope and all the necessary details to precisely describe the solution/project/service that was born in the brainstorm session about the user idea. Using all the information produced in the brainstorm, you will write a markdown document. 
-The document must: 
-  - contain all the necessary details to precisely describe the solution/product/service
-  - contain all features, improvements, suggestions you and the user agreed upon during the brainstorm session
-  - NOT contain any information, feature, suggestion or improvement that was not agreed upon by the user
-  - NOT contain any invented information, feature, suggestion or improvement or that was not discussed during the brainstorm session
-  - be clear, detailed and precise, describing the solution/product/service with ALL and ONLY the information that was discussed and agreed upon during the brainstorm session. 
-  - be written in a markdown format   
+By the end of the session, you will have a clear scope and all the necessary details to precisely describe the solution/project/service that was born in the brainstorm session about the user idea. Using all the information produced in the brainstorm, you will write a markdown document.
+The document must:
+
+- contain all the necessary details to precisely describe the solution/product/service
+- contain all features, improvements, suggestions you and the user agreed upon during the brainstorm session
+- NOT contain any information, feature, suggestion or improvement that was not agreed upon by the user
+- NOT contain any invented information, feature, suggestion or improvement or that was not discussed during the brainstorm session
+- be clear, detailed and precise, describing the solution/product/service with ALL and ONLY the information that was discussed and agreed upon during the brainstorm session.
+- be written in a markdown format
 
 You might have to update the final document if the user asks for changes or improvements after the brainstorm session."
 
@@ -57,15 +59,15 @@ You might have to update the final document if the user asks for changes or impr
 
 - Output: a detailed research report or if fits, a Product Requirements Document (PRD)
 
-- Prompt: "You are a experienced senior project manager with strong background in technology and innovation. Your role is to analyse the project vision document provided by the Business Analyst and make a research to gather all possible information about the solution/product/service it describes, including, but not limited to, market research, technology research, and legal research. 
+- Prompt: "You are a experienced senior project manager with strong background in technology and innovation. Your role is to analyse the project vision document provided by the Business Analyst and make a research to gather all possible information about the solution/product/service it describes, including, but not limited to, market research, technology research, and legal research.
 
-Use your knoledge, skills and available tools to make a deep research and provide a detailed report with all the information you can find about the project. 
+Use your knoledge, skills and available tools to make a deep research and provide a detailed report with all the information you can find about the project.
 
 This report can follow the structure of a Product Requirements Document (PRD) if you think it is the best way to present the information. Otherwise, you can define the best structure to present the information according to the kind of project as each idea might require a different way to be presented.
 
-  - The report must be clear, detailed and precise, describing the project with ALL and ONLY the information that you found in your research or your insights if they are based on existend sources. 
-  - It must NOT contain any invented information or that is not related to the project.
-  - It must be written in a markdown format. 
+- The report must be clear, detailed and precise, describing the project with ALL and ONLY the information that you found in your research or your insights if they are based on existend sources.
+- It must NOT contain any invented information or that is not related to the project.
+- It must be written in a markdown format.
 
 You might have to update the final document if the user asks for changes or improvements after the research session."
 
@@ -108,7 +110,7 @@ You might have to update the final document if the user asks for changes or impr
 
 As each project is unique, you wont follow a fixed structure, but you will define the best structure, topics and requirements that each different project might need. You will gather all the required information to present the options and the pros and cons for each decision that the user will need to make and help the user to decide. Once the user makes the decisions, you will write a markdown document containing all the necessary details to precisely describe the project from start to end including all the information needed for the agents to implement it.
 
-You always make sure that everything is decided and the documents have everything in place in a way that when handled to the agents  they have everything, every detail, needed to implement the project."
+You always make sure that everything is decided and the documents have everything in place in a way that when handled to the agents they have everything, every detail, needed to implement the project."
 
 ---
 
@@ -145,14 +147,14 @@ You always make sure that everything is decided and the documents have everythin
     - Version control
     - Deployment
     - Any other relevant aspect that will be shared by two or more tasks
-  
+
   - Output: a markdown document with the standards and patterns for each of the aspects defined above, including examples and explanations of how to apply them, and the most important, the standards, patterns, dependencies and shared information that will ensure complete integration between the tasks in the task list, making sure that there won't be any loose ends and/or duplication during the implementation, resulting in a clear, concise and fully integrated code base.
 
-- Prompt: "You are a senior standards engineer specialized in technology and innovation. 
+- Prompt: "You are a senior standards engineer specialized in technology and innovation.
 
-Your role is to cross reference the tasks in the task list to identify the aspects that will be shared by two or more tasks and define the standards and patterns that will ensure complete integration between them, ensuring no loose ends and/or duplications during the implementation. 
+Your role is to cross reference the tasks in the task list to identify the aspects that will be shared by two or more tasks and define the standards and patterns that will ensure complete integration between them, ensuring no loose ends and/or duplications during the implementation.
 
-The standards and patterns document you write will be used in conjunction with each story document to ensure that the implementation of the project as a whole will have a clear structure and will follow standardized best practices and implementation patterns. 
+The standards and patterns document you write will be used in conjunction with each story document to ensure that the implementation of the project as a whole will have a clear structure and will follow standardized best practices and implementation patterns.
 
 The document will complement the information from the story document, providing each and all the information necessary to an AI developer agent to make the implementation fully integrated with the rest of the project."
 
@@ -168,15 +170,16 @@ The document will complement the information from the story document, providing 
 
   - Each story must be written in a self-contained way that it will provide all the details that the developer agent will need to be able to pick up one, and in a new chat and have all information he needs in his context to implement this phase of the project, information like, for example, data models, file locations, project structure, context in the project, what has been done in the previous stories if relevant, any other information needed in order for the agent fully implement the task described in the story. Each story is so granular and detailed that our developer agent can get one and implement without the need to look anywhere else, everything he need is in his context provided by the story document.
 
-- Output: 
+- Output:
+
   - one markdown document with a very granular list of informative titles for Stories grouped by Epics each with a field to be marked as complete
   - one markdown document for each story
 
-- Prompt: "You are a senior scrum master specialized in technology and innovation. 
+- Prompt: "You are a senior scrum master specialized in technology and innovation.
 
 Your role is to, once given the necessary documentation, break down the project into a list of detailed, granular, and self-contained Stories grouped by Epics.
 
-Each story must be written in a self-contained way that it will provide all the details that the developer agent will need to be able to pick up one, and in a new chat and have all information he needs in his context to implement this phase of the project, information like, for example, data models, file locations, project structure, context in the project, what has been done in the previous stories if relevant, any other information needed in order for the agent fully implement the task described in the story. 
+Each story must be written in a self-contained way that it will provide all the details that the developer agent will need to be able to pick up one, and in a new chat and have all information he needs in his context to implement this phase of the project, information like, for example, data models, file locations, project structure, context in the project, what has been done in the previous stories if relevant, any other information needed in order for the agent fully implement the task described in the story.
 
 The stories will be packaged with the standards and patterns document provided by the Standards Engineer to ensure that the implementation of the project as a whole will have a clear structure and will follow standardized best practices and implementation patterns. This document will complement the story document with informations that are shared by two or more stories, if when writing the stories you find any cross references, you can ask the Standards Engineer to include the information in the standards and patterns document.
 
@@ -184,8 +187,8 @@ Each story is so granular and detailed that our developer agent can get one and 
 
 You provide the following outputs:
 
-  - one markdown document with the list of Epics/Stories necessary to implement the project with a field to mark each as complete
-  - One markdown document for EACH story
+- one markdown document with the list of Epics/Stories necessary to implement the project with a field to mark each as complete
+- One markdown document for EACH story
 
 The stories documents must be written in a self-contained way providing all the details that a Developer Agent will need to be able to pick up one, in a new chat without any previous context, and together with the standards and patterns document, have all information he needs to have in his context to implement the selected story both following the project structure, patterns and standards, and the latest best practices for the language, libraries and frameworks that are going to be used while ensuring fully integration with the codebase."
 
@@ -212,6 +215,7 @@ The stories documents must be written in a self-contained way providing all the 
 Each agent will have access to the necessary tools and resources they need in order to interact with the user, execute their actions and provide their outputs as described in the previous section.
 
 - tools
+
   - Internet brownsing and search
   - File system access
   - File related actions
@@ -221,13 +225,12 @@ Each agent will have access to the necessary tools and resources they need in or
     - Delete
     - Move
   - markdown
-  TBD
+    TBD
 
 - resources
   TBD
 
-
-## Developer packages definition 
+## Developer packages definition
 
 **This is the most important part of the project. This is the idea that could solve the biggest issue encountered when using ai development agents to implement complex projects**
 
@@ -242,13 +245,13 @@ _ documents
 |_ project-task-list/
 |_ project-standards-patterns/
 |_ project-epics-stories/
- |_ stories/ 
+|_ stories/
 |_ developer-packages/
- |_ story-x/
-  |_ project-vision-scope.md
-  |_ story-x.md
-  |_ standards-patterns.md
-  |_ project-architecture.md
+|_ story-x/
+|_ project-vision-scope.md
+|_ story-x.md
+|_ standards-patterns.md
+|_ project-architecture.md
 
 ## Project Flow
 
@@ -276,3 +279,10 @@ _ documents
 - Add more specialized agents to provide more specific information with different documents pertinent to each solution/product/service
 - Each main agent to have a team of specialized sub-agents that will help them to providing the information needed to write the document, making the process more efficient and faster.
 - ?
+
+#### Task manager idea
+
+- A simple list of tasks that can be marked as complete
+- The tasks can be categorized using tags without pre-defined categories
+- With a + sign at the corner of each task the user can insert the desired tags fro the task, while he types, an autoccomplete shows the existing tags
+- A search bar to search for tasks by names or tags that filters the tasks list in real time while the user types

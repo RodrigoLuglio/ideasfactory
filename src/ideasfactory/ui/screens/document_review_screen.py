@@ -36,6 +36,7 @@ class DocumentSource(str, Enum):
     BUSINESS_ANALYST = "business_analyst"
     PROJECT_MANAGER = "project_manager"
     ARCHITECT = "architect"
+    RESEARCH_TEAM = "research_team"
     PRODUCT_OWNER = "product_owner"
     STANDARDS_ENGINEER = "standards_engineer"
     SCRUM_MASTER = "scrum_master"
@@ -198,13 +199,20 @@ class DocumentReviewScreen(BaseScreen):
         # Update button labels based on the document source
         if self.document_source == DocumentSource.BUSINESS_ANALYST:
             self.query_one("#back_button").label = "Back to Brainstorm"
-            self.query_one("#proceed_button").label = "Continue to Research"
+            self.query_one("#proceed_button").label = "Continue to PRD"
         elif self.document_source == DocumentSource.PROJECT_MANAGER:
-            self.query_one("#back_button").label = "Back to Research"
+            self.query_one("#back_button").label = "Back to PRD"
             self.query_one("#proceed_button").label = "Continue to Architecture"
         elif self.document_source == DocumentSource.ARCHITECT:
-            self.query_one("#back_button").label = "Back to Architecture"
-            self.query_one("#proceed_button").label = "Continue to Task List"
+            if self.document_type == "research-requirements":
+                self.query_one("#back_button").label = "Back to Architecture"
+                self.query_one("#proceed_button").label = "Continue to Research"
+            else:
+                self.query_one("#back_button").label = "Back to Architecture"
+                self.query_one("#proceed_button").label = "Continue to Task List"
+        elif self.document_source == DocumentSource.RESEARCH_TEAM:
+            self.query_one("#back_button").label = "Back to Research"
+            self.query_one("#proceed_button").label = "Continue to Architecture"
         # Add more mappings for other agents as they're implemented
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -356,12 +364,17 @@ class DocumentReviewScreen(BaseScreen):
         else:
             # Default behavior depends on the document source
             if self.document_source == DocumentSource.BUSINESS_ANALYST:
-                self.app.action_switch_to_deep_research()
+                self.app.action_switch_to_prd_creation()
             elif self.document_source == DocumentSource.PROJECT_MANAGER:
                 self.app.action_switch_to_architecture()
             elif self.document_source == DocumentSource.ARCHITECT:
-                # This would go to the Product Owner screen once implemented
-                self.notify("Product Owner phase not yet implemented", severity="warning")
+                if self.document_type == "research-requirements":
+                    self.app.action_switch_to_research()
+                else:
+                    # This would go to the Product Owner screen once implemented
+                    self.notify("Product Owner phase not yet implemented", severity="warning")
+            elif self.document_source == DocumentSource.RESEARCH_TEAM:
+                self.app.action_switch_to_architecture()
     
     async def action_proceed(self) -> None:
         """Handle keyboard shortcut for proceeding."""

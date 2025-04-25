@@ -1,9 +1,9 @@
-# deep_research_screen.py - Updated to use generic document review
+# deep_research_screen.py - Renamed from deep_research_screen.py to prd_creation_screen.py
 
 """
-Project Manager screen for IdeasFactory.
+Product Manager screen for IdeasFactory.
 
-This module defines the Textual screen for conducting research and producing PRDs/research reports.
+This module defines the Textual screen for creating Product Requirements Documents (PRDs).
 """
 
 import logging
@@ -28,33 +28,32 @@ from ideasfactory.utils.error_handler import handle_async_errors
 logger = logging.getLogger(__name__)
 
 
-class DeepResearchScreen(BaseScreen):
+class PRDCreationScreen(BaseScreen):
     """
-    Screen for conducting research and producing PRDs/research reports.
+    Screen for creating Product Requirements Documents (PRDs).
     """
     
     BINDINGS = [
-        Binding(key="ctrl+r", action="refresh_research", description="Refresh Research"),
-        Binding(key="ctrl+s", action="save_report", description="Save Report"),
+        Binding(key="ctrl+r", action="refresh_prd", description="Refresh PRD"),
+        Binding(key="ctrl+s", action="save_prd", description="Save PRD"),
         Binding(key="ctrl+b", action="back_to_document", description="Back to Document"),
     ]
     
     def __init__(self, *args, **kwargs):
-        """Initialize the Project Manager screen."""
+        """Initialize the Product Manager screen."""
         super().__init__(*args, **kwargs)
         self.project_manager = ProjectManager()
         self.document_manager = DocumentManager()
         self.project_vision: Optional[str] = None
-        self.report_path: Optional[str] = None
+        self.prd_path: Optional[str] = None
         
-        # Track research stages for progress updates
-        self._research_stages = {
-            "init": {"weight": 5, "status": "Initializing research session..."},
-            "analyze_needs": {"weight": 15, "status": "Analyzing research needs..."},
-            "search": {"weight": 30, "status": "Performing web searches..."},
-            "scrape": {"weight": 20, "status": "Gathering detailed information..."},
-            "categorize": {"weight": 10, "status": "Categorizing research findings..."},
-            "report": {"weight": 20, "status": "Generating research report..."}
+        # Track PRD creation stages for progress updates
+        self._prd_stages = {
+            "init": {"weight": 10, "status": "Initializing PRD session..."},
+            "analyze_vision": {"weight": 25, "status": "Analyzing project vision..."},
+            "identify_requirements": {"weight": 30, "status": "Identifying requirements..."},
+            "structure_document": {"weight": 15, "status": "Structuring PRD document..."},
+            "generate_prd": {"weight": 20, "status": "Generating PRD document..."}
         }
         self._current_progress = 0
     
@@ -62,7 +61,7 @@ class DeepResearchScreen(BaseScreen):
         """Create child widgets for the screen."""
         yield VerticalScroll(
             Container(
-                Label("Project Research & Analysis", id="research_header"),
+                Label("Product Requirements Document Creation", id="prd_header"),
                 
                 Container(
                     Label("Project Vision Document:", id="vision_header"),
@@ -71,23 +70,23 @@ class DeepResearchScreen(BaseScreen):
                 ),
                 
                 Container(
-                    Label("Research Status:", id="status_header"),
-                    ProgressBar(id="research_progress", total=100, show_eta=False, show_percentage=True),
-                    Label("Ready to start research", id="research_status"),
-                    Button("Start Research", id="start_research_button", variant="primary"),
+                    Label("PRD Creation Status:", id="status_header"),
+                    ProgressBar(id="prd_progress", total=100, show_eta=False, show_percentage=True),
+                    Label("Ready to create PRD", id="prd_status"),
+                    Button("Create PRD", id="create_prd_button", variant="primary"),
                     id="status_container"
                 ),
                 
                 # The results container - will be replaced with document review screen navigation
                 Container(
-                    Button("View Research Report", id="view_report_button", variant="success", disabled=True),
+                    Button("View PRD Document", id="view_prd_button", variant="success", disabled=True),
                     Button("Back to Vision", id="back_button", variant="primary"),
                     id="results_container"
                 ),
                 
-                id="research_container"
+                id="prd_container"
             ),
-            id="research_scroll"
+            id="prd_scroll"
         )
     
     def on_mount(self) -> None:
@@ -95,7 +94,7 @@ class DeepResearchScreen(BaseScreen):
         super().on_mount()
         
         # Show the progress bar but set it to 0
-        progress_bar = self.query_one("#research_progress")
+        progress_bar = self.query_one("#prd_progress")
         progress_bar.update(progress=0)
         
         # Load project vision if already available
@@ -121,10 +120,10 @@ class DeepResearchScreen(BaseScreen):
             self.project_vision = vision_content
             self._load_project_vision()
             
-            # Enable research button
-            self.query_one("#research_status").update("Project vision loaded. Ready to start research.")
-            self.query_one("#start_research_button").disabled = False
-            self.query_one("#start_research_button").variant = "success"
+            # Enable PRD creation button
+            self.query_one("#prd_status").update("Project vision loaded. Ready to create PRD.")
+            self.query_one("#create_prd_button").disabled = False
+            self.query_one("#create_prd_button").variant = "success"
         else:
             logger.error(f"Project vision document not found for session {self.session_id}")
             # Handle missing document
@@ -151,8 +150,8 @@ class DeepResearchScreen(BaseScreen):
         self._load_project_vision()
         
         # Update UI to show missing document
-        self.query_one("#research_status").update("Missing required document: Project Vision")
-        self.query_one("#start_research_button").disabled = True
+        self.query_one("#prd_status").update("Missing required document: Project Vision")
+        self.query_one("#create_prd_button").disabled = True
 
 
     def set_project_vision(self, project_vision: str) -> None:
@@ -171,20 +170,20 @@ class DeepResearchScreen(BaseScreen):
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button press events."""
-        if event.button.id == "start_research_button":
-            await self.start_research()
-        elif event.button.id == "view_report_button":
-            await self.view_report()
+        if event.button.id == "create_prd_button":
+            await self.create_prd()
+        elif event.button.id == "view_prd_button":
+            await self.view_prd()
         elif event.button.id == "back_button":
             await self.back_to_document()
     
     def _update_progress(self, stage: str, completed: bool = True) -> None:
-        """Update the progress bar based on research stages."""
-        if not stage in self._research_stages:
+        """Update the progress bar based on PRD creation stages."""
+        if not stage in self._prd_stages:
             return
             
         # Calculate the progress contribution of this stage
-        stage_info = self._research_stages[stage]
+        stage_info = self._prd_stages[stage]
         stage_weight = stage_info["weight"]
         
         # For stages in progress, add half their weight
@@ -195,17 +194,17 @@ class DeepResearchScreen(BaseScreen):
             self._current_progress += stage_weight / 2
             
         # Update the progress bar
-        progress_bar = self.query_one("#research_progress")
+        progress_bar = self.query_one("#prd_progress")
         progress_bar.update(progress=min(self._current_progress, 100))
         
         # Update the status label
         if stage_info["status"]:
-            self.query_one("#research_status").update(stage_info["status"])
+            self.query_one("#prd_status").update(stage_info["status"])
 
     @handle_async_errors
-    async def start_research(self) -> None:
-        """Start the research process."""
-        logger.info(f"Starting research. Screen mounted: {self._is_mounted}, Vision length: {len(self.project_vision) if self.project_vision else 0}")
+    async def create_prd(self) -> None:
+        """Create the Product Requirements Document."""
+        logger.info(f"Starting PRD creation. Screen mounted: {self._is_mounted}, Vision length: {len(self.project_vision) if self.project_vision else 0}")
         
         if not self._is_mounted:
             logger.error("Screen not mounted")
@@ -213,19 +212,19 @@ class DeepResearchScreen(BaseScreen):
             
         if not self.project_vision:
             logger.error("No project vision available")
-            self.notify("Project vision document is required for research", severity="error")
+            self.notify("Project vision document is required for PRD creation", severity="error")
             return
         
         # Reset progress tracking
         self._current_progress = 0
-        progress_bar = self.query_one("#research_progress")
+        progress_bar = self.query_one("#prd_progress")
         progress_bar.update(progress=0)
         
         # Update status to show we're starting
-        self.query_one("#research_status").update("Initializing research process...")
+        self.query_one("#prd_status").update("Initializing PRD creation process...")
         
-        # Disable start button
-        self.query_one("#start_research_button").disabled = True
+        # Disable create button
+        self.query_one("#create_prd_button").disabled = True
         
         try:
             # Get the session ID from session manager (single source of truth)
@@ -237,108 +236,85 @@ class DeepResearchScreen(BaseScreen):
                 self.session_id = session_id
             else:
                 # No active session - shouldn't happen but handle gracefully
-                logger.error("No active session when starting research")
+                logger.error("No active session when starting PRD creation")
                 self.notify("No active session found", severity="error")
-                self.query_one("#start_research_button").disabled = False
+                self.query_one("#create_prd_button").disabled = False
                 return
             
             # Create simple progress update function
             async def update_progress(stage, message, progress_value, completed=True):
-                self.query_one("#research_status").update(message)
-                progress_bar = self.query_one("#research_progress")
+                self.query_one("#prd_status").update(message)
+                progress_bar = self.query_one("#prd_progress")
                 progress_bar.update(progress=progress_value)
                 # Force a UI refresh
                 self.refresh()
                 # Small pause to allow UI to update
                 await asyncio.sleep(0.1)
             
-            # STAGE 1: Initialize research session
-            await update_progress("init", "Initializing research session...", 5)
+            # STAGE 1: Initialize PRD session
+            await update_progress("init", "Initializing PRD session...", 10)
             
-            logger.info(f"Creating research session with vision of length {len(self.project_vision)} characters")
+            logger.info(f"Creating PRD session with vision of length {len(self.project_vision)} characters")
             
             try:
-                # Create the research session
+                # Create the PRD session
                 session = await self.project_manager.create_session(session_id, self.project_vision)
                 self.session_id = session_id
-                logger.info(f"Research session created: {session_id}")
+                logger.info(f"PRD session created: {session_id}")
                 
-                # STAGE 2: Analyze research needs
-                await update_progress("analyze_needs", "Analyzing research needs...", 15)
+                # STAGE 2: Analyze project vision
+                await update_progress("analyze_vision", "Analyzing project vision...", 25, completed=False)
                 
-                # Let's directly handle each stage without monkey patching
-                logger.info("Analyzing research needs")
-                search_queries = await self.project_manager._analyze_research_needs(session_id)
-                logger.info(f"Generated {len(search_queries)} search queries")
+                # STAGE 3: Identify requirements
+                await update_progress("identify_requirements", "Identifying and categorizing requirements...", 45, completed=False)
                 
-                if not search_queries:
-                    logger.error("No search queries generated")
-                    raise RuntimeError("Failed to generate search queries from project vision")
+                # STAGE 4: Structure document
+                await update_progress("structure_document", "Structuring PRD document...", 65, completed=False)
                 
-                # STAGE 3: Perform web searches
-                await update_progress("search", "Performing web searches...", 30)
+                # STAGE 5: Generate PRD document
+                await update_progress("generate_prd", "Generating comprehensive PRD document...", 80)
+                logger.info("Creating full PRD document")
                 
-                # Simplified search process
-                all_search_results = []
-                for i, query in enumerate(search_queries):
-                    logger.info(f"Searching for: {query}")
-                    await update_progress(
-                        "search", 
-                        f"Searching ({i+1}/{len(search_queries)}): {query[:30]}...", 
-                        30 + (i * 10 // len(search_queries))
-                    )
-                    results = await self.project_manager._perform_web_search(session_id, query)
-                    logger.info(f"Got {len(results)} results for query: {query}")
-                    all_search_results.extend(results)
+                # Create the actual PRD document
+                prd_document = await self.project_manager.create_prd(session_id)
+                logger.info(f"PRD document generated with length: {len(prd_document) if prd_document else 0}")
                 
-                logger.info(f"Total search results: {len(all_search_results)}")
-                
-                # STAGE 4: Gather detailed information
-                await update_progress("scrape", "Gathering detailed information...", 50)
-                
-                # STAGE 5: Generate research report
-                await update_progress("report", "Generating comprehensive research report...", 75)
-                logger.info("Conducting full research process")
-                
-                # Conduct the actual research (this will handle the remaining steps)
-                report = await self.project_manager.conduct_research(session_id)
-                logger.info(f"Research report generated with length: {len(report) if report else 0}")
             except Exception as e:
-                logger.error(f"Error in research process: {str(e)}")
+                logger.error(f"Error in PRD creation process: {str(e)}")
                 raise
             
             # Update UI for completion
-            await update_progress("complete", "Research completed successfully!", 100)
+            await update_progress("complete", "PRD creation completed successfully!", 100)
             
-            # Enable the view report button
-            view_button = self.query_one("#view_report_button")
+            # Enable the view PRD button
+            view_button = self.query_one("#view_prd_button")
             view_button.disabled = False
             
-            # Hide the start button
-            self.query_one("#start_research_button").display = False
+            # Hide the create button
+            self.query_one("#create_prd_button").display = False
             
             # Store the session ID for later use
             self.session_id = session_id
             
-            # Update the app's research report storage if applicable
-            if hasattr(self.app, "set_research_report"):
-                self.app.set_research_report(report)
+            # Update the app's PRD document storage if applicable
+            if hasattr(self.app, "set_prd_document"):
+                self.app.set_prd_document(prd_document)
             
             # Notify success
-            self.notify("Research completed successfully", severity="success")
+            self.notify("PRD document created successfully", severity="success")
             
         except Exception as e:
-            logger.error(f"Error during research: {e}")
-            self.notify(f"Research error: {str(e)}", severity="error")
-            self.query_one("#research_status").update(f"Error during research: {str(e)}")
-            # Re-enable start button
-            self.query_one("#start_research_button").disabled = False
+            logger.error(f"Error during PRD creation: {e}")
+            self.notify(f"PRD creation error: {str(e)}", severity="error")
+            self.query_one("#prd_status").update(f"Error during PRD creation: {str(e)}")
+            # Re-enable create button
+            self.query_one("#create_prd_button").disabled = False
     
     @handle_async_errors
-    async def view_report(self) -> None:
-        """View the generated research report in the document review screen."""
+    async def view_prd(self) -> None:
+        """View the generated PRD document in the document review screen."""
         if not self.session_id:
-            self.notify("No research session available", severity="error")
+            self.notify("No PRD session available", severity="error")
             return
             
         # Use the app's method to show document review for this document
@@ -352,6 +328,16 @@ class DeepResearchScreen(BaseScreen):
         """Go back to the document review screen."""
         # Use pop_screen to go back to the previous screen
         self.app.pop_screen()
+    
+    async def action_refresh_prd(self) -> None:
+        """Handle keyboard shortcut for refreshing the PRD."""
+        # Not fully implemented yet
+        self.notify("Refresh PRD not implemented", severity="warning")
+    
+    async def action_save_prd(self) -> None:
+        """Handle keyboard shortcut for saving the PRD."""
+        # Not fully implemented yet
+        self.notify("Save PRD not implemented", severity="warning")
     
     async def action_back_to_document(self) -> None:
         """Handle keyboard shortcut for going back to document review."""

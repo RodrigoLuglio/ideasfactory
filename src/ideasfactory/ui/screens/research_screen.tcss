@@ -1,0 +1,312 @@
+#research_header {
+    text-align: center;
+    background: $accent;
+    color: $text;
+    padding: 1;
+    margin-bottom: 1;
+    width: 100%;
+    font-weight: bold;
+}
+
+/* Document section */
+#documents_container {
+    background: $panel;
+    padding: 1;
+    margin-bottom: 1;
+    width: 100%;
+}
+
+#context_header {
+    color: $text;
+    background: $primary-darken-1;
+    padding: 0 1;
+    width: 100%;
+}
+
+#context_buttons {
+    layout: horizontal;
+    width: 100%;
+    align: center middle;
+    height: 3;
+    margin: 1 0;
+}
+
+#context_summary {
+    margin: 1;
+    padding: 1;
+    border: solid $primary-darken-3;
+    background: $boost;
+    min-height: 6;
+}
+
+/* Progress sections */
+#progress_container, #research_teams_container {
+    background: $panel;
+    padding: 1;
+    margin-bottom: 1;
+    width: 100%;
+}
+
+#teams_header, #progress_header {
+    color: $text;
+    background: $primary-darken-2;
+    padding: 0 1;
+    width: 100%;
+}
+
+#overall_progress, #foundation_progress, #integration_progress {
+    width: 100%;
+    margin: 0.5 0;
+}
+
+#research_status, #foundation_status, #integration_status {
+    margin: 0.5 0;
+    color: $text-muted;
+    text-style: italic;
+}
+
+/* Branch teams section */
+#branch_teams_container {
+    margin: 1 0;
+    border: solid $primary-darken-3;
+    background: $boost;
+    min-height: 3;
+    width: 100%;
+}
+
+.branch_row {
+    width: 100%;
+    margin: 0.5 0;
+    height: 4;
+}
+
+.branch_label {
+    width: 30%;
+    text-style: italic;
+    color: $text;
+}
+
+/* Dimension section */
+#dimension_container {
+    background: $panel;
+    padding: 1;
+    margin-bottom: 1;
+    width: 100%;
+}
+
+#dimensions_header {
+    color: $text;
+    background: $primary-darken-2;
+    padding: 0 1;
+    width: 100%;
+}
+
+#dimension_buttons {
+    layout: horizontal;
+    width: 100%;
+    align: center middle;
+    height: 3;
+}
+
+#dimension_map {
+    margin: 1;
+    padding: 1;
+    border: solid $primary-darken-3;
+    background: $boost;
+    min-height: 6;
+}
+
+/* Research paths section */
+#paths_container {
+    background: $panel;
+    padding: 1;
+    margin-bottom: 1;
+    width: 100%;
+}
+
+#paths_header {
+    color: $text;
+    background: $primary-darken-2;
+    padding: 0 1;
+    width: 100%;
+}
+
+#paths_visualization {
+    margin: 1;
+    padding: 1;
+    border: solid $primary-darken-3;
+    background: $boost;
+    min-height: 8;
+}
+
+#path_selector {
+    margin: 1;
+    min-height: 4;
+}
+
+/* Legacy component section */
+#component_container {
+    background: $panel;
+    padding: 1;
+    margin-bottom: 1;
+    width: 100%;
+}
+
+#component_buttons {
+    layout: horizontal;
+    width: 100%;
+    align: center middle;
+    height: 3;
+}
+
+/* Findings section */
+#findings_container {
+    background: $panel;
+    padding: 1;
+    margin-bottom: 1;
+    width: 100%;
+}
+
+#findings_header, #opportunities_header {
+    color: $text;
+    background: $primary-darken-2;
+    padding: 0 1;
+    width: 100%;
+}
+
+#paradigm_buttons {
+    layout: horizontal;
+    width: 100%;
+    align: center middle;
+    height: 3;
+    margin: 1 0;
+}
+
+#findings_display {
+    height: 20;
+    margin: 1;
+    border: solid $accent;
+}
+
+/* Opportunities section */
+#opportunities_container {
+    background: $panel;
+    padding: 1;
+    margin-bottom: 1;
+    width: 100%;
+}
+
+#opportunities_list {
+    margin: 1;
+    padding: 1;
+    border: solid $primary-darken-3;
+    background: $boost;
+    min-height: 6;
+}
+
+.opportunity {
+    margin: 0.5 0;
+    padding: 0.5;
+    border-left: solid $accent;
+    border-bottom: solid $primary-darken-3;
+}
+
+/* Dimension visualization container */
+.dimension-container {
+    margin: 1;
+    padding: 1;
+    border: solid $accent;
+    background: $boost;
+    min-height: 8;
+}
+
+/* Path visualization elements */
+.path-node {
+    background: $primary;
+    color: $text;
+    padding: 0.5;
+    margin: 0.5;
+    border: solid $accent;
+    text-align: center;
+}
+
+.path-connector {
+    color: $text-muted;
+    text-align: center;
+}
+
+/* Research team elements */
+.team-header {
+    background: $primary-darken-1;
+    color: $text;
+    padding: 0.5;
+    text-style: bold;
+}
+
+.team-status {
+    margin-top: 0.5;
+    color: $text-muted;
+    text-style: italic;
+}
+
+/* Dimension dependency visualization */
+.dimension-map {
+    margin: 1;
+    padding: 1;
+    border: solid $primary-darken-3;
+    background: $boost;
+    min-height: 10;
+}
+
+/* Animation elements */
+@keyframes pulse {
+    0% { background: $primary-darken-2; }
+    50% { background: $primary; }
+    100% { background: $primary-darken-2; }
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Actions section */
+#action_container {
+    layout: horizontal;
+    background: $panel;
+    padding: 1;
+    margin-top: 1;
+    width: 100%;
+    align: center middle;
+    height: 4;
+}
+
+/* General styling */
+Button {
+    margin: 1 2;
+}
+
+.title {
+    text-style: bold;
+    background: $boost;
+    padding: 1;
+}
+
+.description {
+    padding: 1;
+    margin-top: 1;
+    margin-bottom: 1;
+}
+
+TextArea {
+    height: 15;
+    border: solid $accent;
+}
+
+Label {
+    text-style: bold;
+}
+
+/* Hide elements with the hidden class */
+.hidden {
+    display: none;
+}

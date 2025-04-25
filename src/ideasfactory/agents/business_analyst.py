@@ -20,6 +20,20 @@ from ideasfactory.utils.llm_utils import (
 
 from ideasfactory.utils.error_handler import handle_errors, handle_async_errors
 
+# Make enhanced tools available to the business analyst
+from ideasfactory.tools.enhanced_web_search import (
+    search_custom,
+    fetch_full_page,
+    search_and_fetch,
+)
+from ideasfactory.tools.enhanced_data_analysis import (
+    extract_text_features,
+)
+from ideasfactory.tools.research_visualization import (
+    create_ascii_table,
+    create_timeline,
+)
+
 # Configure logging
 logger = logging.getLogger(__name__)
 

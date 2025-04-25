@@ -24,33 +24,131 @@ from ideasfactory.tools import (
     categorize_information, extract_market_data
 )
 
+# Make enhanced tools available to the project manager
+from ideasfactory.tools.enhanced_web_search import (
+    search_custom,
+    fetch_full_page,
+    search_and_fetch,
+)
+from ideasfactory.tools.enhanced_data_analysis import (
+    extract_text_features,
+)
+from ideasfactory.tools.tech_evaluation import (
+    create_evaluation_framework,
+    evaluate_technology,
+    compare_technologies,
+    generate_evaluation_report
+)
+from ideasfactory.tools.research_visualization import (
+    create_ascii_table,
+    create_timeline,
+)
+
 from ideasfactory.utils.error_handler import handle_async_errors
 from ideasfactory.utils.session_manager import SessionManager
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Project Manager system prompt
+# Product Manager system prompt
 PM_SYSTEM_PROMPT = """
-You are an experienced senior project manager with strong background in technology and innovation.
+You are a visionary product manager with exceptional insight into transforming ideas into comprehensive requirements while AMPLIFYING their innovative essence.
 
-Your role is to analyze the project vision document provided by the Business Analyst and make a research to gather all possible information about the solution/product/service it describes, including, but not limited to, market research, technology research, and legal research.
+Your primary responsibility is to bridge the gap between creative vision and technical implementation by producing a Product Requirements Document (PRD) that serves as the foundation for all subsequent workflow stages (Architecture Planning, Research, Standards Development, etc.).
 
-You have access to the following tools to assist with your research:
-1. Web search - search the internet for information
-2. Web scraping - extract detailed content from web pages
-3. Data analysis - analyze and categorize information
-4. Market data extraction - identify market size, growth rates, competitors from text
+You approach each project as FUNDAMENTALLY UNIQUE - recognizing that innovation often emerges from breaking conventional patterns. You have a rare ability to identify what makes THIS PARTICULAR project special and to ensure its distinctive character not only survives but THRIVES throughout the requirements definition process.
 
-Use these tools to conduct a deep research and provide a detailed report with all the information you can find about the project.
+Your greatest strength is balancing comprehensiveness with innovation preservation:
 
-This report can follow the structure of a Product Requirements Document (PRD) if you think it is the best way to present the information. Otherwise, you can define the best structure to present the information according to the kind of project as each idea might require a different way to be presented.
+1. You can extract the INNOVATION CORE from any vision - the elements that represent true departures from standard approaches
+2. You can identify IMPLICIT REQUIREMENTS that aren't stated but are essential to realizing the vision's unique value
+3. You can articulate TECHNICAL IMPLICATIONS of innovative approaches without constraining implementation creativity
+4. You can define QUALITY ATTRIBUTES in the specific context of each unique project
+5. You can document INTEGRATION TOUCHPOINTS without imposing conventional architectural patterns
 
-The report must:
-- Be clear, detailed and precise, describing the project with ALL and ONLY the information that you found in your research or your insights if they are based on existing sources
-- NOT contain any invented information or information that is not related to the project
-- Include proper citations for any external information or research findings
-- Be written in a markdown format
+Your PRD must serve as a COMPLETE BLUEPRINT that:
+
+- Expands each identified feature into deeply detailed functional requirements
+- Uncovers the full spectrum of implicit technical requirements essential to the vision
+- Identifies non-functional requirements contextualized to THIS specific solution
+- Defines edge cases and boundary conditions particularly relevant to the unique approach
+- Establishes measurable success criteria that preserve innovative elements
+- Documents constraints, dependencies, and assumptions without normalizing innovation
+- Identifies integration points and data flows needed for implementation
+- Articulates technical foundations required to enable distinctive capabilities
+
+However, you have an unwavering commitment to these principles:
+
+- NEVER introduce features or requirements not aligned with the original vision
+- NEVER impose conventional product structures on innovative ideas
+- ALWAYS maintain the unique character and approach of the original concept
+- ACTIVELY RESIST the urge to standardize unique approaches into familiar patterns
+- DELIBERATELY PRESERVE any unconventional or novel elements of the vision
+- ADAPT document structure to highlight distinctive aspects rather than following templates
+
+Above all, you understand that your PRD serves as the critical foundation for the entire implementation process. It must enable technical teams to build exactly what was envisioned, with all necessary details, while ENHANCING rather than diminishing the innovative and unique aspects that make this project special.
+
+Your success is measured by creating requirements documents that are both COMPREHENSIVE enough for technical implementation AND FAITHFUL to the vision's innovative character.
+"""
+
+PM_PRD_CREATION_PROMPT = """
+Based on the project vision document, create a comprehensive Product Requirements Document (PRD) that expands the vision into detailed requirements while PRESERVING and ENHANCING its unique, innovative character.
+
+Your approach should be to:
+
+1. DEEPLY ANALYZE the vision document to extract:
+   - Explicitly stated features and capabilities
+   - Implied needs and functionalities
+   - The UNIQUE ESSENCE that makes this idea special and different from conventional solutions
+
+2. IDENTIFY THE INNOVATION CORE:
+   - What aspects of this vision represent a true departure from standard approaches?
+   - What makes this solution fundamentally different from existing alternatives?
+   - What novel value does this unique approach create for users?
+   - How must this uniqueness be preserved throughout implementation?
+
+3. EXPAND each feature into:
+   - Detailed functional requirements with specific behaviors
+   - Edge cases and boundary conditions that are particularly relevant to this unique approach
+   - Technical implications that arise SPECIFICALLY BECAUSE of this vision's innovative aspects
+   - Dependencies between features that create the vision's distinctive experience
+
+4. SURFACE IMPLICIT REQUIREMENTS:
+   - For each explicit feature, identify at least 3-5 implicit requirements necessary for full implementation
+   - Consider what "hidden" capabilities would be needed to deliver the complete user experience
+   - Analyze what technical foundations must exist to enable the distinctive aspects of the vision
+   - Identify interaction patterns unique to this specific solution
+
+5. CONTEXTUALIZE QUALITY ATTRIBUTES:
+   - Performance requirements that are particularly relevant to this vision's unique approach
+   - Security considerations specific to this solution's distinctive characteristics
+   - Scalability needs that preserve the vision's innovative qualities as usage grows
+   - Usability requirements that maintain the vision's unique interaction model
+   - Accessibility considerations tailored to this specific solution's distinctive interface
+   - Any other quality attributes especially critical to THIS specific project's success
+
+6. DEFINE INTEGRATION TOUCHPOINTS:
+   - Identify boundaries and integration points with other systems
+   - Specify data flows necessary for the solution to function in its environment
+   - Articulate API requirements without prescribing specific implementation approaches
+
+7. DOCUMENT ASSUMPTIONS AND CONSTRAINTS:
+   - Articulate assumptions that underpin the vision's approach
+   - Identify constraints that must be respected while maintaining innovation
+   - Note potential tensions between conventional approaches and this vision's unique needs
+
+8. ADAPT the document structure to highlight what makes this project unique:
+   - Don't force into conventional templates
+   - Create sections that emphasize the distinctive aspects
+   - Organize requirements in a way that reflects the project's natural structure
+
+The final document should provide a COMPLETE BLUEPRINT for implementation while AMPLIFYING the vision's innovative elements. It must enable subsequent workflow stages (Architecture Research Requirements, Research Phase, etc.) with sufficient detail while preserving the original concept's distinctiveness.
+
+CRITICAL BALANCE: Your PRD must be comprehensive enough to support technical implementation without standardizing away what makes this vision innovative. Document WHAT needs to be built while remaining flexible on HOW it should be built.
+
+IMPORTANT: The PRD must NOT introduce new features beyond the vision's scope, yet must include ALL implicit requirements needed to successfully implement the envisioned features in a way that maintains their distinctive character.
+
+Please create this document in markdown format, with a structure that best serves THIS specific project's unique nature.
 """
 
 PM_RESEARCH_PROMPT = """
@@ -95,30 +193,39 @@ Remember to:
 """
 
 
-class ResearchCategory(str, Enum):
-    """Research categories for the project analysis."""
-    MARKET = "market_analysis"
-    TECHNICAL = "technical_feasibility"
-    LEGAL = "legal_compliance"
-    RESOURCES = "resource_requirements"
-    RISKS = "risk_assessment"
+class RequirementCategory(str, Enum):
+    """Requirement categories for the PRD."""
+    FUNCTIONAL = "functional_requirements"
+    NON_FUNCTIONAL = "non_functional_requirements"
+    CONSTRAINTS = "constraints"
+    ASSUMPTIONS = "assumptions"
+    DEPENDENCIES = "dependencies"
+    SUCCESS_CRITERIA = "success_criteria"
+    # Additional categories used in practice
+    IMPLICIT_REQUIREMENTS = "implicit_requirements"
+    CONSTRAINT = "constraint"
+    ASSUMPTION = "assumption"
+    QUALITY_ATTRIBUTES = "quality_attributes"
+    INTEGRATION_TOUCHPOINTS = "integration_touchpoints"
 
 
-class ResearchFinding(BaseModel):
-    """A research finding for a specific category."""
-    category: ResearchCategory
-    content: str
-    source: str
+class Requirement(BaseModel):
+    """A requirement for the PRD."""
+    category: RequirementCategory
+    title: str
+    description: str
+    priority: str = "Medium"
+    notes: Optional[str] = None
 
 
-class ResearchSession(BaseModel):
-    """A research session with the Project Manager."""
+class PRDSession(BaseModel):
+    """A PRD creation session with the Project Manager."""
     id: str = Field(..., description="Unique identifier for the session")
     project_vision: str = Field(..., description="Project vision document content")
-    findings: List[ResearchFinding] = Field(default_factory=list, description="Research findings")
+    requirements: List[Requirement] = Field(default_factory=list, description="Requirements list")
     messages: List[Message] = Field(default_factory=list, description="Messages in the session")
-    research_report: Optional[str] = Field(None, description="Generated research report content")
-    search_queries: List[str] = Field(default_factory=list, description="Search queries used")
+    prd_document: Optional[str] = Field(None, description="Generated PRD content")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata for the session")
     
     class Config:
         """Pydantic model configuration."""
@@ -127,7 +234,7 @@ class ResearchSession(BaseModel):
 
 class ProjectManager:
     """
-    Project Manager agent that conducts research and produces PRD or research reports.
+    Project Manager agent that creates Product Requirements Documents (PRDs) from project vision documents.
     
     Implemented as a singleton to ensure the same instance is shared across the application.
     """
@@ -144,27 +251,27 @@ class ProjectManager:
     def __init__(self):
         """Initialize the Project Manager agent."""
         if not hasattr(self, '_initialized') or not self._initialized:
-            self.sessions: Dict[str, ResearchSession] = {}
+            self.sessions: Dict[str, PRDSession] = {}
             self.system_prompt = create_system_prompt(PM_SYSTEM_PROMPT)
             self._initialized = True
     
     @handle_async_errors
-    async def create_session(self, session_id: str, project_vision: str) -> ResearchSession:
+    async def create_session(self, session_id: str, project_vision: str) -> PRDSession:
         """
-        Create a new research session.
+        Create a new PRD creation session.
         
         Args:
             session_id: Unique identifier for the session
             project_vision: Project vision document content
             
         Returns:
-            The created research session
+            The created PRD session
         """
         # Log session creation
         logger.info(f"Creating project manager session {session_id} with vision document of length {len(project_vision)}")
         
         # Create a new session
-        session = ResearchSession(
+        session = PRDSession(
             id=session_id,
             project_vision=project_vision,
             messages=[self.system_prompt]
@@ -298,17 +405,17 @@ class ProjectManager:
             return [f"{phrase} market analysis" for phrase in key_phrases[:5]]
     
     @handle_async_errors
-    async def conduct_research(self, session_id: str) -> Optional[str]:
+    async def create_prd(self, session_id: str) -> Optional[str]:
         """
-        Conduct research on the project.
+        Create a Product Requirements Document (PRD) based on the project vision.
         
         Args:
             session_id: Identifier of the session
             
         Returns:
-            The research report or None if session not found
+            The PRD content or None if session not found
         """
-        logger.info(f"Starting comprehensive research for session {session_id}")
+        logger.info(f"Starting PRD creation for session {session_id}")
         
         # Get the session
         session = self.sessions.get(session_id)
@@ -323,68 +430,15 @@ class ProjectManager:
             
         logger.info(f"Session retrieved for {session_id} with vision of length: {len(session.project_vision)}")
         
-        # Step 1: Analyze the project vision to determine research needs
-        search_queries = await self._analyze_research_needs(session_id)
-        
-        # Step 2: Perform web searches
-        all_search_results = []
-        
-        for query in search_queries:
-            results = await self._perform_web_search(session_id, query)
-            all_search_results.extend(results)
-        
-        # Step 3: Scrape detailed content from the most relevant results
-        detailed_content = []
-        
-        # Sort results by relevance (simple implementation)
-        top_results = sorted(all_search_results, key=lambda x: len(x["snippet"]), reverse=True)[:5]
-        
-        for result in top_results:
-            content = await self._scrape_web_page(session_id, result["link"])
-            if content:
-                # Summarize the content to make it more manageable
-                summary = summarize_content(content["content"])
-                
-                detailed_content.append({
-                    "title": content["title"],
-                    "summary": summary,
-                    "url": content["url"]
-                })
-        
-        # Step 4: Categorize the information
-        categories = [cat.value for cat in ResearchCategory]
-        
-        # Extract text snippets for categorization
-        snippets = [result["snippet"] for result in all_search_results]
-        categorized_snippets = categorize_information(snippets, categories)
-        
-        # Step 5: Extract structured research findings
-        # Process the research data to create structured findings
-        await self._extract_research_findings(session_id, all_search_results, detailed_content, categorized_snippets)
-
-        # Get the updated session with findings
-        session = self.sessions.get(session_id)
-        
-        # Format the structured findings for inclusion in the document
-        structured_findings = self._format_research_findings(session.findings)
-        
-        # Create a research data package with both raw data and structured findings
-        research_data = {
-            "vision": session.project_vision,
-            "search_results": all_search_results,
-            "detailed_content": detailed_content,
-            "categorized_information": categorized_snippets
-        }
-        
         # Extract features from the vision document for explicit tracking
         import re
         feature_pattern = r'### \d+\.\s+([^\n]+)\n- \*\*Description:\*\*\s+([^\n]+)'
         features = re.findall(feature_pattern, session.project_vision)
         feature_list = "\n".join([f"- {name}: {desc}" for name, desc in features])
         
-        # Create a prompt for the research report that includes the structured findings
-        research_prompt = f"""
-        Based on the project vision document and research data, create a comprehensive research report that is both THOROUGH and INSIGHTFUL.
+        # Create a prompt for the PRD that preserves the vision's unique character
+        prd_prompt = f"""
+        Based on the project vision document, create a comprehensive Product Requirements Document (PRD).
         
         Project Vision:
         {session.project_vision}
@@ -392,65 +446,158 @@ class ProjectManager:
         KEY FEATURES EXTRACTED FROM VISION DOCUMENT:
         {feature_list}
         
-        Research Data:
-        {json.dumps(research_data, indent=2)}
+        {PM_PRD_CREATION_PROMPT}
         
-        I've also extracted and categorized the following key research findings:
+        IMPORTANT GUIDANCE:
         
-        {structured_findings}
+        1. PRESERVE UNIQUENESS:
+           - The structure of the PRD should adapt to what makes THIS project unique
+           - Don't force this project into a conventional template or structure
+           - Let the document organization reflect the project's natural structure
         
-        {PM_RESEARCH_PROMPT}
+        2. COMPLETENESS WITHOUT STANDARDIZATION:
+           - Cover all necessary requirement aspects (functional, non-functional, etc.)
+           - But avoid imposing conventional product structures on this innovative idea
+           - Find the natural organization this specific project demands
         
-        CRITICAL REQUIREMENTS FOR YOUR REPORT:
+        3. DETAILED FUNCTIONAL REQUIREMENTS:
+           - For EACH feature explicitly mentioned in the vision document:
+             * Document detailed behaviors
+             * Explain user interactions
+             * Define success criteria
+             * Identify edge cases
         
-        1. SCOPE CLARITY: 
-           - The "Core Features and Requirements" section must include ALL features explicitly mentioned in the Project Vision document
-           - Use a clearly separate "Potential Extensions" section for valuable features discovered in research that weren't in the original vision
+        4. IMPLICIT REQUIREMENTS:
+           - Identify and document requirements that weren't explicitly stated but are necessary
+           - For example: performance needs, security considerations, usability requirements
+           - Ensure these are presented as enabling the vision, not changing it
         
-        2. TECHNOLOGY OPTIONS:
-           - For EACH feature, research and document AT LEAST 5-7 different implementation approaches
-           - Each approach must specify THE ACTUAL TECHNOLOGIES that would be used (frameworks, libraries, platforms, tools)
-           - Include the FULL SPECTRUM: established/traditional, mainstream current, and cutting-edge/experimental options
-           - For example, don't just say "Text-Based Search" - specify "Elasticsearch with React hooks" or "PostgreSQL full-text search with Django ORM"
-           - Present all options neutrally with detailed technical pros/cons
+        5. TECHNICAL BOUNDARIES:
+           - Define clear boundaries between components/features
+           - Specify integration points and interfaces
+           - Document constraints and dependencies
         
-        3. COMPREHENSIVE MARKET INSIGHTS:
-           - Conduct deep competitive analysis of similar solutions (not just surface-level trends)
-           - Identify specific competitor products and their unique approaches to similar problems
-           - Uncover unexpected market opportunities or challenges that might not be immediately obvious
-           - Present genuinely surprising insights that someone couldn't easily find in a basic search
-        
-        4. INTELLECTUAL CURIOSITY:
-           - Don't just answer the obvious questions - anticipate the questions no one thought to ask
-           - Connect unexpected domains that might influence this project in surprising ways
-           - Identify patterns and insights across different fields that could be relevant
-           - Include at least 2-3 truly surprising insights that would make someone say "I never would have thought of that"
-        
-        5. TECHNICAL DEPTH & BREADTH:
-           - For each technology option, explore specific implementation details, not just high-level approaches
-           - Consider how different features might interact technically
-           - Explore unconventional technology combinations that might offer unique advantages
-           - Identify specific libraries, tools, and frameworks for each approach
-        
-        Approach this research as if you have unlimited access to the world's knowledge and a genuinely curious mind. The report should reflect both comprehensive thoroughness AND surprising insight - the kind that comes from making unexpected connections across different fields of knowledge.
-        
-        Please provide the research report in markdown format.
+        Please provide the PRD in markdown format. The structure should be tailored to highlight what makes this specific project unique while ensuring it contains all the information needed for implementation.
         """
         
-        research_request = create_user_prompt(research_prompt)
-        session.messages.append(research_request)
+        prd_request = create_user_prompt(prd_prompt)
+        session.messages.append(prd_request)
         
         # Get the agent's response
         response = await send_prompt(session.messages)
+        
+        # Extract requirements from the PRD
+        await self._extract_requirements(session_id, response.content)
         
         # Add the response to the session
         assistant_message = create_assistant_prompt(response.content)
         session.messages.append(assistant_message)
         
-        # Store the research report
-        session.research_report = response.content
+        # Store the PRD
+        session.prd_document = response.content
         
         return response.content
+        
+    @handle_async_errors
+    async def _extract_requirements(self, session_id: str, prd_content: str) -> None:
+        """
+        Extract structured requirements from the PRD.
+        
+        Args:
+            session_id: Identifier of the session
+            prd_content: Content of the PRD
+            
+        Returns:
+            None - updates the session with requirements
+        """
+        # Get the session
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session not found: {session_id}")
+            return
+        
+        # Create a prompt to extract requirements
+        analysis_prompt = f"""
+        Please analyze this Product Requirements Document (PRD) and extract structured requirements.
+        
+        PRD Content:
+        {prd_content}
+        
+        For each requirement you identify, extract:
+        1. Category (functional, non-functional, constraint, assumption, dependency, success_criteria)
+        2. Title (short descriptive name)
+        3. Description (detailed explanation)
+        4. Priority (High, Medium, Low)
+        5. Notes (any additional information)
+        
+        Format your response as a JSON array of objects with the following structure:
+        
+        ```json
+        [
+          {{
+            "category": "functional_requirements", 
+            "title": "Requirement title",
+            "description": "Detailed description",
+            "priority": "High",
+            "notes": "Additional notes or null if none"
+          }}
+        ]
+        ```
+        
+        Only return the JSON array without any additional text.
+        """
+        
+        # Create a temporary list of messages to avoid affecting the session
+        temp_messages = [
+            self.system_prompt,
+            create_user_prompt(analysis_prompt)
+        ]
+        
+        # Get the agent's response
+        try:
+            response = await send_prompt(temp_messages)
+            
+            # Extract the JSON object from the response
+            import re
+            
+            json_match = re.search(r'```json\s*(.*?)\s*```', response.content, re.DOTALL)
+            
+            if json_match:
+                json_text = json_match.group(1)
+            else:
+                # Try to find json without the code block markers
+                json_match = re.search(r'\[\s*\{', response.content)
+                if json_match:
+                    json_text = response.content[json_match.start():]
+                else:
+                    logger.error("No JSON found in the response")
+                    return
+            
+            # Parse the JSON
+            requirements_data = json.loads(json_text)
+            
+            # Convert to Requirement objects and add to session
+            for req_data in requirements_data:
+                try:
+                    # Convert string category to enum
+                    category = RequirementCategory(req_data.get("category", "functional_requirements"))
+                    
+                    requirement = Requirement(
+                        category=category,
+                        title=req_data.get("title", ""),
+                        description=req_data.get("description", ""),
+                        priority=req_data.get("priority", "Medium"),
+                        notes=req_data.get("notes")
+                    )
+                    session.requirements.append(requirement)
+                except ValueError as e:
+                    logger.error(f"Invalid category: {req_data.get('category')}")
+                    continue
+                
+            logger.info(f"Extracted {len(requirements_data)} requirements")
+            
+        except Exception as e:
+            logger.error(f"Error extracting requirements: {str(e)}")
     
     @handle_async_errors
     async def _extract_research_findings(self, session_id: str, search_results: list, detailed_content: list, categorized_info: dict) -> None:
@@ -576,57 +723,55 @@ class ProjectManager:
         except Exception as e:
             logger.error(f"Error extracting research findings: {str(e)}")
     
-    def _format_research_findings(self, findings: List[ResearchFinding]) -> str:
+    def _format_requirements(self, requirements: List[Requirement]) -> str:
         """
-        Format research findings for inclusion in the document.
+        Format requirements for inclusion in the document.
         
         Args:
-            findings: List of research findings
+            requirements: List of requirements
             
         Returns:
-            Formatted findings as markdown text
+            Formatted requirements as markdown text
         """
-        if not findings:
-            return "No structured findings available."
+        if not requirements:
+            return "No structured requirements available."
         
-        # Group findings by category
-        findings_by_category = {}
-        for finding in findings:
-            category = finding.category
-            if category not in findings_by_category:
-                findings_by_category[category] = []
-            findings_by_category[category].append(finding)
+        # Group requirements by category
+        requirements_by_category = {}
+        for requirement in requirements:
+            category = requirement.category
+            if category not in requirements_by_category:
+                requirements_by_category[category] = []
+            requirements_by_category[category].append(requirement)
         
-        # Format the findings
-        formatted_findings = ""
+        # Format the requirements
+        formatted_requirements = ""
         
-        for category, category_findings in findings_by_category.items():
+        for category, category_requirements in requirements_by_category.items():
             # Convert enum to display name
             display_name = category.value.replace("_", " ").title()
             
-            formatted_findings += f"## {display_name}\n\n"
+            formatted_requirements += f"## {display_name}\n\n"
             
-            for finding in category_findings:
-                formatted_findings += f"- {finding.content}"
-                if finding.source:
-                    formatted_findings += f" (Source: {finding.source})"
-                formatted_findings += "\n"
-            
-            formatted_findings += "\n"
+            for requirement in category_requirements:
+                formatted_requirements += f"### {requirement.title} (Priority: {requirement.priority})\n\n"
+                formatted_requirements += f"{requirement.description}\n\n"
+                if requirement.notes:
+                    formatted_requirements += f"**Notes:** {requirement.notes}\n\n"
         
-        return formatted_findings
+        return formatted_requirements
             
     @handle_async_errors
-    async def revise_report(self, session_id: str, feedback: str) -> Optional[str]:
+    async def revise_prd(self, session_id: str, feedback: str) -> Optional[str]:
         """
-        Revise the research report based on feedback.
+        Revise the PRD based on feedback.
         
         Args:
             session_id: Identifier of the session
-            feedback: Feedback on the research report
+            feedback: Feedback on the PRD
             
         Returns:
-            The revised report content or None if session not found
+            The revised PRD content or None if session not found
         """
         # Get the session
         session = self.sessions.get(session_id)
@@ -634,22 +779,50 @@ class ProjectManager:
             logger.error(f"Session not found: {session_id}")
             return None
         
-        # Format the structured findings for inclusion in the revision
-        structured_findings = self._format_research_findings(session.findings)
+        # Format the structured requirements for inclusion in the revision
+        structured_requirements = self._format_requirements(session.requirements)
         
-        # Create the revision message with structured findings
+        # Create the revision message with structured requirements
         revision_prompt = f"""
-        Please revise the research report based on this feedback: "{feedback}"
+        Please revise the Product Requirements Document based on this feedback: "{feedback}"
         
-        Remember to incorporate these key research findings that were identified during our research:
+        Remember to preserve these key structured requirements that were previously identified:
         
-        {structured_findings}
+        {structured_requirements}
         
-        IMPORTANT: 
-        - ONLY provide the updated report in markdown format
-        - Do NOT add commentary, questions, or explanations before or after the report
-        - Simply apply the requested changes to the existing report and return the complete updated document
-        - Make sure to include the relevant research findings in the appropriate sections
+        CRITICAL REVISION GUIDELINES:
+        
+        1. ENHANCE INNOVATIVE ELEMENTS:
+           - Your revisions should AMPLIFY what makes THIS project unique, not diminish it
+           - Pay special attention to preserving the innovation core while addressing feedback
+           - Ensure any additions further illuminate the vision's distinctive qualities
+        
+        2. PRESERVE & DEEPEN UNIQUENESS:
+           - The structure of the PRD should continue to adapt to what makes THIS project unique
+           - Never force this project into a conventional template or structure
+           - Look for opportunities to make unique aspects even more distinct in your revisions
+        
+        3. COMPLETENESS WITHOUT STANDARDIZATION:
+           - Address all feedback completely while maintaining the project's distinctive nature
+           - Cover necessary requirement aspects while avoiding conventional product structures
+           - Expand on implicit requirements that enable the vision's unique approach
+        
+        4. TECHNICAL FOUNDATIONS WITHOUT IMPLEMENTATION BIAS:
+           - Clarify technical implications of the vision's unique approach without prescribing solutions
+           - Specify what technical capabilities are needed without dictating how to implement them
+           - Address integration points and boundaries while preserving implementation flexibility
+        
+        5. MAINTAIN VISION INTEGRITY:
+           - Ensure all revisions align with and enhance the original project vision
+           - Never introduce requirements that would normalize or standardize the innovative concept
+           - Strengthen requirements that preserve the unique user experience envisioned
+        
+        6. IMPORTANT FORMAT INSTRUCTIONS: 
+           - ONLY provide the updated PRD in markdown format
+           - Do NOT add commentary, questions, or explanations before or after the document
+           - Simply apply the requested changes and return the complete updated document
+           - Make sure to include the relevant requirements in the appropriate sections
+           - Ensure the document structure continues to highlight the project's unique qualities
         """
         
         revision_request = create_user_prompt(revision_prompt)
@@ -662,7 +835,7 @@ class ProjectManager:
         assistant_message = create_assistant_prompt(response.content)
         session.messages.append(assistant_message)
         
-        # Update the research report
-        session.research_report = response.content
+        # Update the PRD document
+        session.prd_document = response.content
         
         return response.content

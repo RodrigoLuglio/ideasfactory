@@ -47,7 +47,9 @@ class ArchitectureScreen(BaseScreen):
         self.architect = Architect()
         self.document_manager = DocumentManager()
         self.project_vision: Optional[str] = None
+        self.prd_document: Optional[str] = None
         self.research_report: Optional[str] = None
+        self.research_requirements: Optional[str] = None
         self.decisions: List[ArchitecturalDecision] = []
         self.current_decision_index: int = 0
     
@@ -60,9 +62,19 @@ class ArchitectureScreen(BaseScreen):
                 # Documents container (for reference)
                 Container(
                     Button("View Project Vision", id="view_vision_button", variant="primary"),
+                    Button("View PRD", id="view_prd_button", variant="primary"),
                     Button("View Research Report", id="view_report_button", variant="primary"),
                     Button("Reload Documents", id="reload_documents_button", variant="default"),
                     id="documents_container"
+                ),
+                
+                # Research Requirements container
+                Container(
+                    Label("Technical Research Requirements", id="research_requirements_header"),
+                    Static("Create research requirements to guide the research phase.", id="research_requirements_status"),
+                    Button("Create Research Requirements", id="create_research_requirements_button", variant="primary"),
+                    Button("View Research Requirements", id="view_research_requirements_button", variant="success", disabled=True),
+                    id="research_requirements_container"
                 ),
                 
                 # Analysis container
@@ -121,6 +133,19 @@ class ArchitectureScreen(BaseScreen):
         
         # Disable buttons that shouldn't be clickable yet
         self.query_one("#create_document_button").disabled = True
+        self.query_one("#view_research_requirements_button").disabled = True
+        self.query_one("#start_analysis_button").disabled = True
+        
+        # Add header to clarify the two-phase architecture workflow
+        arch_header = self.query_one("#architecture_header")
+        arch_header.update("Architecture Definition (Two-Phase Workflow)")
+        
+        # Add phase labels to clarify current phase
+        research_header = self.query_one("#research_requirements_header")
+        research_header.update("Phase 1: Technical Research Requirements")
+        
+        analysis_header = self.query_one("#analysis_header")
+        analysis_header.update("Phase 2: Architecture Design (after research)")
         
         # Load documents if session is available
         if self.session_id:
@@ -139,6 +164,16 @@ class ArchitectureScreen(BaseScreen):
         vision_content = await load_document_content(self.session_id, "project-vision")
         if vision_content:
             self.project_vision = vision_content
+        
+        # Load PRD document
+        prd_content = await load_document_content(self.session_id, "prd")
+        if prd_content:
+            self.prd_document = prd_content
+        
+        # Load research requirements document
+        research_requirements_content = await load_document_content(self.session_id, "research-requirements")
+        if research_requirements_content:
+            self.research_requirements = research_requirements_content
             
         # Load research report document
         research_content = await load_document_content(self.session_id, "research-report")
@@ -147,8 +182,22 @@ class ArchitectureScreen(BaseScreen):
             
         # Update UI based on document availability
         if self._is_mounted:
-            if self.project_vision and self.research_report:
-                self.query_one("#analysis_status").update("Ready to start architecture analysis.")
+            # Update research requirements status and buttons
+            if self.prd_document:
+                if self.research_requirements:
+                    self.query_one("#research_requirements_status").update("Research requirements document created.")
+                    self.query_one("#view_research_requirements_button").disabled = False
+                    self.query_one("#create_research_requirements_button").disabled = True
+                else:
+                    self.query_one("#research_requirements_status").update("Ready to create research requirements.")
+                    self.query_one("#create_research_requirements_button").disabled = False
+            else:
+                self.query_one("#research_requirements_status").update("PRD required to create research requirements.")
+                self.query_one("#create_research_requirements_button").disabled = True
+            
+            # Update analysis status and buttons - Phase 2 depends on Phase 1 completion
+            if self.project_vision and self.research_report and self.research_requirements:
+                self.query_one("#analysis_status").update("Ready to start Phase 2: Architecture Design (research completed)")
                 self.query_one("#start_analysis_button").disabled = False
             else:
                 missing = []
@@ -156,8 +205,19 @@ class ArchitectureScreen(BaseScreen):
                     missing.append("Project Vision")
                 if not self.research_report:
                     missing.append("Research Report")
+                if not self.research_requirements:
+                    missing.append("Research Requirements (Phase 1)")
                 
-                self.query_one("#analysis_status").update(f"Missing required documents: {', '.join(missing)}")
+                if self.research_requirements:
+                    phase_status = "Phase 1 completed. "
+                    
+                    # Add a message about research if requirements are completed but no report
+                    if not self.research_report:
+                        phase_status += "Please proceed to Research phase (press 's') to generate a research report. "
+                else:
+                    phase_status = "Phase 1 must be completed first. "
+                    
+                self.query_one("#analysis_status").update(f"{phase_status}Missing: {', '.join(missing)}")
                 self.query_one("#start_analysis_button").disabled = True
     
     @handle_async_errors
@@ -167,19 +227,24 @@ class ArchitectureScreen(BaseScreen):
         await super().on_screen_resume()
         
         # If we have a session but no documents, try to load them
-        if self.session_id and (not self.project_vision or not self.research_report):
+        if self.session_id and (not self.project_vision or not self.prd_document or not self.research_requirements or not self.research_report):
             await self._load_session_documents()
         elif not self.session_id:
             # No session
             self.notify("No active session found", severity="error")
             self.query_one("#analysis_status").update("No active session")
+            self.query_one("#research_requirements_status").update("No active session")
             self.query_one("#start_analysis_button").disabled = True
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button press events."""
         button_id = event.button.id
         
-        if button_id == "start_analysis_button":
+        if button_id == "create_research_requirements_button":
+            await self.create_research_requirements()
+        elif button_id == "view_research_requirements_button":
+            await self.view_research_requirements()
+        elif button_id == "start_analysis_button":
             await self.start_analysis()
         elif button_id == "make_decision_button":
             await self.make_decision()
@@ -195,12 +260,24 @@ class ArchitectureScreen(BaseScreen):
             await self.ask_question()
         elif button_id == "view_vision_button":
             await self.view_project_vision()
+        elif button_id == "view_prd_button":
+            await self.view_prd_document()
         elif button_id == "view_report_button":
             await self.view_research_report()
+        elif button_id == "reload_documents_button":
+            await self._load_session_documents()
     
     def set_project_vision(self, project_vision: str) -> None:
         """Set the project vision document."""
         self.project_vision = project_vision
+
+    def set_prd_document(self, prd_document: str) -> None:
+        """Set the PRD document."""
+        self.prd_document = prd_document
+        
+    def set_research_requirements(self, research_requirements: str) -> None:
+        """Set the research requirements document."""
+        self.research_requirements = research_requirements
 
     def set_research_report(self, research_report: str) -> None:
         """Set the research report document."""
@@ -507,6 +584,89 @@ class ArchitectureScreen(BaseScreen):
     async def action_back(self) -> None:
         """Handle keyboard shortcut for going back."""
         await self.go_back()
+    
+    @handle_async_errors
+    async def create_research_requirements(self) -> None:
+        """Create the research requirements document."""
+        if not self._is_mounted:
+            return
+            
+        if not self.session_id:
+            self.notify("No active session", severity="error")
+            return
+            
+        if not self.prd_document:
+            self.notify("PRD document is required for research requirements", severity="error")
+            return
+        
+        # Update status to show we're working
+        self.query_one("#research_requirements_status").update("Creating research requirements...")
+        self.query_one("#create_research_requirements_button").disabled = True
+        
+        try:
+            # Create architect session if we don't have one already
+            architect_session = self.architect.sessions.get(self.session_id)
+            if not architect_session:
+                architect_session = await self.architect.create_session(
+                    self.session_id,
+                    self.project_vision,
+                    self.prd_document,
+                    self.research_report
+                )
+            else:
+                # Update the session with the latest documents
+                architect_session.project_vision = self.project_vision
+                architect_session.prd_document = self.prd_document
+                architect_session.research_report = self.research_report
+            
+            # Generate the research requirements
+            self.research_requirements = await self.architect.create_research_requirements(self.session_id)
+            
+            if self.research_requirements:
+                # Update UI to show success
+                self.query_one("#research_requirements_status").update("Research requirements document created")
+                self.query_one("#view_research_requirements_button").disabled = False
+                
+                # Notify user
+                self.notify("Research requirements created successfully", severity="success")
+                
+                # Show the document review screen for the research requirements
+                if hasattr(self.app, "show_document_review_for_research_requirements"):
+                    await self.app.show_document_review_for_research_requirements(self.session_id)
+            else:
+                raise ValueError("Failed to create research requirements document")
+                
+        except Exception as e:
+            logger.error(f"Error creating research requirements: {str(e)}")
+            self.notify(f"Error creating research requirements: {str(e)}", severity="error")
+            self.query_one("#research_requirements_status").update("Error creating research requirements")
+            self.query_one("#create_research_requirements_button").disabled = False
+    
+    @handle_async_errors
+    async def view_research_requirements(self) -> None:
+        """View the research requirements document."""
+        if not self.research_requirements:
+            self.notify("No research requirements document available", severity="error")
+            return
+            
+        # Show the document review screen for the research requirements
+        if hasattr(self.app, "show_document_review_for_research_requirements"):
+            await self.app.show_document_review_for_research_requirements(self.session_id)
+        else:
+            self.notify("Document review not available", severity="error")
+    
+    @handle_async_errors
+    async def view_prd_document(self) -> None:
+        """View the PRD document."""
+        if not self.prd_document:
+            self.notify("No PRD document available", severity="error")
+            return
+        
+        # Show the document review screen for the PRD
+        if hasattr(self.app, "show_document_review_for_pm"):
+            await self.app.show_document_review_for_pm(self.session_id)
+        else:
+            self.notify("Document review not available", severity="error")
     
     @handle_async_errors
     async def view_project_vision(self) -> None:
