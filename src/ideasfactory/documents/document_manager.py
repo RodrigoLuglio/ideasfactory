@@ -54,6 +54,8 @@ class DocumentManager:
             os.makedirs(os.path.join(session_dir, "project-vision"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "prd"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "research-report"), exist_ok=True)
+            # Create subfolder for path reports
+            os.makedirs(os.path.join(session_dir, "research-report", "path-reports"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "architecture"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "task-list"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "standards-patterns"), exist_ok=True)
@@ -65,6 +67,8 @@ class DocumentManager:
             os.makedirs(os.path.join(self.base_dir, "project-vision"), exist_ok=True)
             os.makedirs(os.path.join(self.base_dir, "prd"), exist_ok=True)
             os.makedirs(os.path.join(self.base_dir, "research-report"), exist_ok=True)
+            # Create subfolder for path reports
+            os.makedirs(os.path.join(self.base_dir, "research-report", "path-reports"), exist_ok=True)
             os.makedirs(os.path.join(self.base_dir, "architecture"), exist_ok=True)
             os.makedirs(os.path.join(self.base_dir, "task-list"), exist_ok=True)
             os.makedirs(os.path.join(self.base_dir, "standards-patterns"), exist_ok=True)
@@ -158,7 +162,21 @@ class DocumentManager:
         }
         
         # Get standardized filename or create from title
-        if document_type in filename_mapping:
+        if document_type == "path-report":
+            # For path reports, create a unique filename based on the title
+            # This ensures different paths don't overwrite each other
+            if metadata and "path_name" in metadata:
+                # Use the path name from metadata if available
+                safe_path_name = metadata["path_name"].replace(" ", "-").lower()
+                filename = f"path-report-{safe_path_name}.md"
+            else:
+                # Fallback to sanitized title if path_name not provided
+                sanitized_title = title.replace(" ", "-").lower()
+                if title.startswith("Path Report: "):
+                    # Remove the "Path Report: " prefix if present
+                    sanitized_title = sanitized_title[12:]
+                filename = f"path-report-{sanitized_title}.md"
+        elif document_type in filename_mapping:
             filename = filename_mapping[document_type]
         else:
             # Fallback to title-based filename
@@ -180,7 +198,13 @@ class DocumentManager:
             self._ensure_directories(session_id)
             
         # Determine the directory based on the document type and session
-        if document_type in ["project-vision", "prd", "research-requirements", "research-report", "architecture",
+        if document_type == "path-report":
+            # Store path reports in a subdirectory of research-report
+            if session_id:
+                directory = os.path.join(self.base_dir, f"session-{session_id}", "research-report", "path-reports")
+            else:
+                directory = os.path.join(self.base_dir, "research-report", "path-reports")
+        elif document_type in ["project-vision", "prd", "research-requirements", "research-report", "architecture",
                             "task-list", "standards-patterns", "epics-stories", "stories"]:
             if session_id:
                 directory = os.path.join(self.base_dir, f"session-{session_id}", document_type)
@@ -415,11 +439,17 @@ class DocumentManager:
                             # Add all document type directories in this session
                             for d in [
                                 "project-vision", "research-report", "architecture",
-                                "task-list", "standards-patterns", "epics-stories", "stories"
+                                "task-list", "standards-patterns", "epics-stories", "stories", "path-report"
                             ]:
                                 doc_type_path = os.path.join(session_path, d)
                                 if os.path.exists(doc_type_path):
                                     session_directories.append(doc_type_path)
+                                    
+                                    # Also check for path-reports subdirectory in research-report
+                                    if d == "research-report":
+                                        path_reports_dir = os.path.join(doc_type_path, "path-reports")
+                                        if os.path.exists(path_reports_dir):
+                                            session_directories.append(path_reports_dir)
                 
                 # Also check global directories
                 if document_type:
@@ -429,11 +459,17 @@ class DocumentManager:
                 else:
                     for d in [
                         "project-vision", "research-report", "architecture",
-                        "task-list", "standards-patterns", "epics-stories", "stories"
+                        "task-list", "standards-patterns", "epics-stories", "stories", "path-report"
                     ]:
                         global_dir = os.path.join(self.base_dir, d)
                         if os.path.exists(global_dir):
                             session_directories.append(global_dir)
+                            
+                            # Also check for path-reports subdirectory in research-report
+                            if d == "research-report":
+                                path_reports_dir = os.path.join(global_dir, "path-reports")
+                                if os.path.exists(path_reports_dir):
+                                    session_directories.append(path_reports_dir)
             
             # Now collect documents from all identified directories
             for directory in session_directories:
@@ -559,3 +595,41 @@ class DocumentManager:
         except Exception as e:
             logger.error(f"Error retrieving document: {str(e)}")
             return None
+            
+    @handle_async_errors
+    async def get_all_path_reports(self, session_id: str) -> List[Dict[str, Any]]:
+        """
+        Get all path reports for a session.
+        
+        Args:
+            session_id: Session ID to get path reports for
+            
+        Returns:
+            List of path report documents with their content and metadata
+        """
+        try:
+            # Construct the path to the path-reports directory
+            path_reports_dir = os.path.join(self.base_dir, f"session-{session_id}", "research-report", "path-reports")
+            
+            # Check if the directory exists
+            if not os.path.exists(path_reports_dir):
+                logger.info(f"Path reports directory does not exist for session {session_id}")
+                return []
+                
+            # Get all markdown files in the directory
+            path_reports = []
+            for filename in os.listdir(path_reports_dir):
+                if filename.endswith(".md"):
+                    filepath = os.path.join(path_reports_dir, filename)
+                    document = self.get_document(filepath)
+                    if document:
+                        # Add the filepath to the document for reference
+                        document["filepath"] = filepath
+                        path_reports.append(document)
+            
+            # Sort by path name for consistent ordering
+            return sorted(path_reports, key=lambda x: x.get("path_name", x.get("title", "")))
+        
+        except Exception as e:
+            logger.error(f"Error retrieving path reports: {str(e)}")
+            return []

@@ -4435,3 +4435,502 @@ LiteLLM completion() model= gpt-4o; provider = openai
 2025-04-26 08:38:06,875 - ideasfactory.utils.file_manager - INFO - Document research-requirements loaded from path: output/session-545c3cd4-3ca5-4c79-a0f0-4d33c0b6538f/research-requirements/technical-research-requirements.md with 5114 chars
 2025-04-26 08:38:06,875 - ideasfactory.utils.file_manager - INFO - Document research-report loaded from path: output/session-545c3cd4-3ca5-4c79-a0f0-4d33c0b6538f/research-report/research-report.md with 6813 chars
 2025-04-26 08:38:12,372 - ideasfactory.ui.screens.research_screen - INFO - Research screen resumed with session ID: 545c3cd4-3ca5-4c79-a0f0-4d33c0b6538f
+2025-04-26 09:47:04,675 - root - INFO - Starting IdeasFactory application...
+2025-04-26 09:47:04,676 - root - INFO - IdeasFactory version: 0.1.0
+2025-04-26 09:47:04,676 - root - INFO - Python version: 3.11.11 (main, Mar 23 2025, 13:13:05) [Clang 16.0.0 (clang-1600.0.26.6)]
+2025-04-26 09:47:04,676 - root - INFO - OS: posix
+2025-04-26 09:47:04,676 - root - INFO - Platform: darwin
+2025-04-26 09:47:04,676 - root - INFO - Architecture: arm64
+2025-04-26 09:47:04,676 - root - INFO - Command line arguments: ['src/ideasfactory/__init__.py']
+2025-04-26 09:47:04,676 - root - INFO - Current working directory: /Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory
+2025-04-26 09:47:04,676 - root - INFO - Python path: ['/Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory/src/ideasfactory', '/Users/rusty/.pyenv/versions/3.11.11/lib/python311.zip', '/Users/rusty/.pyenv/versions/3.11.11/lib/python3.11', '/Users/rusty/.pyenv/versions/3.11.11/lib/python3.11/lib-dynload', '/Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory/.venv/lib/python3.11/site-packages', '/Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory/src', '/Users/rusty/Documents/Projects/AI/Tools/ProjectPlanner/ideasfactory']
+2025-04-26 09:47:04,743 - ideasfactory.ui.screens.base_screen - WARNING - No active session when resuming screen
+2025-04-26 09:47:17,208 - ideasfactory.utils.session_manager - INFO - Created new session: 8500fe23-149e-4c85-9c45-5bbb123d35ed for project: A simple task manager
+2025-04-26 09:47:17,208 - ideasfactory.utils.session_manager - INFO - Set current session to: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:47:17,208 - ideasfactory.utils.session_manager - INFO - Set current session to: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:47:17,209 - ideasfactory.utils.session_manager - INFO - Set current session to: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:47:17,209 - ideasfactory.utils.session_manager - INFO - Set current session to: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:47:17,209 - ideasfactory.utils.session_manager - INFO - Set current session to: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:47:17,209 - ideasfactory.utils.session_manager - INFO - Set current session to: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:47:17,209 - ideasfactory.ui.screens.research_screen - INFO - Research screen session set to: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:47:17,216 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:47:19,213 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:47:19,228 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:47:19,229 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:47:19,229 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:47:19,230 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:47:22,295 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:47:26,682 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:47:26,684 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:47:26,684 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:47:26,686 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:47:26,691 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:47:29,653 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:47:29,657 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:47:29,658 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:47:29,658 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:47:29,659 - ideasfactory.agents.business_analyst - INFO - Extracted 4 suggestions and 4 features
+2025-04-26 09:47:29,660 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:47:43,118 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:47:55,488 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:47:55,492 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:47:55,492 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:47:55,493 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:47:55,493 - ideasfactory.utils.session_manager - INFO - Session 8500fe23-149e-4c85-9c45-5bbb123d35ed workflow state updated to: project_vision_completed
+2025-04-26 09:47:55,494 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:47:58,174 - ideasfactory.utils.session_manager - INFO - Added document of type project-vision to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:47:58,174 - ideasfactory.ui.screens.document_review_screen - INFO - Document saved to: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/project-vision/project-vision.md
+2025-04-26 09:48:00,136 - ideasfactory.utils.file_manager - INFO - Document project-vision loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/project-vision/project-vision.md with 3557 chars
+2025-04-26 09:48:00,225 - ideasfactory.utils.file_manager - INFO - Document project-vision loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/project-vision/project-vision.md with 3557 chars
+2025-04-26 09:48:03,919 - ideasfactory.ui.screens.prd_creation_screen - INFO - Starting PRD creation. Screen mounted: True, Vision length: 3557
+2025-04-26 09:48:04,022 - ideasfactory.ui.screens.prd_creation_screen - INFO - Creating PRD session with vision of length 3557 characters
+2025-04-26 09:48:04,022 - ideasfactory.agents.project_manager - INFO - Creating project manager session 8500fe23-149e-4c85-9c45-5bbb123d35ed with vision document of length 3557
+2025-04-26 09:48:04,022 - ideasfactory.agents.project_manager - INFO - Project manager session 8500fe23-149e-4c85-9c45-5bbb123d35ed created successfully
+2025-04-26 09:48:04,022 - ideasfactory.ui.screens.prd_creation_screen - INFO - PRD session created: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:04,433 - ideasfactory.ui.screens.prd_creation_screen - INFO - Creating full PRD document
+2025-04-26 09:48:04,433 - ideasfactory.agents.project_manager - INFO - Starting PRD creation for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:04,433 - ideasfactory.agents.project_manager - INFO - Session retrieved for 8500fe23-149e-4c85-9c45-5bbb123d35ed with vision of length: 3557
+2025-04-26 09:48:04,435 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:48:15,717 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:48:15,740 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:48:15,741 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:48:15,742 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:48:15,742 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:48:23,364 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:48:23,369 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:48:23,369 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:48:23,370 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:48:23,371 - ideasfactory.agents.project_manager - ERROR - Invalid category: non-functional_requirements
+2025-04-26 09:48:23,372 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:48:23,372 - ideasfactory.agents.project_manager - ERROR - Invalid category: non-functional_requirements
+2025-04-26 09:48:23,373 - ideasfactory.agents.project_manager - ERROR - Invalid category: non-functional_requirements
+2025-04-26 09:48:23,373 - ideasfactory.agents.project_manager - ERROR - Invalid category: dependency
+2025-04-26 09:48:23,373 - ideasfactory.agents.project_manager - INFO - Extracted 15 requirements
+2025-04-26 09:48:23,373 - ideasfactory.ui.screens.prd_creation_screen - INFO - PRD document generated with length: 5142
+2025-04-26 09:48:27,862 - ideasfactory.utils.session_manager - INFO - Session 8500fe23-149e-4c85-9c45-5bbb123d35ed workflow state updated to: prd_completed
+2025-04-26 09:48:29,118 - ideasfactory.utils.session_manager - INFO - Added document of type prd to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:29,119 - ideasfactory.ui.screens.document_review_screen - INFO - Document saved to: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/prd/product-requirements-document.md
+2025-04-26 09:48:30,613 - ideasfactory.utils.file_manager - INFO - Document project-vision loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/project-vision/project-vision.md with 3557 chars
+2025-04-26 09:48:30,614 - ideasfactory.utils.file_manager - INFO - Document prd loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/prd/product-requirements-document.md with 5141 chars
+2025-04-26 09:48:30,614 - ideasfactory.utils.file_manager - INFO - No document path in session, trying to find document by type: research-requirements
+2025-04-26 09:48:30,614 - ideasfactory.documents.document_manager - ERROR - Document not found at expected path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-requirements/technical-research-requirements.md
+2025-04-26 09:48:30,614 - ideasfactory.utils.file_manager - WARNING - Document research-requirements not found for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:30,614 - ideasfactory.utils.file_manager - INFO - No document path in session, trying to find document by type: research-report
+2025-04-26 09:48:30,614 - ideasfactory.documents.document_manager - ERROR - Document not found at expected path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/research-report.md
+2025-04-26 09:48:30,614 - ideasfactory.utils.file_manager - WARNING - Document research-report not found for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:30,649 - ideasfactory.utils.file_manager - INFO - Document project-vision loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/project-vision/project-vision.md with 3557 chars
+2025-04-26 09:48:30,649 - ideasfactory.utils.file_manager - INFO - Document prd loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/prd/product-requirements-document.md with 5141 chars
+2025-04-26 09:48:30,649 - ideasfactory.utils.file_manager - INFO - No document path in session, trying to find document by type: research-requirements
+2025-04-26 09:48:30,649 - ideasfactory.documents.document_manager - ERROR - Document not found at expected path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-requirements/technical-research-requirements.md
+2025-04-26 09:48:30,649 - ideasfactory.utils.file_manager - WARNING - Document research-requirements not found for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:30,649 - ideasfactory.utils.file_manager - INFO - No document path in session, trying to find document by type: research-report
+2025-04-26 09:48:30,650 - ideasfactory.documents.document_manager - ERROR - Document not found at expected path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/research-report.md
+2025-04-26 09:48:30,650 - ideasfactory.utils.file_manager - WARNING - Document research-report not found for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:32,180 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:48:41,029 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:48:41,033 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:48:41,034 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:48:41,034 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:48:41,040 - ideasfactory.utils.session_manager - INFO - Session 8500fe23-149e-4c85-9c45-5bbb123d35ed workflow state updated to: research_requirements_completed
+2025-04-26 09:48:41,041 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:48:42,736 - ideasfactory.utils.session_manager - INFO - Added document of type research-requirements to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:42,736 - ideasfactory.ui.screens.document_review_screen - INFO - Document saved to: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-requirements/technical-research-requirements.md
+2025-04-26 09:48:46,252 - ideasfactory.utils.session_manager - INFO - Session 8500fe23-149e-4c85-9c45-5bbb123d35ed workflow state updated to: research_requirements_completed
+2025-04-26 09:48:46,252 - ideasfactory.utils.session_manager - INFO - Set current session to: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:46,252 - ideasfactory.ui.screens.research_screen - INFO - Research screen session set to: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:46,267 - ideasfactory.ui.screens.research_screen - INFO - Research screen resumed with session ID: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:46,267 - ideasfactory.ui.screens.research_screen - INFO - No research requirements loaded, attempting to load documents
+2025-04-26 09:48:46,267 - ideasfactory.ui.screens.research_screen - INFO - Research requirements path from session manager: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-requirements/technical-research-requirements.md
+2025-04-26 09:48:46,267 - ideasfactory.ui.screens.research_screen - INFO - Attempting to load research requirements from session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:46,268 - ideasfactory.utils.file_manager - INFO - Document research-requirements loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-requirements/technical-research-requirements.md with 4264 chars
+2025-04-26 09:48:46,269 - ideasfactory.ui.screens.research_screen - INFO - Successfully loaded research requirements - Length: 4264
+2025-04-26 09:48:46,271 - ideasfactory.ui.screens.research_screen - INFO - Attempting to load research report
+2025-04-26 09:48:46,271 - ideasfactory.utils.file_manager - INFO - No document path in session, trying to find document by type: research-report
+2025-04-26 09:48:46,271 - ideasfactory.documents.document_manager - ERROR - Document not found at expected path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/research-report.md
+2025-04-26 09:48:46,271 - ideasfactory.utils.file_manager - WARNING - Document research-report not found for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:46,271 - ideasfactory.ui.screens.research_screen - INFO - No research report available yet
+2025-04-26 09:48:46,295 - ideasfactory.ui.screens.research_screen - INFO - Research screen resumed with session ID: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:51,948 - ideasfactory.ui.screens.research_screen - INFO - Started research worker: <Worker RUNNING name='_run_research_worker' description='<bound method ResearchScreen._run_research_worker of ResearchScreen()>'>
+2025-04-26 09:48:51,950 - ideasfactory.agents.research_team - INFO - Creating research session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:51,951 - ideasfactory.utils.file_manager - INFO - Document project-vision loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/project-vision/project-vision.md with 3557 chars
+2025-04-26 09:48:51,951 - ideasfactory.agents.research_team - INFO - Loaded project vision for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:51,952 - ideasfactory.utils.file_manager - INFO - Document prd loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/prd/product-requirements-document.md with 5141 chars
+2025-04-26 09:48:51,952 - ideasfactory.agents.research_team - INFO - Loaded PRD for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:51,952 - ideasfactory.utils.session_manager - INFO - Updated session: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:51,952 - ideasfactory.agents.research_team - INFO - Created foundational research session
+2025-04-26 09:48:51,953 - ideasfactory.agents.research_team - INFO - Initialized 10 research agents for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:48:51,955 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:49:11,439 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:49:11,445 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:49:11,446 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:11,446 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:11,447 - ideasfactory.agents.research_team - INFO - Foundation discovery completed by agent foundation-discovery-1
+2025-04-26 09:49:11,447 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:11,449 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:49:23,594 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:49:23,598 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:49:23,598 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:23,598 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:23,599 - ideasfactory.agents.research_team - INFO - Foundation discovery completed by agent foundation-discovery-2
+2025-04-26 09:49:23,600 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:23,607 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:49:37,142 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:49:37,146 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:49:37,147 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:37,148 - ideasfactory.agents.research_team - INFO - Discovered 14 potential foundation approaches for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:49:37,156 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:37,207 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:49:45,847 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:49:45,851 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:49:45,852 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:45,852 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:45,853 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Modular Monolithic Architecture
+2025-04-26 09:49:45,853 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:45,854 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:49:57,113 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:49:57,118 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:49:57,119 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:57,119 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:57,120 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Distributed Task Management System
+2025-04-26 09:49:57,120 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:49:57,121 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:50:12,474 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:50:12,477 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:50:12,478 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:50:12,478 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:50:12,478 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Reactive Task Manager
+2025-04-26 09:50:12,479 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:50:12,480 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:50:26,942 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:50:26,946 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:50:26,947 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:50:26,948 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Function-as-a-Service Task Management
+2025-04-26 09:50:26,953 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:50:26,953 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:50:40,439 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:50:40,451 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:50:40,452 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:50:40,452 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:50:40,453 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Offline-First Interactive Task Manager
+2025-04-26 09:50:40,454 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:50:40,455 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:50:54,314 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:50:54,317 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:50:54,318 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:50:54,318 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Edge-Enhanced Task Manager
+2025-04-26 09:50:54,319 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:50:54,320 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:51:11,766 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:51:11,770 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:51:11,770 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:51:11,771 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:51:11,771 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Voice-Activated Task Manager
+2025-04-26 09:51:11,772 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:51:11,773 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:51:24,705 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:51:24,708 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:51:24,709 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:51:24,709 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:51:24,710 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Intelligent Task Recommendation Engine
+2025-04-26 09:51:24,710 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:51:24,711 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:51:41,863 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:51:41,870 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:51:41,870 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:51:41,870 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:51:41,871 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Blockchain-Based Task Manager
+2025-04-26 09:51:41,872 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:51:41,873 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:51:57,260 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:51:57,266 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:51:57,266 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:51:57,267 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Custom-Built Task Management Framework
+2025-04-26 09:51:57,268 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:51:57,277 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:52:11,086 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:52:11,111 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:52:11,112 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:52:11,117 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Web Application Framework
+2025-04-26 09:52:11,118 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:52:11,125 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:52:30,303 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:52:30,311 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:52:30,312 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:52:30,314 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for IoT-Enhanced Task Manager
+2025-04-26 09:52:30,315 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:52:30,314 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:52:30,323 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:52:40,892 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:52:40,895 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:52:40,896 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:52:40,898 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Intelligent Tagging Engine
+2025-04-26 09:52:40,899 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:52:40,903 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:52:51,297 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:52:51,301 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:52:51,302 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:52:51,302 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:52:51,302 - ideasfactory.agents.research_team - INFO - Foundation exploration completed for Augmented Reality Task Management
+2025-04-26 09:52:51,303 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:52:51,349 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:52:57,855 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:52:57,861 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:52:57,861 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:52:57,863 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:52:57,864 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:03,441 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:53:03,444 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:53:03,445 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:03,448 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:53:03,452 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:10,226 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:53:10,229 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:53:10,230 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:10,230 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:10,231 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:53:10,232 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:14,638 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:53:14,660 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:53:14,661 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:14,664 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:53:14,668 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:19,337 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:53:19,342 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:53:19,342 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:19,343 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:19,344 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:53:19,345 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:24,656 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:53:24,658 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:53:24,658 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:24,660 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:24,660 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:53:30,253 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:53:30,256 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:53:30,257 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:30,258 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:53:30,258 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:34,919 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:53:34,922 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:53:34,922 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:34,923 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:53:34,924 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:39,835 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:53:39,837 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:53:39,838 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:39,839 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:53:39,839 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:45,165 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:53:45,172 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:53:45,173 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:45,174 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:53:45,173 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:45,176 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:50,394 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:53:50,397 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:53:50,397 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:50,397 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:50,398 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:53:50,398 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:57,549 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:53:57,551 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:53:57,552 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:53:57,553 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:53:57,554 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:54:01,508 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:54:01,514 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:54:01,515 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:54:01,518 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:54:01,527 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:54:07,243 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:54:07,249 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:54:07,250 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:54:07,251 - ideasfactory.agents.research_team - INFO - Explored 14 foundation approaches for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:54:07,283 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:54:07,412 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:54:22,587 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:54:22,593 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:54:22,594 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:54:22,596 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:54:22,659 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-modular-monolithic-architecture-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:54:22,659 - ideasfactory.agents.research_team - INFO - Path report for 'Modular Monolithic Architecture Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-modular-monolithic-architecture-implementation-path.md
+2025-04-26 09:54:22,659 - ideasfactory.agents.research_team - INFO - Path research completed for Modular Monolithic Architecture Implementation Path
+2025-04-26 09:54:22,660 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:54:38,515 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:54:38,521 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:54:38,522 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:54:38,529 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:54:38,600 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-distributed-task-management-system-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:54:38,600 - ideasfactory.agents.research_team - INFO - Path report for 'Distributed Task Management System Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-distributed-task-management-system-implementation-path.md
+2025-04-26 09:54:38,600 - ideasfactory.agents.research_team - INFO - Path research completed for Distributed Task Management System Implementation Path
+2025-04-26 09:54:38,601 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:54:58,020 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:54:58,042 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:54:58,042 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:54:58,043 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:54:58,090 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-reactive-task-manager-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:54:58,090 - ideasfactory.agents.research_team - INFO - Path report for 'Reactive Task Manager Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-reactive-task-manager-implementation-path.md
+2025-04-26 09:54:58,090 - ideasfactory.agents.research_team - INFO - Path research completed for Reactive Task Manager Implementation Path
+2025-04-26 09:54:58,091 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:55:15,892 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:55:15,898 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:55:15,900 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:55:15,906 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:55:15,965 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-function-as-a-service-task-management-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:55:15,965 - ideasfactory.agents.research_team - INFO - Path report for 'Function-as-a-Service Task Management Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-function-as-a-service-task-management-implementation-path.md
+2025-04-26 09:55:15,965 - ideasfactory.agents.research_team - INFO - Path research completed for Function-as-a-Service Task Management Implementation Path
+2025-04-26 09:55:15,966 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:55:32,549 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:55:32,577 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:55:32,578 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:55:32,585 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:55:32,657 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-offline-first-interactive-task-manager-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:55:32,658 - ideasfactory.agents.research_team - INFO - Path report for 'Offline-First Interactive Task Manager Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-offline-first-interactive-task-manager-implementation-path.md
+2025-04-26 09:55:32,658 - ideasfactory.agents.research_team - INFO - Path research completed for Offline-First Interactive Task Manager Implementation Path
+2025-04-26 09:55:32,659 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:55:50,738 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:55:50,761 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:55:50,763 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:55:50,770 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:55:50,847 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-edge-enhanced-task-manager-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:55:50,847 - ideasfactory.agents.research_team - INFO - Path report for 'Edge-Enhanced Task Manager Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-edge-enhanced-task-manager-implementation-path.md
+2025-04-26 09:55:50,847 - ideasfactory.agents.research_team - INFO - Path research completed for Edge-Enhanced Task Manager Implementation Path
+2025-04-26 09:55:50,848 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:56:05,791 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:56:05,798 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:56:05,799 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:56:05,811 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:56:05,871 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-voice-activated-task-manager-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:56:05,871 - ideasfactory.agents.research_team - INFO - Path report for 'Voice-Activated Task Manager Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-voice-activated-task-manager-implementation-path.md
+2025-04-26 09:56:05,872 - ideasfactory.agents.research_team - INFO - Path research completed for Voice-Activated Task Manager Implementation Path
+2025-04-26 09:56:05,873 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:56:22,040 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:56:22,044 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:56:22,045 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:56:22,056 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:56:22,126 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-intelligent-task-recommendation-engine-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:56:22,126 - ideasfactory.agents.research_team - INFO - Path report for 'Intelligent Task Recommendation Engine Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-intelligent-task-recommendation-engine-implementation-path.md
+2025-04-26 09:56:22,126 - ideasfactory.agents.research_team - INFO - Path research completed for Intelligent Task Recommendation Engine Implementation Path
+2025-04-26 09:56:22,128 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:56:41,399 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:56:41,406 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:56:41,407 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:56:41,419 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:56:41,483 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-blockchain-based-task-manager-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:56:41,483 - ideasfactory.agents.research_team - INFO - Path report for 'Blockchain-Based Task Manager Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-blockchain-based-task-manager-implementation-path.md
+2025-04-26 09:56:41,483 - ideasfactory.agents.research_team - INFO - Path research completed for Blockchain-Based Task Manager Implementation Path
+2025-04-26 09:56:41,484 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:56:55,507 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:56:55,533 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:56:55,534 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:56:55,543 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:56:55,590 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-custom-built-task-management-framework-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:56:55,590 - ideasfactory.agents.research_team - INFO - Path report for 'Custom-Built Task Management Framework Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-custom-built-task-management-framework-implementation-path.md
+2025-04-26 09:56:55,590 - ideasfactory.agents.research_team - INFO - Path research completed for Custom-Built Task Management Framework Implementation Path
+2025-04-26 09:56:55,591 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:57:12,231 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:57:12,251 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:57:12,252 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:57:12,255 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:57:12,324 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-web-application-framework-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:57:12,324 - ideasfactory.agents.research_team - INFO - Path report for 'Web Application Framework Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-web-application-framework-implementation-path.md
+2025-04-26 09:57:12,324 - ideasfactory.agents.research_team - INFO - Path research completed for Web Application Framework Implementation Path
+2025-04-26 09:57:12,325 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:57:25,767 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:57:25,776 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:57:25,780 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:57:25,784 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:57:25,854 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-iot-enhanced-task-manager-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:57:25,854 - ideasfactory.agents.research_team - INFO - Path report for 'IoT-Enhanced Task Manager Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-iot-enhanced-task-manager-implementation-path.md
+2025-04-26 09:57:25,854 - ideasfactory.agents.research_team - INFO - Path research completed for IoT-Enhanced Task Manager Implementation Path
+2025-04-26 09:57:25,855 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:57:39,256 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:57:39,262 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:57:39,263 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:57:39,275 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:57:39,344 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-intelligent-tagging-engine-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:57:39,344 - ideasfactory.agents.research_team - INFO - Path report for 'Intelligent Tagging Engine Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-intelligent-tagging-engine-implementation-path.md
+2025-04-26 09:57:39,344 - ideasfactory.agents.research_team - INFO - Path research completed for Intelligent Tagging Engine Implementation Path
+2025-04-26 09:57:39,345 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:57:51,240 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:57:51,248 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:57:51,249 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:57:51,256 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:57:51,321 - ideasfactory.utils.session_manager - INFO - Added document of type path-report-augmented-reality-task-management-implementation-path to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:57:51,321 - ideasfactory.agents.research_team - INFO - Path report for 'Augmented Reality Task Management Implementation Path' saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/path-reports/path-report-augmented-reality-task-management-implementation-path.md
+2025-04-26 09:57:51,321 - ideasfactory.agents.research_team - INFO - Path research completed for Augmented Reality Task Management Implementation Path
+2025-04-26 09:57:51,409 - ideasfactory.agents.research_team - INFO - Completed path research for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:57:51,410 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:58:06,562 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:58:06,570 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:58:06,571 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:58:06,572 - ideasfactory.agents.research_team - INFO - Integration research completed for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:58:06,578 - ideasfactory.utils.session_manager - INFO - Updated session: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:58:06,579 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:58:06,580 - LiteLLM - INFO - 
+LiteLLM completion() model= gpt-4o; provider = openai
+2025-04-26 09:58:34,449 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-26 09:58:34,501 - LiteLLM - INFO - Wrapper: Completed Call, calling success_handler
+2025-04-26 09:58:34,502 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:58:34,511 - LiteLLM - INFO - selected model name for cost calculation: openai/gpt-4o-2024-08-06
+2025-04-26 09:58:34,575 - ideasfactory.utils.session_manager - INFO - Added document of type research-report to session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:58:34,575 - ideasfactory.agents.research_team - INFO - Research report saved to output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/research-report.md
+2025-04-26 09:58:34,576 - ideasfactory.utils.session_manager - INFO - Updated session: 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 09:58:34,576 - ideasfactory.agents.research_team - INFO - Research report created for session 8500fe23-149e-4c85-9c45-5bbb123d35ed
+2025-04-26 10:00:09,954 - ideasfactory.utils.file_manager - INFO - Document project-vision loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/project-vision/project-vision.md with 3557 chars
+2025-04-26 10:00:09,955 - ideasfactory.utils.file_manager - INFO - Document prd loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/prd/product-requirements-document.md with 5141 chars
+2025-04-26 10:00:09,956 - ideasfactory.utils.file_manager - INFO - Document research-requirements loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-requirements/technical-research-requirements.md with 4264 chars
+2025-04-26 10:00:09,956 - ideasfactory.utils.file_manager - INFO - Document research-report loaded from path: output/session-8500fe23-149e-4c85-9c45-5bbb123d35ed/research-report/research-report.md with 12405 chars
