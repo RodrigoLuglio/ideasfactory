@@ -119,6 +119,8 @@ class FoundationalResearchSession:
     """Class representing a research session focused on emergent foundations."""
     id: str
     requirements: str
+    project_vision: Optional[str] = None
+    prd_document: Optional[str] = None
     project_foundations: Dict[str, ProjectFoundation] = field(default_factory=dict)
     emergent_dimensions: Dict[str, EmergentDimension] = field(default_factory=dict)
     research_paths: List[ResearchPath] = field(default_factory=list)
@@ -506,14 +508,45 @@ class FoundationalResearchTeam:
         """
         logger.info(f"Creating research session {session_id}")
         
-        # Create a new session
+        # Load project vision and PRD
+        session_manager = SessionManager()
+        
+        # Load project vision document
+        project_vision = None
+        project_vision_content = await load_document_content(session_id, "project-vision")
+        if project_vision_content:
+            project_vision = project_vision_content
+            logger.info(f"Loaded project vision for session {session_id}")
+        
+        # Load PRD document
+        prd_document = None
+        prd_content = await load_document_content(session_id, "prd")
+        if prd_content:
+            prd_document = prd_content
+            logger.info(f"Loaded PRD for session {session_id}")
+        
+        # Create a new session with all available documents
         session = FoundationalResearchSession(
             id=session_id,
-            requirements=research_requirements
+            requirements=research_requirements,
+            project_vision=project_vision,
+            prd_document=prd_document
         )
         
         # Store in sessions dict
         self.sessions[session_id] = session
+        
+        # Store session reference in session manager metadata
+        current_session = session_manager.get_session(session_id)
+        if current_session:
+            if "research" not in current_session.metadata:
+                current_session.metadata["research"] = {}
+            
+            current_session.metadata["research"]["initiated"] = True
+            current_session.metadata["research"]["status"] = "created"
+            current_session.metadata["research"]["has_vision"] = project_vision is not None
+            current_session.metadata["research"]["has_prd"] = prd_document is not None
+            session_manager.update_session(session_id, current_session)
         
         logger.info(f"Created foundational research session")
         return session
@@ -677,11 +710,17 @@ class FoundationalResearchTeam:
         discovery_prompt = f"""
         Research Task: Discover Potential Project Foundations
         
+        Project Vision:
+        {session.project_vision if session.project_vision else "No project vision document available."}
+        
+        Product Requirements Document (PRD):
+        {session.prd_document if session.prd_document else "No PRD document available."}
+        
         Research Requirements:
         {session.requirements}
         
         You are tasked with discovering the COMPLETE SPECTRUM of FOUNDATION APPROACHES
-        for implementing this project:
+        for implementing this project based on the above vision, requirements, and research directives:
         
         1. DISCOVER FUNDAMENTALLY DIFFERENT APPROACHES:
            - What are the completely different ways this project could be implemented?
@@ -945,6 +984,12 @@ class FoundationalResearchTeam:
         exploration_prompt = f"""
         Research Task: Explore Foundation Approach "{foundation.name}"
         
+        Project Vision:
+        {session.project_vision if session.project_vision else "No project vision document available."}
+        
+        Product Requirements Document (PRD):
+        {session.prd_document if session.prd_document else "No PRD document available."}
+        
         Foundation Description:
         {foundation.description}
         
@@ -957,7 +1002,7 @@ class FoundationalResearchTeam:
         Research Requirements:
         {session.requirements}
         
-        You are tasked with exploring this foundation approach in depth:
+        You are tasked with exploring this foundation approach in depth based on the project vision, requirements, and research directives:
         
         1. EXPLORE THIS FOUNDATION ACROSS THE PARADIGM SPECTRUM:
            - How can this foundation be implemented using approaches from different paradigms?
@@ -1273,6 +1318,12 @@ class FoundationalResearchTeam:
         research_prompt = f"""
         Research Task: Explore implementation path "{path_name}"
         
+        Project Vision:
+        {session.project_vision if session.project_vision else "No project vision document available."}
+        
+        Product Requirements Document (PRD):
+        {session.prd_document if session.prd_document else "No PRD document available."}
+        
         Foundation:
         {foundation.name}: {foundation.description}
         
@@ -1285,7 +1336,7 @@ class FoundationalResearchTeam:
         Research Requirements:
         {session.requirements}
         
-        You are tasked with exploring a COMPLETE IMPLEMENTATION PATH based on this foundation:
+        You are tasked with exploring a COMPLETE IMPLEMENTATION PATH based on this foundation, properly aligned with the project vision and requirements:
         
         1. MAP A COHESIVE IMPLEMENTATION APPROACH:
            - How would this foundation choice be implemented in practice?
@@ -1390,6 +1441,12 @@ class FoundationalResearchTeam:
         research_prompt = f"""
         Research Task: Identify cross-foundation integration opportunities
         
+        Project Vision:
+        {session.project_vision if session.project_vision else "No project vision document available."}
+        
+        Product Requirements Document (PRD):
+        {session.prd_document if session.prd_document else "No PRD document available."}
+        
         Project Foundations:
         {"".join(foundations_info)}
         
@@ -1399,7 +1456,7 @@ class FoundationalResearchTeam:
         Research Requirements:
         {session.requirements}
         
-        You are tasked with discovering NOVEL INTEGRATION OPPORTUNITIES across foundation approaches:
+        You are tasked with discovering NOVEL INTEGRATION OPPORTUNITIES across foundation approaches that align with the project vision and requirements:
         
         1. DISCOVER UNEXPECTED COMBINATIONS:
            - What non-obvious ways could different foundation approaches be combined?
@@ -1488,6 +1545,16 @@ class FoundationalResearchTeam:
         # Set agent status
         synthesis_agent.status = "synthesizing"
         
+        # Update session status
+        session_manager = SessionManager()
+        current_session = session_manager.get_session(session_id)
+        if current_session:
+            if "research" not in current_session.metadata:
+                current_session.metadata["research"] = {}
+            
+            current_session.metadata["research"]["status"] = "synthesizing"
+            session_manager.update_session(session_id, current_session)
+        
         # Collect all foundation information
         foundations_info = []
         for foundation_id, foundation in session.project_foundations.items():
@@ -1514,6 +1581,12 @@ class FoundationalResearchTeam:
         report_prompt = f"""
         Research Task: Create a comprehensive foundational research report
         
+        Project Vision:
+        {session.project_vision if session.project_vision else "No project vision document available."}
+        
+        Product Requirements Document (PRD):
+        {session.prd_document if session.prd_document else "No PRD document available."}
+        
         Research Requirements:
         {session.requirements}
         
@@ -1526,7 +1599,7 @@ class FoundationalResearchTeam:
         Cross-Foundation Opportunities:
         {session.cross_paradigm_opportunities}
         
-        You are tasked with creating a DEFINITIVE RESEARCH REPORT that:
+        You are tasked with creating a DEFINITIVE RESEARCH REPORT that aligns with the project vision and requirements:
         
         1. CREATES A COMPREHENSIVE FOUNDATION MAP:
            - Synthesize all research findings into a cohesive whole
@@ -1585,6 +1658,11 @@ class FoundationalResearchTeam:
         # Save the report to file
         report_path = await self._save_research_report(session_id, response.content)
         
+        # Update session status
+        if current_session and "research" in current_session.metadata:
+            current_session.metadata["research"]["status"] = "completed"
+            session_manager.update_session(session_id, current_session)
+        
         logger.info(f"Research report created for session {session_id}")
         return report_path
     
@@ -1614,8 +1692,8 @@ class FoundationalResearchTeam:
             metadata=metadata
         )
         
-        # Add the report to the session
-        self.session_manager.add_document(session_id, "research_report", report_path)
+        # Add the report to the session - use consistent kebab-case document type naming
+        self.session_manager.add_document(session_id, "research-report", report_path)
         
         logger.info(f"Research report saved to {report_path}")
         return report_path
@@ -1633,30 +1711,97 @@ class FoundationalResearchTeam:
         """
         logger.info(f"Starting complete research workflow for session {session_id}")
         
+        # Track workflow progress in session manager
+        session_manager = SessionManager()
+        current_session = session_manager.get_session(session_id)
+        if current_session:
+            if "research" not in current_session.metadata:
+                current_session.metadata["research"] = {}
+            
+            current_session.metadata["research"]["workflow_started"] = True
+            current_session.metadata["research"]["status"] = "in_progress"
+            session_manager.update_session(session_id, current_session)
+        
         # Step 1: Create session if it doesn't exist
         session = self.sessions.get(session_id)
         if not session:
-            # Get research requirements from architecture research requirements document
-            session_manager = SessionManager()
-            requirements_path = session_manager.get_document(session_id, "architecture_research_requirements")
-            if not requirements_path:
-                logger.error(f"No architecture research requirements found for session {session_id}")
-                return None
+            # Load all required documents
+            # 1. Research requirements (required)
+            # Get document path directly from session manager for debugging
+            requirements_path = session_manager.get_document(session_id, "research-requirements")
+            logger.info(f"Research requirements path from session manager: {requirements_path}")
+                
+            # Use the centralized document loading pattern directly with type - this handles resolution
+            logger.info(f"Attempting to load research requirements for session {session_id}")
+            requirements_content = await load_document_content(session_id, "research-requirements")
             
-            requirements_content = await load_document_content(requirements_path)
+            if not requirements_content:
+                logger.error(f"No research requirements found for session {session_id}")
+                
+                # Show session documents for debugging
+                session_data = session_manager.get_session(session_id)
+                if session_data and 'documents' in session_data:
+                    logger.info(f"Documents in session: {session_data.get('documents', {})}")
+                    logger.info(f"Workflow state: {session_data.get('workflow_state', 'unknown')}")
+                
+                # Update status in session manager
+                if current_session and "research" in current_session.metadata:
+                    current_session.metadata["research"]["status"] = "failed"
+                    current_session.metadata["research"]["error"] = "No research requirements found"
+                    session_manager.update_session(session_id, current_session)
+                
+                return None
+            else:
+                logger.info(f"Successfully loaded research requirements - Length: {len(requirements_content)}")
+            
+            # Create the session with all the necessary documents
             session = await self.create_session(session_id, requirements_content)
+            
+            # Log whether we have vision and PRD documents
+            logger.info(f"Research session created with following documents:")
+            logger.info(f"- Research Requirements: Yes (required)")
+            logger.info(f"- Project Vision: {'Yes' if session.project_vision else 'No'}")
+            logger.info(f"- PRD Document: {'Yes' if session.prd_document else 'No'}")
         
         # Step 2: Initialize research agents
         if not session.agents:
             await self.initialize_research_agents(session_id)
+            
+            # Update phase status
+            if current_session and "research" in current_session.metadata:
+                if "phases" not in current_session.metadata["research"]:
+                    current_session.metadata["research"]["phases"] = {}
+                
+                current_session.metadata["research"]["phases"]["agent_initialization"] = "completed"
+                session_manager.update_session(session_id, current_session)
         
         # Step 3: Discover project foundations
         if not session.project_foundations:
+            # Update phase status - starting
+            if current_session and "research" in current_session.metadata:
+                current_session.metadata["research"]["phases"]["foundation_discovery"] = "in_progress"
+                session_manager.update_session(session_id, current_session)
+            
             await self.discover_project_foundations(session_id)
+            
+            # Update phase status - completed
+            if current_session and "research" in current_session.metadata:
+                current_session.metadata["research"]["phases"]["foundation_discovery"] = "completed"
+                session_manager.update_session(session_id, current_session)
         
         # Step 4: Explore foundation approaches
         if all(not foundation.completed for foundation in session.project_foundations.values()):
+            # Update phase status - starting
+            if current_session and "research" in current_session.metadata:
+                current_session.metadata["research"]["phases"]["foundation_exploration"] = "in_progress"
+                session_manager.update_session(session_id, current_session)
+            
             await self.explore_foundation_approaches(session_id)
+            
+            # Update phase status - completed
+            if current_session and "research" in current_session.metadata:
+                current_session.metadata["research"]["phases"]["foundation_exploration"] = "completed"
+                session_manager.update_session(session_id, current_session)
         
         # Step 5: Generate research paths
         if not session.research_paths:
@@ -1664,14 +1809,128 @@ class FoundationalResearchTeam:
         
         # Step 6: Conduct path research
         if all(not path.research_content for path in session.research_paths):
+            # Update phase status - starting
+            if current_session and "research" in current_session.metadata:
+                current_session.metadata["research"]["phases"]["path_research"] = "in_progress"
+                session_manager.update_session(session_id, current_session)
+            
             await self.start_path_research(session_id)
+            
+            # Update phase status - completed
+            if current_session and "research" in current_session.metadata:
+                current_session.metadata["research"]["phases"]["path_research"] = "completed"
+                session_manager.update_session(session_id, current_session)
         
         # Step 7: Conduct integration research
         if not session.cross_paradigm_opportunities:
+            # Update phase status - starting
+            if current_session and "research" in current_session.metadata:
+                current_session.metadata["research"]["phases"]["integration_research"] = "in_progress"
+                session_manager.update_session(session_id, current_session)
+            
             await self.start_integration_research(session_id)
+            
+            # Update phase status - completed
+            if current_session and "research" in current_session.metadata:
+                current_session.metadata["research"]["phases"]["integration_research"] = "completed"
+                session_manager.update_session(session_id, current_session)
         
         # Step 8: Create comprehensive research report
+        # Update phase status - starting
+        if current_session and "research" in current_session.metadata:
+            current_session.metadata["research"]["phases"]["research_synthesis"] = "in_progress"
+            session_manager.update_session(session_id, current_session)
+        
         report_path = await self.create_research_report(session_id)
+        
+        # Update phase status - completed
+        if current_session and "research" in current_session.metadata:
+            current_session.metadata["research"]["phases"]["research_synthesis"] = "completed"
+            current_session.metadata["research"]["status"] = "completed"
+            session_manager.update_session(session_id, current_session)
         
         logger.info(f"Completed research workflow for session {session_id}")
         return report_path
+        
+    @handle_async_errors
+    async def revise_report(self, session_id: str, feedback: str) -> str:
+        """
+        Revise the research report based on feedback.
+        
+        Args:
+            session_id: Session ID
+            feedback: Feedback to incorporate
+            
+        Returns:
+            Revised report content
+        """
+        session = self.sessions.get(session_id)
+        if not session or not session.research_report:
+            logger.error(f"No research report to revise for session {session_id}")
+            return "No research report to revise"
+        
+        # Get a synthesis agent
+        synthesis_agent = next(
+            (a for a in session.agents if a.type == ResearchAgentType.SYNTHESIS),
+            None
+        )
+        
+        if not synthesis_agent:
+            logger.error(f"No synthesis agent available for session {session_id}")
+            return "No synthesis agent available"
+        
+        # Create revision prompt
+        revision_prompt = f"""
+        You are tasked with revising the research report based on the following feedback:
+        
+        Feedback:
+        {feedback}
+        
+        Original Report:
+        {session.research_report}
+        
+        Revise the report to incorporate this feedback while maintaining the comprehensive nature
+        of the report and continuing to present the full spectrum of implementation options.
+        Be particularly careful to preserve the innovation potential and not bias toward
+        conventional approaches.
+        
+        Return the complete revised report.
+        """
+        
+        # Create messages for the revision
+        synthesis_agent.messages.append(create_user_prompt(revision_prompt))
+        
+        # Get the agent's response
+        response = await send_prompt(synthesis_agent.messages)
+        
+        # Add the response to the agent messages
+        synthesis_agent.messages.append(create_assistant_prompt(response.content))
+        
+        # Update the report
+        session.research_report = response.content
+        
+        # Save the revised report
+        await self._save_research_report(session_id, response.content)
+        
+        return response.content
+        
+    @handle_async_errors
+    async def complete_session(self, session_id: str) -> None:
+        """
+        Complete a research session.
+        
+        Args:
+            session_id: Session ID to complete
+        """
+        # Mark session as completed in session manager
+        session_manager = SessionManager()
+        current_session = session_manager.get_session(session_id)
+        if current_session:
+            if "research" not in current_session.metadata:
+                current_session.metadata["research"] = {}
+            
+            current_session.metadata["research"]["completed"] = True
+            current_session.metadata["research"]["status"] = "completed"
+            session_manager.update_session(session_id, current_session)
+        
+        logger.info(f"Research session {session_id} marked as completed")

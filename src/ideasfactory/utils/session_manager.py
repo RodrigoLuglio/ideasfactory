@@ -165,5 +165,24 @@ class SessionManager:
             logger.info(f"Session {session_id} workflow state updated to: {state}")
         else:
             logger.error(f"Cannot update workflow state - session not found: {session_id}")
+    
+    @handle_errors
+    def update_session(self, session_id: str, session: Session) -> bool:
+        """
+        Update an existing session with new data.
+        
+        Args:
+            session_id: ID of the session to update
+            session: Updated session object
+            
+        Returns:
+            True if the session was found and updated, False otherwise
+        """
+        if session_id in self.sessions:
+            self.sessions[session_id] = session
+            logger.info(f"Updated session: {session_id}")
+            return True
+        logger.error(f"Cannot update session - not found: {session_id}")
+        return False
 
     

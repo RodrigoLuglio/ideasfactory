@@ -280,9 +280,6 @@ _ documents
 - Each main agent to have a team of specialized sub-agents that will help them to providing the information needed to write the document, making the process more efficient and faster.
 - ?
 
-#### Task manager idea
+#### Task manager idea for testing
 
-- A simple list of tasks that can be marked as complete
-- The tasks can be categorized using tags without pre-defined categories
-- With a + sign at the corner of each task the user can insert the desired tags fro the task, while he types, an autoccomplete shows the existing tags
-- A search bar to search for tasks by names or tags that filters the tasks list in real time while the user types
+- A simple list of tasks that can be marked as complete, The tasks can be categorized using tags without pre-defined categories, With a + sign at the corner of each task the user can insert the desired tags fro the task, while he types, an autoccomplete shows the existing tags, A search bar to search for tasks by names or tags that filters the tasks list in real time while the user types

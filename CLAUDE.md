@@ -36,7 +36,7 @@ The project follows a refined workflow to create truly self-contained story pack
 1. **Vision Creation** (Business Analyst): Captures core concept and unique value proposition
 2. **Detailed Requirements** (Product Manager): Expands vision into comprehensive PRD
 3. **Technical Research Requirements** (Architect - First Pass): Analysis of what needs investigation
-4. **Multi-faceted Research** (Research Team): Explores implementation possibilities
+4. **Multi-faceted Research** (Research Team): Explores implementation possibilities through foundational paradigm-based approach
 5. **Architecture Design** (Architect - Final Pass): Technical design based on complete information
 6. **Standards and Patterns** (Standards Engineer): Defines integration points and shared components
 7. **Task List Creation** (Product Owner): Breaks down implementation into granular tasks

@@ -52,21 +52,25 @@ class DocumentManager:
             
             # Create subdirectories for different document types within the session dir
             os.makedirs(os.path.join(session_dir, "project-vision"), exist_ok=True)
+            os.makedirs(os.path.join(session_dir, "prd"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "research-report"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "architecture"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "task-list"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "standards-patterns"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "epics-stories"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "stories"), exist_ok=True)
+            os.makedirs(os.path.join(session_dir, "research-requirements"), exist_ok=True)
         else:
             # Create global subdirectories for different document types
             os.makedirs(os.path.join(self.base_dir, "project-vision"), exist_ok=True)
+            os.makedirs(os.path.join(self.base_dir, "prd"), exist_ok=True)
             os.makedirs(os.path.join(self.base_dir, "research-report"), exist_ok=True)
             os.makedirs(os.path.join(self.base_dir, "architecture"), exist_ok=True)
             os.makedirs(os.path.join(self.base_dir, "task-list"), exist_ok=True)
             os.makedirs(os.path.join(self.base_dir, "standards-patterns"), exist_ok=True)
             os.makedirs(os.path.join(self.base_dir, "epics-stories"), exist_ok=True)
             os.makedirs(os.path.join(self.base_dir, "stories"), exist_ok=True)
+            os.makedirs(os.path.join(self.base_dir, "research-requirements"), exist_ok=True)
     
     def _init_git_repo(self):
         """Initialize a Git repository for version control."""
@@ -144,11 +148,13 @@ class DocumentManager:
         # Use standardized filenames based on document type
         filename_mapping = {
             "project-vision": "project-vision.md",
+            "prd": "product-requirements-document.md",
             "research-report": "research-report.md",
             "architecture": "system-architecture.md",
             "task-list": "task-list.md",
             "standards-patterns": "standards-patterns.md",
-            "epics-stories": "epics-stories.md"
+            "epics-stories": "epics-stories.md",
+            "research-requirements": "technical-research-requirements.md"
         }
         
         # Get standardized filename or create from title
@@ -174,8 +180,8 @@ class DocumentManager:
             self._ensure_directories(session_id)
             
         # Determine the directory based on the document type and session
-        if document_type in ["project-vision", "research-report", "architecture",
-                            "task-list", "standards-patterns", "epics-stories"]:
+        if document_type in ["project-vision", "prd", "research-requirements", "research-report", "architecture",
+                            "task-list", "standards-patterns", "epics-stories", "stories"]:
             if session_id:
                 directory = os.path.join(self.base_dir, f"session-{session_id}", document_type)
             else:
@@ -516,11 +522,13 @@ class DocumentManager:
             # Use our existing filename mapping
             filename_mapping = {
                 "project-vision": "project-vision.md",
+                "prd": "product-requirements-document.md",
                 "research-report": "research-report.md",
                 "architecture": "system-architecture.md",
                 "task-list": "task-list.md",
                 "standards-patterns": "standards-patterns.md",
-                "epics-stories": "epics-stories.md"
+                "epics-stories": "epics-stories.md",
+                "research-requirements": "technical-research-requirements.md"
             }
             
             if document_type in filename_mapping:

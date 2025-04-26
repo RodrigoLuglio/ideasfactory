@@ -24,7 +24,7 @@ from ideasfactory.ui.screens.research_screen import ResearchScreen
 from ideasfactory.agents.business_analyst import BusinessAnalyst
 from ideasfactory.agents.project_manager import ProjectManager
 from ideasfactory.agents.architect import Architect
-from ideasfactory.agents.research_team import ResearchTeam
+from ideasfactory.agents.research_team import FoundationalResearchTeam
 
 from ideasfactory.utils.session_manager import SessionManager
 from ideasfactory.utils.error_handler import handle_async_errors, safe_execute_async, handle_errors
@@ -60,7 +60,7 @@ class IdeasFactoryApp(App):
         self.business_analyst = BusinessAnalyst()
         self.project_manager = ProjectManager()
         self.architect = Architect()
-        self.research_team = ResearchTeam()
+        self.research_team = FoundationalResearchTeam()
         
         # Initialize screens
         self.brainstorm_screen = None
@@ -341,6 +341,14 @@ class IdeasFactoryApp(App):
         """Callback when Research Requirements document is completed."""
         if self.current_session_id:
             self.notify("Technical Research Requirements completed", severity="success")
+            
+            # Set workflow state
+            self.session_manager.update_workflow_state(self.current_session_id, "research_requirements_completed")
+            
+            # Update research screen with the session before showing it
+            if self.research_screen:
+                self.research_screen.set_session(self.current_session_id)
+            
             # After completing the research requirements, go to the research screen
             self.push_screen("research_screen")
     
@@ -355,9 +363,11 @@ class IdeasFactoryApp(App):
     @handle_async_errors
     async def show_document_review_for_research_report(self, session_id: str) -> None:
         """Show document review screen for the Research Team report."""
-        # Get the session from the Research Team
-        session = self.research_team.sessions.get(session_id)
-        if not session or not session.research_report:
+        # Use the centralized document loading utility directly (same pattern as other screens)
+        from ideasfactory.utils.file_manager import load_document_content
+        report_content = await load_document_content(session_id, "research-report")
+        
+        if not report_content:
             self.notify("No research report available for this session", severity="error")
             return
         
@@ -365,7 +375,7 @@ class IdeasFactoryApp(App):
         self.document_review_screen.configure_for_agent(
             document_source=DocumentSource.RESEARCH_TEAM,
             session_id=session_id,
-            document_content=session.research_report,
+            document_content=report_content,
             document_title="Multi-paradigm Research Report",
             document_type="research-report",
             revision_callback=self._research_report_revision_callback,
@@ -384,12 +394,33 @@ class IdeasFactoryApp(App):
     async def _research_report_revision_callback(self, session_id: str, feedback: str) -> str:
         """Callback for Research Team report revisions."""
         # Revise the report using the Research Team agent
-        report = await self.research_team.revise_report(session_id, feedback)
-        return report
+        try:
+            report = await self.research_team.revise_report(session_id, feedback)
+            return report
+        except Exception as e:
+            logger.error(f"Error revising research report: {str(e)}")
+            # Return the original content if revision fails
+            report_path = self.session_manager.get_document(session_id, "research-report")
+            if report_path:
+                from ideasfactory.utils.file_manager import load_document_content
+                report_content = await load_document_content(report_path)
+                if report_content:
+                    return report_content
+            return "Error revising report"
     
     @handle_async_errors
     async def _research_report_completion_callback(self) -> None:
         """Callback when Research Team report is completed."""
         if self.current_session_id:
-            await self.research_team.complete_session(self.current_session_id)
-            self.notify("Research report completed", severity="success")
+            try:
+                await self.research_team.complete_session(self.current_session_id)
+                self.notify("Research report completed", severity="success")
+                
+                # Update workflow state and move to architecture screen
+                self.session_manager.update_workflow_state(self.current_session_id, "research_completed")
+                
+                # After reviewing research report, prompt to go to architecture
+                self.notify("Continue to Architecture phase by pressing 'a'", severity="information")
+            except Exception as e:
+                logger.error(f"Error completing research session: {str(e)}")
+                self.notify("Error marking research session as complete", severity="error")
