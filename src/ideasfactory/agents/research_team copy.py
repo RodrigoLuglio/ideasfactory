@@ -101,6 +101,7 @@ class ResearchPath:
     foundation_id: str  # The foundation this path is based on
     emergent_dimensions: List[EmergentDimension] = field(default_factory=list)
     research_content: Optional[str] = None
+    report_path: Optional[str] = None  # Path to the saved report for this path
 
 @dataclass
 class ResearchAgent:
@@ -127,6 +128,7 @@ class FoundationalResearchSession:
     cross_paradigm_opportunities: Optional[str] = None
     agents: List[ResearchAgent] = field(default_factory=list)
     research_report: Optional[str] = None
+    path_reports: Dict[str, str] = field(default_factory=dict)  # Map of path name to report path
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 class FoundationalResearchTeam:
@@ -467,10 +469,18 @@ class FoundationalResearchTeam:
            - Preserve the project's unique characteristics across all options
            - Highlight unconventional approaches that align with the project's distinctive nature
         
+        6. REFERENCE DETAILED PATH REPORTS:
+           - Include a dedicated section that lists all available detailed path reports
+           - For each implementation path, reference its corresponding detailed report
+           - Explain that architects can access complete implementation details through these reports
+           - Note that the path reports contain the full depth of research for each viable approach
+        
         Your report should be the DEFINITIVE RESOURCE for architectural decision-making -
         a comprehensive map of the possibility space that enables informed choices
         without normalizing toward conventions. It should present the full spectrum
-        of viable approaches with their implications, trade-offs, and unique characteristics.
+        of viable approaches with their implications, trade-offs, and unique characteristics,
+        while ensuring architects can access the complete detailed research for paths 
+        they find promising.
         """
     
     @handle_errors
@@ -591,18 +601,8 @@ class FoundationalResearchTeam:
             )
             agents.append(agent)
         
-        # Create path agents (for exploring implementation paths)
-        # We'll start with 2 but can add more as needed
-        for i in range(2):
-            agent = ResearchAgent(
-                id=f"path-{i+1}",
-                type=ResearchAgentType.PATH,
-                name=f"Path Research Agent {i+1}",
-                focus_area=f"Implementation Path {i+1}",
-                system_prompt=self.path_agent_prompt,
-                messages=[create_system_prompt(self.path_agent_prompt)]
-            )
-            agents.append(agent)
+        # NOTE: We no longer create path agents here - they will be created dynamically
+        # after foundations are discovered and paths are generated
         
         # Create integration agent
         integration_agent = ResearchAgent(
@@ -1224,49 +1224,92 @@ class FoundationalResearchTeam:
         """
         session = self.get_session(session_id)
         
-        # Get path agents
-        path_agents = [
-            agent for agent in session.agents 
-            if agent.type == ResearchAgentType.PATH
-        ]
-        
-        if not path_agents:
-            logger.error(f"No path agents available for session {session_id}")
-            return {"status": "error", "message": "No path agents available"}
-        
         # Generate paths if not already created
         if not session.research_paths:
             session.research_paths = await self.generate_research_paths(session_id)
         
-        # Assign paths to path agents (round-robin if more paths than agents)
-        path_assignments = {}
+        # Create one path agent for EACH path (foundation)
+        path_agents = []
         for i, path in enumerate(session.research_paths):
-            agent_index = i % len(path_agents)
-            path_agent = path_agents[agent_index]
-            
-            if path_agent.id not in path_assignments:
-                path_assignments[path_agent.id] = []
-            
-            path_assignments[path_agent.id].append(path.name)
+            agent = ResearchAgent(
+                id=f"path-{path.foundation_id}-{i}",
+                type=ResearchAgentType.PATH,
+                name=f"Path Research Agent for {path.name}",
+                focus_area=path.name,
+                system_prompt=self.path_agent_prompt,
+                messages=[create_system_prompt(self.path_agent_prompt)]
+            )
+            path_agents.append(agent)
+            session.agents.append(agent)
         
-        # Research all paths concurrently
+        # Research all paths with dedicated agents
         path_tasks = []
-        for agent_id, path_names in path_assignments.items():
-            for path_name in path_names:
-                task = asyncio.create_task(
-                    self._research_path(
-                        session_id=session_id, 
-                        agent_id=agent_id,
-                        path_name=path_name
-                    )
+        for agent in path_agents:
+            path_name = agent.focus_area
+            task = asyncio.create_task(
+                self._research_path(
+                    session_id=session_id, 
+                    agent_id=agent.id,
+                    path_name=path_name
                 )
-                path_tasks.append(task)
+            )
+            path_tasks.append(task)
         
         # Wait for all path research to complete
         path_results = await asyncio.gather(*path_tasks)
         
         logger.info(f"Completed path research for session {session_id}")
         return {"status": "success", "results": path_results}
+    
+    @handle_async_errors
+    async def _save_path_report(
+        self, 
+        session_id: str, 
+        path_name: str, 
+        foundation_id: str,
+        content: str
+    ) -> str:
+        """
+        Save a detailed report for a specific implementation path.
+        
+        Args:
+            session_id: Session ID
+            path_name: Name of the path
+            foundation_id: ID of the foundation this path is based on
+            content: Report content
+            
+        Returns:
+            Path to the saved report
+        """
+        # Create metadata
+        metadata = {
+            "session_id": session_id,
+            "created_at": datetime.now().isoformat(),
+            "path_name": path_name,
+            "foundation_id": foundation_id
+        }
+        
+        # Save the report using document manager
+        # The document manager now handles path-report type documents correctly
+        # storing them in the research-report/path-reports directory
+        report_path = self.doc_manager.create_document(
+            content=content,
+            document_type="path-report",
+            title=f"Path Report: {path_name}",
+            metadata=metadata
+        )
+        
+        # Add the report to the session - the document type needs to be unique
+        # Use a safe name derived from the path name for uniqueness
+        safe_name = path_name.lower().replace(" ", "-")
+        self.session_manager.add_document(
+            session_id, 
+            f"path-report-{safe_name}", 
+            report_path
+        )
+        
+        logger.info(f"Path report for '{path_name}' saved to {report_path}")
+        return report_path
     
     @handle_async_errors
     async def _research_path(
@@ -1392,6 +1435,20 @@ class FoundationalResearchTeam:
         
         # Store the raw research in the path
         path.research_content = response.content
+        
+        # Save the detailed path report
+        path_report_path = await self._save_path_report(
+            session_id=session_id,
+            path_name=path.name,
+            foundation_id=path.foundation_id,
+            content=response.content
+        )
+        
+        # Store the report path in the path object
+        path.report_path = path_report_path
+        
+        # Add to session path reports dictionary for easy access
+        session.path_reports[path.name] = path_report_path
         
         logger.info(f"Path research completed for {path_name}")
         return {
@@ -1575,6 +1632,9 @@ class FoundationalResearchTeam:
                 # Include first 1000 characters of research content
                 content_preview = path.research_content[:1000] + "..." if len(path.research_content) > 1000 else path.research_content
                 path_content += f"### Research Content:\n{content_preview}\n\n"
+                # Include report path information
+                if path.report_path:
+                    path_content += f"### Detailed Report Available: {path.report_path}\n\n"
                 paths_info.append(path_content)
         
         # Create research prompt
@@ -1599,17 +1659,20 @@ class FoundationalResearchTeam:
         Cross-Foundation Opportunities:
         {session.cross_paradigm_opportunities}
         
+        Available Path Reports:
+        {", ".join([f"'{path_name}'" for path_name in session.path_reports.keys()])}
+        
         You are tasked with creating a DEFINITIVE RESEARCH REPORT that aligns with the project vision and requirements:
         
-        1. CREATES A COMPREHENSIVE FOUNDATION MAP:
+        1. CREATES A COMPREHENSIVE MAP:
            - Synthesize all research findings into a cohesive whole
-           - Present the full spectrum of foundation approaches discovered
-           - Document relationships between foundations, their emergent dimensions, and implementation paths
+           - Preserve the full richness of foundation approaches and their emergent dimensions
+           - Show relationships between foundations, paradigms, and implementation paths
            - Create visualizations that illuminate the multi-dimensional nature of choices
         
-        2. DOCUMENT THE COMPLETE POSSIBILITY SPACE:
-           - Present all viable foundation approaches with their characteristics
-           - Document multiple implementation paths with their distinctive qualities
+        2. DOCUMENT THE FULL POSSIBILITY SPACE:
+           - Present the complete spectrum of foundation options discovered during research
+           - Document multiple viable implementation paths with diverse characteristics
            - Map cross-foundation opportunities and integration patterns
            - Preserve distinctly different approaches rather than converging on a "best" solution
         
@@ -1631,13 +1694,21 @@ class FoundationalResearchTeam:
            - Preserve the project's unique characteristics across all options
            - Highlight unconventional approaches that align with the project's distinctive nature
         
+        6. REFERENCE DETAILED PATH REPORTS:
+           - Include a dedicated section that lists all available detailed path reports
+           - For each implementation path, reference its corresponding detailed report in the research-report/path-reports directory
+           - Explain that architects can access complete implementation details through these reports
+           - Note that the path reports contain the full depth of research for each viable approach
+           - Provide clear location information to help architects find the reports (session-id/research-report/path-reports/)
+        
         You have complete autonomy in how you approach this task. Use the available visualization
         tools in whatever way you determine will create the most illuminating representations.
         
         Your report should be the ULTIMATE ARCHITECTURAL RESOURCE - a comprehensive map
         of the possibility space that enables informed choices without normalizing toward
         conventions. It should present the full spectrum of viable approaches with their
-        implications, trade-offs, and unique characteristics.
+        implications, trade-offs, and unique characteristics, while ensuring architects can
+        access the complete detailed research for paths they find promising.
         """
         
         # Add the research prompt to agent messages

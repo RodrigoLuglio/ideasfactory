@@ -7,6 +7,8 @@ while preserving innovation and uniqueness throughout the exploration process.
 
 import logging
 import asyncio
+import json
+import re
 from typing import List, Dict, Any, Optional
 from enum import Enum
 from dataclasses import dataclass, field
@@ -130,6 +132,7 @@ class FoundationalResearchSession:
     research_report: Optional[str] = None
     path_reports: Dict[str, str] = field(default_factory=dict)  # Map of path name to report path
     metadata: Dict[str, Any] = field(default_factory=dict)
+    path_evaluation: Optional[Dict[str, Any]] = None  # Store path evaluation results
 
 class FoundationalResearchTeam:
     """
@@ -474,6 +477,13 @@ class FoundationalResearchTeam:
            - For each implementation path, reference its corresponding detailed report
            - Explain that architects can access complete implementation details through these reports
            - Note that the path reports contain the full depth of research for each viable approach
+           
+        7. EXTRACT PROJECT-SPECIFIC CRITERIA AND PROVIDE WEIGHTED EVALUATION:
+           - Identify 5-7 key criteria that are most relevant to this specific project based on vision and requirements
+           - Create an evaluation matrix showing how each implementation path performs against these criteria
+           - Indicate which criteria have highest priority for this project based on stated requirements
+           - Note any cases where paths add valuable features not explicitly requested in the original scope
+           - Provide this criteria-weighted evaluation before presenting the detailed foundation analyses
         
         Your report should be the DEFINITIVE RESOURCE for architectural decision-making -
         a comprehensive map of the possibility space that enables informed choices
@@ -482,6 +492,70 @@ class FoundationalResearchTeam:
         while ensuring architects can access the complete detailed research for paths 
         they find promising.
         """
+    
+    def create_evaluation_matrix(self, paths, criteria, ratings, priorities=None, notes=None):
+        """
+        Generate a formatted evaluation matrix.
+        
+        Args:
+            paths: List of implementation path names
+            criteria: List of criteria names
+            ratings: Dict mapping (path, criterion) to rating
+            priorities: Optional dict mapping criterion to priority level
+            notes: Optional dict mapping path to special notes
+            
+        Returns:
+            Formatted evaluation matrix as string
+        """
+        # Ensure ratings is a dictionary
+        if not isinstance(ratings, dict):
+            logger.error(f"Expected ratings to be a dictionary, got {type(ratings)}")
+            ratings = {}  # Use empty dict as fallback
+            
+        # Ensure notes is a dictionary
+        if notes is not None and not isinstance(notes, dict):
+            logger.error(f"Expected notes to be a dictionary, got {type(notes)}")
+            notes = {}  # Use empty dict as fallback
+            
+        # Calculate column widths
+        path_width = max(len(p) for p in paths) + 2
+        criteria_widths = [max(len(c), max(len(str(ratings.get((p, c), ""))) for p in paths)) + 2 
+                          for c in criteria]
+        
+        # Create header
+        header = f"{'Implementation Path'.ljust(path_width)}"
+        for i, criterion in enumerate(criteria):
+            header += criterion.ljust(criteria_widths[i])
+        
+        # Create separator
+        separator = "-" * (path_width + sum(criteria_widths))
+        
+        # Create priority indicator if provided
+        priority_line = ""
+        if priorities:
+            priority_line = "Criteria Priority for this Project:\n"
+            for criterion, priority in priorities.items():
+                priority_line += f"* {criterion}: {priority}\n"
+        
+        # Create matrix rows
+        rows = []
+        for path in paths:
+            row = f"{path.ljust(path_width)}"
+            for i, criterion in enumerate(criteria):
+                rating = ratings.get((path, criterion), "")
+                row += rating.ljust(criteria_widths[i])
+            rows.append(row)
+        
+        # Add notes if provided
+        notes_section = ""
+        if notes:
+            notes_section = "\nSpecial Considerations:\n"
+            for path, note in notes.items():
+                if note:
+                    notes_section += f"* {path}: {note}\n"
+        
+        # Combine all parts
+        return f"{header}\n{separator}\n" + "\n".join(rows) + "\n\n" + priority_line + notes_section
     
     @handle_errors
     def get_session(self, session_id: Optional[str] = None) -> FoundationalResearchSession:
@@ -1212,6 +1286,197 @@ class FoundationalResearchTeam:
         return paths
     
     @handle_async_errors
+    async def _extract_project_criteria(self, session_id: str) -> Dict[str, Any]:
+        """
+        Extract key criteria for evaluating paths based on project requirements.
+        
+        Args:
+            session_id: Session ID
+            
+        Returns:
+            Dictionary containing criteria, importance levels, and descriptions
+        """
+        session = self.get_session(session_id)
+        
+        # Create criteria extraction prompt
+        extraction_prompt = f"""
+        Based on the project vision and requirements below, extract 5-7 key criteria that should be used
+        to evaluate different implementation approaches. For each criterion, indicate its importance
+        for this specific project (LOW, MEDIUM, HIGH, VERY HIGH).
+        
+        Project Vision:
+        {session.project_vision if session.project_vision else "No project vision document available."}
+        
+        Product Requirements Document (PRD):
+        {session.prd_document if session.prd_document else "No PRD document available."}
+        
+        Research Requirements:
+        {session.requirements}
+        
+        Return your analysis in a structured JSON format:
+        {{
+          "criteria": [
+            {{
+              "name": "Criterion Name",
+              "description": "Description of what this criterion means",
+              "importance": "VERY HIGH/HIGH/MEDIUM/LOW"
+            }}
+          ]
+        }}
+        
+        IMPORTANT: Always include "Scope Alignment" as one of the criteria, which measures how well
+        the implementation path aligns with the core project requirements without adding unnecessary 
+        features or complexity.
+        """
+        
+        # Create messages for the analysis
+        messages = [
+            create_system_prompt("You are a Criteria Analysis Agent specializing in extracting key evaluation criteria from project requirements."),
+            create_user_prompt(extraction_prompt)
+        ]
+        
+        # Get analysis response
+        response = await send_prompt(messages)
+        
+        # Extract JSON from response
+        json_match = re.search(r'```json\n(.*?)\n```', response.content, re.DOTALL)
+        if not json_match:
+            json_match = re.search(r'{.*}', response.content, re.DOTALL)
+        
+        if not json_match:
+            logger.error("Could not extract JSON from criteria analysis response")
+            return {"criteria": []}
+        
+        json_str = json_match.group(1) if json_match.group(0).startswith('```') else json_match.group(0)
+        
+        try:
+            extracted_criteria = json.loads(json_str)
+            logger.info(f"Extracted {len(extracted_criteria.get('criteria', []))} project criteria")
+            return extracted_criteria
+        except Exception as e:
+            logger.error(f"Error parsing extracted criteria: {str(e)}")
+            return {"criteria": []}
+    
+    @handle_async_errors
+    async def _evaluate_paths_against_criteria(
+        self,
+        session_id: str,
+        criteria: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Evaluate each implementation path against the extracted criteria.
+        
+        Args:
+            session_id: Session ID
+            criteria: List of criteria with name, description, importance
+            
+        Returns:
+            Evaluation matrix and notes
+        """
+        session = self.get_session(session_id)
+        
+        # Get all research paths
+        paths = [path.name for path in session.research_paths]
+        
+        # Create evaluation prompt
+        criteria_text = "\n".join([f"- {c['name']}: {c['description']} (Importance: {c['importance']})" 
+                                for c in criteria])
+        
+        evaluation_prompt = f"""
+        Evaluate each implementation path against the following criteria. For each combination,
+        provide a rating (Very Low, Low, Medium, High, Very High).
+        
+        Also note any special considerations where a path adds valuable features that weren't
+        explicitly requested in the original scope but might be beneficial.
+        
+        Criteria:
+        {criteria_text}
+        
+        Implementation Paths to evaluate:
+        {paths}
+        
+        Paths Information:
+        {[f"{path.name}: {path.description}" for path in session.research_paths]}
+        
+        Project Vision:
+        {session.project_vision if session.project_vision else "No project vision document available."}
+        
+        Product Requirements (PRD):
+        {session.prd_document if session.prd_document else "No PRD document available."}
+        
+        Particularly note any cases where a path:
+        1. Adds a feature not explicitly requested in the original scope
+        2. Enhances an existing feature beyond what was specified
+        3. Changes the nature of a feature from what was envisioned
+        
+        For each such case, provide a specific note explaining:
+        - What feature is added/enhanced/changed
+        - Whether this is likely beneficial or potentially concerning
+        - How this affects the overall alignment with project vision
+        
+        Return your evaluation in a structured JSON format:
+        {{
+          "ratings": [
+            {{
+              "path": "path-name",
+              "criterion": "criterion-name",
+              "rating": "Low/Medium/High/etc"
+            }}
+          ],
+          "notes": [
+            {{
+              "path": "path-name",
+              "note": "Special consideration about features added or other notable aspects"
+            }}
+          ]
+        }}
+        """
+        
+        # Create messages for the analysis
+        messages = [
+            create_system_prompt("You are a Path Evaluation Agent specializing in evaluating implementation paths against project criteria."),
+            create_user_prompt(evaluation_prompt)
+        ]
+        
+        # Get analysis response
+        response = await send_prompt(messages)
+        
+        # Extract JSON from response
+        json_match = re.search(r'```json\n(.*?)\n```', response.content, re.DOTALL)
+        if not json_match:
+            json_match = re.search(r'{.*}', response.content, re.DOTALL)
+        
+        if not json_match:
+            logger.error("Could not extract JSON from path evaluation response")
+            return {"ratings": {}, "notes": {}}
+        
+        json_str = json_match.group(1) if json_match.group(0).startswith('```') else json_match.group(0)
+        
+        try:
+            evaluation_results = json.loads(json_str)
+            
+            # Convert ratings to a dictionary for easier lookup
+            ratings_dict = {}
+            for rating in evaluation_results.get("ratings", []):
+                ratings_dict[(rating["path"], rating["criterion"])] = rating["rating"]
+            
+            # Convert notes to a dictionary for easier lookup
+            notes_dict = {}
+            for note in evaluation_results.get("notes", []):
+                notes_dict[note["path"]] = note["note"]
+            
+            logger.info(f"Evaluated {len(paths)} paths against {len(criteria)} criteria")
+            
+            return {
+                "raw_results": evaluation_results,
+                "ratings": ratings_dict,
+                "notes": notes_dict
+            }
+        except Exception as e:
+            logger.error(f"Error parsing path evaluation results: {str(e)}")
+            return {"ratings": {}, "notes": {}}
+    
+    @handle_async_errors
     async def start_path_research(self, session_id: str) -> Dict[str, Any]:
         """
         Start the path research phase.
@@ -1430,6 +1695,7 @@ class FoundationalResearchTeam:
         agent.messages.append(create_assistant_prompt(response.content))
         
         # Store findings directly - no extraction, preserve all information
+        # Store findings directly - no extraction, preserve all information
         agent.findings.append(response.content)
         agent.status = "completed"
         
@@ -1612,6 +1878,34 @@ class FoundationalResearchTeam:
             current_session.metadata["research"]["status"] = "synthesizing"
             session_manager.update_session(session_id, current_session)
         
+        # Extract key project criteria
+        criteria_results = await self._extract_project_criteria(session_id)
+        criteria = criteria_results.get("criteria", [])
+        
+        # Evaluate paths against criteria
+        evaluation_results = await self._evaluate_paths_against_criteria(session_id, criteria)
+        
+        # Store path evaluation in session
+        session.path_evaluation = {
+            "criteria": criteria,
+            "evaluation": evaluation_results
+        }
+        
+        # Generate evaluation matrix
+        path_names = [path.name for path in session.research_paths]
+        criteria_names = [c["name"] for c in criteria]
+        ratings = evaluation_results.get("ratings", {})
+        priorities = {c["name"]: c["importance"] for c in criteria}
+        notes = evaluation_results.get("notes", {})
+        
+        matrix = self.create_evaluation_matrix(
+            paths=path_names,
+            criteria=criteria_names,
+            ratings=ratings,
+            priorities=priorities,
+            notes=notes
+        )
+        
         # Collect all foundation information
         foundations_info = []
         for foundation_id, foundation in session.project_foundations.items():
@@ -1649,6 +1943,9 @@ class FoundationalResearchTeam:
         
         Research Requirements:
         {session.requirements}
+        
+        Implementation Path Evaluation Matrix:
+        {matrix}
         
         Project Foundations:
         {"".join(foundations_info)}
@@ -1700,6 +1997,12 @@ class FoundationalResearchTeam:
            - Explain that architects can access complete implementation details through these reports
            - Note that the path reports contain the full depth of research for each viable approach
            - Provide clear location information to help architects find the reports (session-id/research-report/path-reports/)
+        
+        7. INCLUDE IMPLEMENTATION PATH EVALUATION:
+           - BEGIN the report with the path evaluation matrix you've been provided
+           - Explain how paths were evaluated against key project criteria
+           - Highlight which paths best align with the project's priorities
+           - Note any paths that add features not explicitly requested in the original scope
         
         You have complete autonomy in how you approach this task. Use the available visualization
         tools in whatever way you determine will create the most illuminating representations.
