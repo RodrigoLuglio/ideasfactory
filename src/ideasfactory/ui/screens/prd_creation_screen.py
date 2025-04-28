@@ -59,43 +59,37 @@ class PRDCreationScreen(BaseScreen):
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
-        yield VerticalScroll(
+        
+        yield Container(
+            Label("Product Requirements Document Creation", id="prd_header"),
+            
             Container(
-                Label("Product Requirements Document Creation", id="prd_header"),
-                
-                Container(
-                    Label("Project Vision Document:", id="vision_header"),
-                    TextArea(id="vision_display", classes="document", read_only=True),
-                    id="vision_container"
-                ),
-                
-                Container(
-                    Label("PRD Creation Status:", id="status_header"),
-                    ProgressBar(id="prd_progress", total=100, show_eta=False, show_percentage=True),
-                    Label("Ready to create PRD", id="prd_status"),
-                    Button("Create PRD", id="create_prd_button", variant="primary"),
-                    id="status_container"
-                ),
-                
-                # The results container - will be replaced with document review screen navigation
-                Container(
-                    Button("View PRD Document", id="view_prd_button", variant="success", disabled=True),
-                    Button("Back to Vision", id="back_button", variant="primary"),
-                    id="results_container"
-                ),
-                
-                id="prd_container"
+                Label("Project Vision Document:", id="vision_header"),
+                TextArea(id="vision_display", classes="document", read_only=True),
+                id="vision_container"
             ),
-            id="prd_scroll"
+            
+            Container(
+                # Label("PRD Creation Status:", id="status_header"),
+                Label("Ready to create PRD", id="prd_status"),
+                Button("Create PRD", id="create_prd_button", variant="primary"),
+                id="status_container"
+            ),
+            
+            Container(
+                Button("Back to Vision", id="back_button", variant="error"),
+                Button("View PRD Document", id="view_prd_button", variant="success", disabled=True),
+                id="results_container"
+            ),
+            id="prd_container"
         )
+        
+    
+        
     
     def on_mount(self) -> None:
         """Handle the screen's mount event."""
         super().on_mount()
-        
-        # Show the progress bar but set it to 0
-        progress_bar = self.query_one("#prd_progress")
-        progress_bar.update(progress=0)
         
         # Load project vision if already available
         if self.project_vision:
@@ -192,10 +186,6 @@ class PRDCreationScreen(BaseScreen):
             self._current_progress += stage_weight
         else:
             self._current_progress += stage_weight / 2
-            
-        # Update the progress bar
-        progress_bar = self.query_one("#prd_progress")
-        progress_bar.update(progress=min(self._current_progress, 100))
         
         # Update the status label
         if stage_info["status"]:
@@ -217,8 +207,6 @@ class PRDCreationScreen(BaseScreen):
         
         # Reset progress tracking
         self._current_progress = 0
-        progress_bar = self.query_one("#prd_progress")
-        progress_bar.update(progress=0)
         
         # Update status to show we're starting
         self.query_one("#prd_status").update("Initializing PRD creation process...")
@@ -244,8 +232,6 @@ class PRDCreationScreen(BaseScreen):
             # Create simple progress update function
             async def update_progress(stage, message, progress_value, completed=True):
                 self.query_one("#prd_status").update(message)
-                progress_bar = self.query_one("#prd_progress")
-                progress_bar.update(progress=progress_value)
                 # Force a UI refresh
                 self.refresh()
                 # Small pause to allow UI to update

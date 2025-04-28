@@ -10,10 +10,9 @@ from typing import Optional, List, Dict, Any, Callable
 import asyncio
 
 from textual.app import ComposeResult
-from textual.widgets import Button, Static, Label, LoadingIndicator
+from textual.widgets import Button, Static, Markdown, Label, LoadingIndicator, MarkdownViewer
 from textual.containers import VerticalScroll, Horizontal, Container
 from textual.reactive import reactive
-from rich.markdown import Markdown
 from textual import on
 from textual.worker import Worker, get_current_worker
 
@@ -146,50 +145,62 @@ class ResearchScreen(BaseScreen):
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
-        with Container(id="research-container"):
-            yield Label("Multi-paradigm Foundational Research", id="research-title")
-            
-            with Container(id="research-status"):
-                yield Label("Research Status", classes="section-header")
-                yield ResearchProgressBar(total_phases=5)
+
+        yield Container(
+            Label("Multi-paradigm Foundational Research", id="research-title"),
+
+            Markdown("", id="preview-content"),
+                        
+            Button("View Research Requirements Document", id="view-requirements"),
+                        
+            Container(
+                Label("Research Status", classes="section-header"),
+                ResearchProgressBar(total_phases=5),
                 
-                with VerticalScroll(id="research-phases"):
-                    yield ResearchPhaseLabel(
+                VerticalScroll(
+                    ResearchPhaseLabel(
                         "Foundation Discovery", 
                         "Discover potential foundation approaches for the project",
                         "pending"
-                    )
-                    yield ResearchPhaseLabel(
+                    ),
+                    ResearchPhaseLabel(
                         "Foundation Exploration", 
                         "Explore each foundation across paradigm spectrum",
                         "pending"
-                    )
-                    yield ResearchPhaseLabel(
+                    ),
+                    ResearchPhaseLabel(
                         "Path Creation", 
                         "Generate implementation paths based on foundation choices",
                         "pending"
-                    )
-                    yield ResearchPhaseLabel(
+                    ),
+                    ResearchPhaseLabel(
                         "Integration Exploration", 
                         "Identify cross-foundation opportunities",
                         "pending"
-                    )
-                    yield ResearchPhaseLabel(
+                    ),
+                    ResearchPhaseLabel(
                         "Research Synthesis", 
                         "Create comprehensive research report",
                         "pending"
-                    )
-            
-            with Container(id="research-actions"):
-                yield Button("Start Research", id="start-research")
-                yield Button("View Requirements", id="view-requirements")
-                yield Button("View Report", id="view-report", disabled=True)
-                yield Button("Continue to Architecture", id="go-to-architecture", disabled=True)
-            
-            yield LoadingIndicator(id="research-loading", classes="hidden")
-            
-            with VerticalScroll(id="research-preview"):
-                yield Static("", id="preview-content")
+                    ),
+                    id="research-phases"
+                ),
+
+                id="research-status"
+            ),
+            Button("Start Research", id="start-research"),
+
+            Container(
+                Button("View Report", id="view-report", disabled=True),
+                Button("Continue to Architecture", id="go-to-architecture", disabled=True),
+                
+                id="research-actions"
+            ),
+            LoadingIndicator(id="research-loading", classes="hidden"),
+        
+            id="research-container"
+        )
+    
     
     def on_mount(self) -> None:
         """Handle the mount event to initialize the screen."""
@@ -250,8 +261,7 @@ class ResearchScreen(BaseScreen):
                 self.research_requirements = research_requirements_content
                 if self._is_mounted:
                     with self.app.batch_update():
-                        preview = Markdown(self.research_requirements[:1000] + "...")
-                        self.query_one("#preview-content", Static).update(preview)
+                        self.query_one("#preview-content", Markdown).update(self.research_requirements)
             else:
                 logger.error(f"Failed to load research requirements for session {self.session_id}")
                 session_data = self.session_manager.get_session(self.session_id)

@@ -292,6 +292,7 @@ class IdeasFactoryApp(App):
         # Switch to the document review screen
         self.action_switch_to_document_review()
 
+
     @handle_async_errors
     async def _ba_revision_callback(self, session_id: str, feedback: str) -> str:
         """Callback for Business Analyst document revisions."""

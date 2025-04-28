@@ -1,12 +1,13 @@
-# brainstorm_screen.py - Updated to use generic document review
+# brainstorm_screen.py - Updated to use enhanced ChatWidget
 
 """
 Brainstorm screen for IdeasFactory.
 
-This module defines the Textual screen for brainstorming sessions.
+This module defines the Textual screen for brainstorming sessions with an enhanced chat interface.
 """
 
 import logging
+import asyncio
 from typing import Optional
 
 from textual.app import ComposeResult
@@ -18,6 +19,7 @@ from textual.binding import Binding
 
 from ideasfactory.agents.business_analyst import BusinessAnalyst
 from ideasfactory.ui.screens import BaseScreen
+from ideasfactory.ui.widgets.chat_widget import ChatWidget
 
 from ideasfactory.utils.error_handler import handle_errors, handle_async_errors
 from ideasfactory.utils.session_manager import SessionManager
@@ -40,10 +42,10 @@ class BrainstormScreen(BaseScreen):
         """Initialize the brainstorm screen."""
         super().__init__(*args, **kwargs)
         self.business_analyst = BusinessAnalyst()
+        self.chat_widget = None
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
-        # Use the Container class directly instead of relying on a generic container
         yield Container(
             Label("Start a New Brainstorming Session", id="session_header"),
             Container(
@@ -51,35 +53,23 @@ class BrainstormScreen(BaseScreen):
                 Button("Start Session", id="start_button", variant="primary"),
                 id="start_container"
             ),
-            Container(
-                Label("Brainstorming Session", id="conversation_header"),
-                VerticalScroll(
-                    Static(id="conversation_display", classes="conversation")
-                ),
-                Container(
-                    Input(placeholder="Type your message here...", id="message_input"),
-                    Button("Send", id="send_button", variant="primary"),
-                    id="message_container"
-                ),
-                Button("Create Document", id="create_document_button", variant="success"),
-                id="conversation_container"
-            ),
+            # The ChatWidget will be mounted here dynamically after session starts
             id="brainstorm_container"
         )
     
     def on_mount(self) -> None:
         """Handle the screen's mount event."""
         super().on_mount()
-        # Hide the conversation container initially
-        self.query_one("#conversation_container").display = False
-
+        # No additional setup needed with the new approach
+    
     async def action_start_session(self) -> None:
         """Start session action."""
         await self.start_session()
     
     async def action_send_message(self) -> None:
         """Send message action."""
-        await self.send_message()
+        # This is now handled by the ChatWidget directly
+        pass
     
     async def action_create_document(self) -> None:
         """Create document action."""
@@ -89,10 +79,6 @@ class BrainstormScreen(BaseScreen):
         """Handle button press events."""
         if event.button.id == "start_button":
             await self.start_session()
-        elif event.button.id == "send_button":
-            await self.send_message()
-        elif event.button.id == "create_document_button":
-            await self.create_document()
     
     async def _load_session_documents(self) -> None:
         """
@@ -127,63 +113,68 @@ class BrainstormScreen(BaseScreen):
         # Create the session
         session = await self.business_analyst.create_session(session_id, topic)
         
-        # Start the brainstorming
-        response = await self.business_analyst.start_brainstorming(session_id)
-        
-        # Update the UI
-        self.query_one("#conversation_display").update(f"Topic: {topic}\n\nBA: {response}")
-        
-        # Show the conversation container
-        self.query_one("#conversation_container").display = True
-        
         # Hide the start container
         self.query_one("#start_container").display = False
         
         # Update the header
-        self.query_one("#session_header").update(f"Brainstorming Session: {topic}")
+        self.query_one("#session_header").update(f"Brainstorming Session")
+        
+        # Create and mount the chat widget
+        self.chat_widget = ChatWidget(
+            title=f"Brainstorming: {topic}",
+            on_message_callback=self.handle_chat_message
+        )
+        self.query_one("#brainstorm_container").mount(self.chat_widget)
+        
+        # Start the brainstorming in the background to avoid blocking
+        asyncio.create_task(self.initialize_brainstorming(session_id))
     
     @handle_async_errors
-    async def send_message(self) -> None:
-        """Send a message to the Business Analyst."""
-        if not self._is_mounted:
-            logger.error("Screen not mounted yet")
-            return
-            
+    async def initialize_brainstorming(self, session_id: str) -> None:
+        """Start the brainstorming in the background to avoid blocking."""
+        # Small delay to ensure chat widget is fully mounted
+        await asyncio.sleep(0.2)
+        
+        # Add document creation button
+        if self.chat_widget:
+            self.chat_widget.add_action_button(
+                label="Create Project Vision Document", 
+                id="create_document_button", 
+                variant="success",
+                callback=self.create_document
+            )
+        
+        # Start the brainstorming
+        response = await self.business_analyst.start_brainstorming(session_id)
+        
+        # Add the initial agent message
+        if response and self.chat_widget:
+            await self.chat_widget.add_message(response, is_user=False)
+    
+    @handle_async_errors
+    async def handle_chat_message(self, message: str) -> None:
+        """Handle messages from the chat widget."""
         if not self.session_id:
             self.notify("No active session", severity="error")
             return
-        
-        # Get the message from the input
-        message = self.query_one("#message_input").value
-        if not message:
-            return
-        
-        # Clear the input
-        self.query_one("#message_input").value = ""
-        
-        # Update the conversation display
-        conversation = self.query_one("#conversation_display")
-        current_text = conversation.renderable
-        conversation.update(f"{current_text}\n\nYou: {message}")
         
         # Send the message to the Business Analyst
         response = await self.business_analyst.send_message(self.session_id, message)
         
-        # Update the conversation display
-        conversation = self.query_one("#conversation_display")
-        current_text = conversation.renderable
-        conversation.update(f"{current_text}\n\nBA: {response}")
+        # Add the agent's response to the chat
+        if response and self.chat_widget:
+            await self.chat_widget.add_message(response, is_user=False)
     
     @handle_async_errors
     async def create_document(self) -> None:
         """Create a document from the brainstorming session."""
-        if not self._is_mounted:
-            logger.error("Screen not mounted yet")
+        if not self._is_mounted or not self.session_id:
+            logger.error("Cannot create document: not mounted or no session")
             return
-            
-        if not self.session_id:
-            self.notify("No active session", severity="error")
-            return
+        
+        # Show creating message in the chat if we have a chat widget
+        if self.chat_widget:
+            await self.chat_widget.add_message("Creating document from our conversation...", is_user=False)
         
         # Create the document
         document = await self.business_analyst.create_document(self.session_id)

@@ -12,6 +12,10 @@ DocumentReviewScreen {
   layout: vertical;
 }
 
+PRDCreationScreen {
+  layout: vertical;
+}
+
 DeepResearchScreen {
   layout: vertical;
 }
@@ -20,311 +24,354 @@ ResearchScreen {
   layout: vertical;
 }
 
-/* Scrolling containers */
-#document_scroll {
-  width: 100%;
-  height: 100%;
-}
+/* -------------------------------------------------------- */
 
-#research_scroll {
-  width: 100%;
-  height: 100%;
-}
+/* Widget styles */
 
-/* Container styles */
-Container {
+/* Static elements */
+Static {
+  width: 1fr;
+}
+/* Labels */
+# Label {
+#   color: $text;
+#   width: 100%;
+#   padding: 1;
+# }
+/* Inputs */
+Input {
+  width: 1fr;
+  background: $primary-darken-1;
+  color: $text;
+}
+RadioButton {
   width: 100%;
-  height: auto;
   padding: 1;
-  align: center middle;
 }
-
-#brainstorm_container {
+/* Progress Bar */
+ProgressBar {
   width: 100%;
-  height: 100%;
-  padding: 1;
-  background: $surface;
-  layout: vertical;
+  height: 1;
+  margin: 1 2;
 }
+# /* VerticalScroll */
+# VerticalScroll {
+#   width: 100%;
+#   height: 20;
+#   margin: 1 2;
+# }
 
-#document_container {
-  width: 100%;
-  height: 100%;
-  padding: 1;
-  background: $surface;
-  layout: vertical;
-}
 
-#research_container {
-  width: 100%;
-  height: 100%;
-  padding: 1;
-  background: $surface;
-  layout: vertical;
-}
+# /* Scrolling containers */
+# #document_scroll {
+#   width: 100%;
+#   height: 100%;
+# }
+
+# #report_header {
+#   text-style: bold;
+#   padding: 1 0 1 1;
+#   color: $primary;
+# }
+
+/* --------------------------------------------------------- */
+
+/* Brainstorming screen specific styles */
 
 #start_container {
   width: 100%;
   height: auto;
   layout: horizontal;
   padding: 1;
-  margin: 1 2;
+  margin: 1 1;
 }
 
-#conversation_container {
+#session_header {
+  text-style: bold;
+  margin: 1 0 1 1;
+  color: $primary
+}
+
+#topic_input {
+  margin-right: 1;
+}
+#start_button {
+  width: auto;
+}
+
+#brainstorm_container {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  background: $surface-darken-3;
+  layout: vertical;
+}
+
+ChatWidget {
   width: 100%;
   height: 1fr;
+  background: $surface-darken-3;
+  overflow: auto;
   layout: vertical;
-  padding: 1;
-  margin: 1 2;
 }
-
-#message_container {
+#chat-header {
+  width: 100%;
+  height: auto;
+  background: $primary-darken-3;
+  color: $text;
+  padding: 1;
+  margin: 0 0 0 0;
+  text-align: center;
+  text-style: bold;
+}
+#message-list {
+  width: 100%;
+  height: 1fr;
+  min-height: 15;
+  padding: 0 0 0 2;
+  color: $primary;
+  background: $panel-darken-2;
+}
+EnhancedChatInput {
+  width: 100%;
+  height: 16;
+  margin: 0 1 0 1;
+  padding: 0;
+  background: $primary-darken-3;
+  padding: 0 0 0 0;
+  # border: solid $surface-darken-2;
+}
+#input-area {
+  width: 100%;
+  min-height: 3;
+  max-height: 10;
+  margin: 1;
+  background: $primary-darken-1;
+  color: $text;
+}
+#send-button {
+  margin-right: 2;
+}
+Horizontal {
   width: 100%;
   height: auto;
   layout: horizontal;
-  padding: 1;
-  margin: 1 0;
+  align: right middle;
+  margin: 0;
+  # border: solid $border;
+}
+
+ChatActions {
+  width: 100%;
+  height: auto;
+  margin: 0 0 0 0;
+  padding: 0;
+  layout: horizontal;
+  align: center middle;
+  background: $surface-darken-3;
+  border: solid $surface-darken-2;
+  box-sizing: border-box;
+}
+
+#create_document_button {
+  width: 1fr;
+  margin: 0;
+}
+
+/* --------------------------------------------------- */
+
+/* Document Review screen specific styles */
+
+#document_header {
+  text-style: bold;
+  margin: 1 0 1 1;
+  color: $primary;
+}
+
+#document_container {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  background: $surface-darken-2;
+  layout: vertical;
+  overflow: auto;
 }
 
 #feedback_container {
   width: 100%;
   height: auto;
   layout: vertical;
-  padding: 1;
-  margin: 1 2;
+  padding: 0;
+  margin: 0 0 1 0; 
+}
+
+#feedback_header {
+  text-style: bold;
+  color: $text-muted;
+  visibility: hidden;
+  padding: 1 0 0 1;
 }
 
 #action_container {
   width: 100%;
   height: auto;
   layout: horizontal;
-  padding: 1;
-  margin: 1 2;
+  padding: 0;
+  margin: 1 1;
 }
 
-/* Research screen containers */
+#document_display {
+  width: 100%;
+  height: 1fr;
+  min-height: 18;
+  margin: 0 0 0 0;
+  padding: 1 0 1 1;
+  background: $surface-darken-1;
+  # border: solid $border;
+}
+
+#document_status {
+  background: $primary-darken-3;
+  color: $text;
+  text-style: bold;
+  text-align: center;
+  padding: 0;
+  margin: 0 1 0 1;
+  border: solid $border;
+}
+
+#feedback_input {
+  height: auto;
+  # width: 100%;
+  margin-bottom: 1;
+}
+
+#revise_button {
+  width: 1fr;
+  margin: 0 1 0 1;
+}
+
+#back_button {
+  width: auto;
+  margin: 0 0 0 0;
+}
+
+#save_button {
+  width: 1fr;
+  margin: 0 1 0 1;
+}
+
+#proceed_button {
+  width: 1fr;
+  margin: 0 0 0 1;
+}
+
+/* ------------------------------------------------- */
+
+/* PRD Creation screen specific styles */
+
+#prd_header {
+  text-style: bold;
+  margin: 1 0 1 1;
+  color: $primary
+}
+
+#prd_container {
+  width: 100%;
+  height: 100%;
+  background: $surface-darken-2;
+  layout: vertical;
+  overflow: auto;
+}
+
 #vision_container {
   width: 100%;
-  height: auto;
+  height: 1fr;
+  min-height: 10;
   layout: vertical;
-  padding: 1;
-  margin: 1 2;
+  padding: 0 1 0 1;
+  margin: 0 0 0 0;
+}
+
+#vision_header {
+  text-style: bold;
+  padding: 0 0 0 1;
+  # color: $primary;
+}
+
+#vision_display {
+  width: 100%;
+  # height: 1fr;
+  padding: 0 0 0 2;
+  margin: 1 0 0 0;
+  background: $surface-darken-1;
 }
 
 #status_container {
-  width: 100%;
+  width: 1fr;
   height: auto;
   layout: vertical;
   padding: 1;
-  margin: 1 2;
+  margin: 0 1;
 }
 
-#report_container {
-  width: 100%;
+# #status_header {
+#   text-style: bold;
+#   padding: 1 2;
+# }
+
+#prd_status {
+  width: 1fr;
   height: auto;
-  layout: vertical;
-  padding: 1;
-  margin: 1 2;
+  background: $primary-darken-3;
+  border: solid $border;
+  color: $text;
+  text-style: bold;
+  text-align: center;
+  margin: 0 0 0 0;
+}
+
+#create_prd_button {
+  width: 100%;
+  margin: 0;
 }
 
 #results_container {
   width: 100%;
   height: auto;
   layout: horizontal;
-  padding: 1;
-  margin: 1 2;
+  padding: 0;
+  margin: 0 1 0 1;
 }
 
-#status_container {
-  width: 100%;
-  height: auto;
-  layout: vertical;
-  padding: 1;
-  margin: 1 2;
-}
+#view_prd_button {
+  width: 1fr;
+  margin: 0 0 0 1;
+} 
 
-#report_container {
-  width: 100%;
-  height: auto;
-  layout: vertical;
-  padding: 1;
-  margin: 1 2;
-}
+/* ------------------------------------------------- */
 
-#documents_container {
-  width: 100%;
-  height: auto;
-  layout: horizontal;
-  padding: 1;
-  margin: 1 2;
-}
-
-#analysis_container {
-  width: 100%;
-  height: auto;
-  layout: vertical;
-  padding: 1;
-  margin: 1 2;
-}
-
-#decision_container {
-  width: 100%;
-  height: auto;
-  layout: vertical;
-  padding: 1;
-  margin: 1 2;
-  border: solid $primary;
-}
-
-#question_container {
-  width: 100%;
-  height: auto;
-  layout: vertical;
-  padding: 1;
-  margin: 1 2;
-}
-
-/* Labels */
-Label {
-  color: $text;
-  width: 100%;
-  padding: 1;
-}
-
-#session_header {
-  text-style: bold;
-  padding: 1 2;
-}
-
-#conversation_header {
-  text-style: bold;
-  padding: 1 2;
-}
-
-#document_header {
-  text-style: bold;
-  padding: 1 2;
-}
-
-#research_header {
-  text-style: bold;
-  padding: 1 2;
-}
-
-#status_header {
-  text-style: bold;
-  padding: 1 2;
-}
-
-#report_header {
-  text-style: bold;
-  padding: 1 2;
-}
-
-#vision_header {
-  text-style: bold;
-  padding: 1 2;
-}
-
-#feedback_header {
-  text-style: bold;
-  padding: 1 2;
-}
+/* Architecture screen specific styles */
 
 #architecture_header {
   text-style: bold;
   padding: 1 2;
 }
 
-#analysis_header {
-  text-style: bold;
-  padding: 1 2;
-}
+# #analysis_header {
+#   text-style: bold;
+#   padding: 1 2;
+# }
 
-#decision_header {
-  text-style: bold;
-  padding: 1 2;
-}
+# #decision_header {
+#   text-style: bold;
+#   padding: 1 2;
+# }
 
-#question_header {
-  text-style: bold;
-  padding: 1 2;
-}
-
-/* Inputs */
-Input {
-  width: 3fr;
-  background: $panel;
-  color: $text;
-}
-
-#topic_input {
-  margin-right: 1;
-}
-
-#message_input {
-  margin-right: 1;
-}
-
-#feedback_input {
-  height: 3;
-  width: 100%;
-  margin-bottom: 1;
-}
-
-/* TextAreas */
-TextArea {
-  width: 100%;
-  height: 10;
-  background: $panel;
-  color: $text;
-}
-
-#document_display {
-  height: 20;
-  margin: 1 2;
-}
-
-#vision_display {
-  height: 10;
-  margin: 1 2;
-}
-
-#report_display {
-  height: 20;
-  margin: 1 2;
-}
-
-/* Static elements */
-Static {
-  width: 100%;
-  padding: 1;
-}
-
-#conversation_display {
-  background: $panel;
-  color: $text;
-  border: solid $border;
-}
-
-#research_status {
-  background: $primary-darken-3;
-  color: $text;
-  text-align: center;
-  padding: 1;
-  margin: 1 0;
-  border: solid $border;
-}
-
-#document_status {
-  background: $primary-darken-3;
-  color: $text;
-  text-align: center;
-  padding: 1;
-  margin: 1 0;
-  border: solid $border;
-}
+# #question_header {
+#   text-style: bold;
+#   padding: 1 2;
+# }
 
 #analysis_status {
   background: $primary-darken-3;
@@ -352,79 +399,6 @@ Static {
   border: solid $border;
 }
 
-/* Research screen specific styles */
-#research-container {
-  width: 100%;
-  height: 100%;
-  padding: 1;
-  layout: vertical;
-}
-
-#research-title {
-  background: $primary;
-  color: $text;
-  text-align: center;
-  padding: 1;
-  margin: 1 0;
-  text-style: bold;
-  width: 100%;
-}
-
-#research-status {
-  width: 100%;
-  padding: 1;
-  margin: 1 0;
-  background: $surface-darken-1;
-  border: solid $primary-darken-2;
-  layout: vertical;
-}
-
-#research-phases {
-  width: 100%;
-  height: 8;
-  padding: 1;
-  margin: 1 0;
-  background: $panel;
-}
-
-#research-actions {
-  width: 100%;
-  padding: 1;
-  margin: 1 0;
-  layout: horizontal;
-  align: center middle;
-}
-
-#research-preview {
-  width: 100%;
-  height: 1fr;
-  padding: 1;
-  margin: 1 0;
-  background: $panel;
-  border: solid $primary-darken-2;
-}
-
-#preview-content {
-  width: 100%;
-  padding: 1;
-}
-
-#research-loading {
-  width: 100%;
-  height: 1;
-  align: center middle;
-}
-
-.hidden {
-  display: none;
-}
-
-.section-header {
-  text-style: bold;
-  color: $primary;
-  margin-bottom: 1;
-}
-
 #answer_display {
   background: $panel;
   color: $text;
@@ -434,18 +408,12 @@ Static {
   height: 8;
 }
 
-/* RadioSet and RadioButtons */
 #options_radioset {
   width: 100%;
   margin: 1 0;
   background: $panel;
   padding: 1;
   border: solid $border;
-}
-
-RadioButton {
-  width: 100%;
-  padding: 1;
 }
 
 #decision_buttons {
@@ -456,72 +424,114 @@ RadioButton {
   margin: 1 0;
 }
 
-/* Buttons */
-Button {
+# #analysis_container {
+#   width: 100%;
+#   height: auto;
+#   layout: vertical;
+#   padding: 1;
+#   margin: 1 2;
+# }
+
+# #decision_container {
+#   width: 100%;
+#   height: auto;
+#   layout: vertical;
+#   padding: 1;
+#   margin: 1 2;
+#   border: solid $primary;
+# }
+
+# #question_container {
+#   width: 100%;
+#   height: auto;
+#   layout: vertical;
+#   padding: 1;
+#   margin: 1 2;
+
+/* -------------------------------------------------- */
+
+/* Research screen specific styles */
+
+#research-container {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  layout: vertical;
+  overflow: auto;
+  background: $surface-darken-2;
+}
+
+#research-title {
+  background: $primary-darken-3;
+  color: $text;
+  text-align: center;
+  text-style: bold;
+  width: 100%;
+  padding: 1;
+  margin: 1 0 0 0;
+}
+
+#preview-content {
+  width: 100%;
+  height: 1fr;
+  min-height: 10;
+  margin: 0 0 0 0;
+  padding: 0 0 0 2;
+  background: $surface-darken-1;
+  border: solid $primary-darken-3; 
+}
+
+#view-requirements {
+  display: none;
+}
+
+#start-research {
+  width: 100%;
+  height: auto;
+  margin: 0 2 0 2;
+}
+
+#research-status {
+  width: 100%;
+  height: auto;
+  padding: 1 2 0 2;
+  margin: 0 0 0 0;
+  background: $surface-darken-2;
+  # border: solid $surface-darken-3;
+  layout: vertical;
+}
+
+#research-phases {
+  width: 100%;
+  height: auto;
+  padding: 1 2 1 2;
+  margin: 1 0;
+  background: $surface-darken-1;
+}
+
+#research-actions {
+  width: 100%;
+  height: auto;
+  padding: 1 1 1 1;
+  layout: horizontal;
+  # border: solid $surface-darken-1;
+}
+
+#go-to-architecture {
+  width: 1fr;
+  height: auto;
+  margin: 0 0 0 1;
+}
+#view-report {
   width: auto;
-  margin: 0 1;
+  height: auto;
+  margin: 0 1 0 0;
 }
 
-#start_button {
-  width: auto;
-}
-
-#send_button {
-  width: auto;
-}
-
-#create_document_button {
-  width: auto;
-  margin: 1 2;
-}
-
-#start_research_button {
-  margin: 1 2;
-}
-
-#revise_button {
-  width: auto;
-}
-
-#save_button {
-  width: auto;
-}
-
-#back_button {
-  width: auto;
-}
-
-#proceed_button {
-  width: auto;
-}
-
-#view_report_button {
-  width: auto;
-}
-
-/* Progress Bar */
-ProgressBar {
+#research-loading {
   width: 100%;
   height: 1;
-  margin: 1 2;
+  align: center middle;
 }
 
-/* VerticalScroll */
-VerticalScroll {
-  width: 100%;
-  height: 20;
-  margin: 1 2;
-}
-
-/* Conversation styles */
-.conversation {
-  width: 100%;
-  padding: 1;
-  background: $panel;
-}
-
-/* Document styles */
-.document {
-  border: solid $primary;
-  padding: 1;
-}
+/* -------------------------------------------------- */

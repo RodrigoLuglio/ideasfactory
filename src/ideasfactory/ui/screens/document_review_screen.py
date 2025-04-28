@@ -80,28 +80,26 @@ class DocumentReviewScreen(BaseScreen):
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
-        yield VerticalScroll(
+        
+        yield Container(
+            Label("Document Review", id="document_header"),
+            TextArea(id="document_display", classes="document", read_only=True),
+            Label("Document is read-only. Use the feedback box below to request changes.", id="document_status"),
             Container(
-                Label("Document Review", id="document_header"),
-                TextArea(id="document_display", classes="document", read_only=True),
-                Label("Document is read-only. Use the feedback box below to request changes.", id="document_status"),
-                Container(
-                    Label("Request changes to the document:", id="feedback_header"),
-                    Input(id="feedback_input", placeholder="Enter your feedback here..."),
-                    Button("Revise", id="revise_button", variant="primary"),
-                    id="feedback_container"
-                ),
-                Container(
-                    Button("Save Document", id="save_button", variant="success"),
-                    Button("Back", id="back_button", variant="primary"),
-                    Button("Proceed", id="proceed_button", variant="warning"),
-                    id="action_container"
-                ),
-                id="document_container"
+                Label("Request changes to the document:", id="feedback_header"),
+                Input(id="feedback_input", placeholder="Enter your feedback here..."),
+                Button("Revise", id="revise_button", variant="primary"),
+                id="feedback_container"
             ),
-            id="document_scroll"
+            Button("Save Document", id="save_button", variant="success"),
+            Container(
+                Button("Back", id="back_button", variant="primary"),
+                Button("Proceed", id="proceed_button", variant="warning"),
+                id="action_container"
+            ),
+            id="document_container"
         )
-    
+        
     def on_mount(self) -> None:
         """Handle the screen's mount event."""
         super().on_mount()

@@ -55,75 +55,73 @@ class ArchitectureScreen(BaseScreen):
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
-        yield VerticalScroll(
-            Container(
-                Label("Architecture Definition", id="architecture_header"),
-                
-                # Documents container (for reference)
-                Container(
-                    Button("View Project Vision", id="view_vision_button", variant="primary"),
-                    Button("View PRD", id="view_prd_button", variant="primary"),
-                    Button("View Research Report", id="view_report_button", variant="primary"),
-                    Button("Reload Documents", id="reload_documents_button", variant="default"),
-                    id="documents_container"
-                ),
-                
-                # Research Requirements container
-                Container(
-                    Label("Technical Research Requirements", id="research_requirements_header"),
-                    Static("Create research requirements to guide the research phase.", id="research_requirements_status"),
-                    Button("Create Research Requirements", id="create_research_requirements_button", variant="primary"),
-                    Button("View Research Requirements", id="view_research_requirements_button", variant="success", disabled=True),
-                    id="research_requirements_container"
-                ),
-                
-                # Analysis container
-                Container(
-                    Label("Architecture Analysis", id="analysis_header"),
-                    Static("Click 'Start Analysis' to begin the architecture definition process.", id="analysis_status"),
-                    Button("Start Analysis", id="start_analysis_button", variant="primary"),
-                    id="analysis_container"
-                ),
-                
-                # Decision container (initially hidden)
-                Container(
-                    Label("Architectural Decision", id="decision_header"),
-                    Static(id="decision_title", classes="title"),
-                    Static(id="decision_description", classes="description"),
-                    Label("Options:", id="options_label"),
-                    RadioSet(id="options_radioset"),
-                    Label("Rationale (optional):", id="rationale_label"),
-                    Input(id="rationale_input", placeholder="Enter rationale for your decision..."),
-                    Container(
-                        Button("Previous", id="previous_button", variant="default"),
-                        Button("Make Decision", id="make_decision_button", variant="primary"),
-                        Button("Next", id="next_button", variant="default"),
-                        id="decision_buttons"
-                    ),
-                    id="decision_container"
-                ),
-                
-                # Question container
-                Container(
-                    Label("Ask a question:", id="question_header"),
-                    Input(id="question_input", placeholder="Enter your question here..."),
-                    Button("Ask", id="ask_button", variant="primary"),
-                    Static(id="answer_display", classes="answer"),
-                    id="question_container"
-                ),
-                
-                # Action container
-                Container(
-                    Button("Create Architecture Document", id="create_document_button", variant="success"),
-                    Button("Back to Research", id="back_button", variant="warning"),
-                    id="action_container"
-                ),
-                
-                id="architecture_container"
-            ),
-            id="architecture_scroll"
-        )
     
+        yield Container(
+            Label("Architecture Definition", id="architecture_header"),
+            
+            # Documents container (for reference)
+            Container(
+                Button("View Project Vision", id="view_vision_button", variant="primary"),
+                Button("View PRD", id="view_prd_button", variant="primary"),
+                Button("View Research Report", id="view_report_button", variant="primary"),
+                Button("Reload Documents", id="reload_documents_button", variant="default"),
+                id="documents_container"
+            ),
+            
+            # Research Requirements container
+            Container(
+                Label("Technical Research Requirements", id="research_requirements_header"),
+                Static("Create research requirements to guide the research phase.", id="research_requirements_status"),
+                Button("Create Research Requirements", id="create_research_requirements_button", variant="primary"),
+                Button("View Research Requirements", id="view_research_requirements_button", variant="success", disabled=True),
+                id="research_requirements_container"
+            ),
+            
+            # Analysis container
+            Container(
+                Label("Architecture Analysis", id="analysis_header"),
+                Static("Click 'Start Analysis' to begin the architecture definition process.", id="analysis_status"),
+                Button("Start Analysis", id="start_analysis_button", variant="primary"),
+                id="analysis_container"
+            ),
+            
+            # Decision container (initially hidden)
+            Container(
+                Label("Architectural Decision", id="decision_header"),
+                Static(id="decision_title", classes="title"),
+                Static(id="decision_description", classes="description"),
+                Label("Options:", id="options_label"),
+                RadioSet(id="options_radioset"),
+                Label("Rationale (optional):", id="rationale_label"),
+                Input(id="rationale_input", placeholder="Enter rationale for your decision..."),
+                Container(
+                    Button("Previous", id="previous_button", variant="default"),
+                    Button("Make Decision", id="make_decision_button", variant="primary"),
+                    Button("Next", id="next_button", variant="default"),
+                    id="decision_buttons"
+                ),
+                id="decision_container"
+            ),
+            
+            # Question container
+            Container(
+                Label("Ask a question:", id="question_header"),
+                Input(id="question_input", placeholder="Enter your question here..."),
+                Button("Ask", id="ask_button", variant="primary"),
+                Static(id="answer_display", classes="answer"),
+                id="question_container"
+            ),
+            
+            # Action container
+            Container(
+                Button("Create Architecture Document", id="create_document_button", variant="success"),
+                Button("Back to Research", id="back_button", variant="warning"),
+                id="action_container"
+            ),
+            
+            id="architecture_container"
+        )
+        
     def on_mount(self) -> None:
         """Handle the screen's mount event."""
         super().on_mount()  # Call base class on_mount

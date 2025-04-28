@@ -32,17 +32,52 @@ This document outlines the enhanced workflow for the IdeasFactory project, desig
   - **Market Research**: Competitors, trends, user needs, unique opportunities
   - **Technical Research**: Foundational research across paradigms and dimentions
   - **Domain Research**: Field-specific insights and best practices
-- **Output**: Comprehensive Research Document
+- **Output**: Comprehensive Research Documents containing all architectural foundations that the project can be buiit upon
 - **Purpose**: Provide deep, unbiased, thorough exploration of all implementation possibilities while keeping maximum room for the innovation each idea might require or bring.
 
-### 5. Architecture Design (Architect - Final Pass)
+### 5. Architecture Design (Architect - Second Pass)
 
-- **Input**: PRD and Research Documents
-- **Process**: Technical design based on complete information
-- **Output**: Architecture Document
-- **Purpose**: Define the technical approach, component boundaries, and integration points
+- **Input**: Project Vision, PRD and Research Documents
+- **Process**: Decision making with the user to chose the project's implementation foundations
+  - Define the foundation architecture based on the research findings
+  - Identify component boundaries, integration points, and dependencies
+  - Create a high-level architecture diagram
+  - Document design decisions and rationale
+- **Output**: Technology indenpent high-level architecture Document
+- **Purpose**: Define the foundational approach, component boundaries, and integration points
+- **Note**: This document should be technology independent, focusing on the architecture and design decisions rather than specific technologies, the technology options will be researched in next step.
 
-### 6. Standards and Patterns (Standards Engineer)
+### 6. Technology Research (Research Team - Second Pass)
+
+- **Input**: Project Vision, PRD, Chosen foundation path document and Technology independent architecture Document
+- **Process**: Research and evaluate specific technologies, frameworks, and tools for the chosen foundation path
+  - Explore established, mainstream, cutting-edge, experimental, cross-paradigm, and first-principles technologies
+  - Assess the maturity, community support, and long-term viability of each technology
+  - Identify potential technology stacks and their implications
+  - Assess compatibility with the architecture design
+  - Document findings and recommendations
+- **Output**: Technology Research Document with recommended technology stacks
+- **Purpose**: Provide a comprehensive overview of technology options and their implications for the project
+
+### 7. Architecture Document (Architect - Third Pass)
+
+- **Input**: Project Vision, PRD, Research Documents, Technology Research Document
+- **Process**: Finalize the architecture design based on technology research
+  - Refine the architecture diagram with specific technologies
+  - Document detailed component interactions, data flows, and integration points
+  - Create a comprehensive architecture document that includes all previous documents
+  - Ensure the architecture aligns with the PRD and research findings
+- **Output**: Final Architecture Document
+- **Purpose**: Provide a complete, detailed architecture design that guides implementation
+
+### 8. Task List Creation (Product Owner)
+
+- **Input**: All previous documents
+- **Process**: Breaking down implementation into granular tasks
+- **Output**: Detailed Task List
+- **Purpose**: Create a complete, sequential list of implementation steps
+
+### 9. Standards and Patterns (Standards Engineer)
 
 - **Input**: Architecture Document and Task List
 - **Process**:
@@ -58,14 +93,7 @@ This document outlines the enhanced workflow for the IdeasFactory project, desig
   - Prevent loose ends, inconsistencies, and duplication
   - Provide the "glue" that turns individual story implementations into a cohesive system
 
-### 7. Task List Creation (Product Owner)
-
-- **Input**: All previous documents
-- **Process**: Breaking down implementation into granular tasks
-- **Output**: Detailed Task List
-- **Purpose**: Create a complete, sequential list of implementation steps
-
-### 8. Story Creation (Scrum Master)
+### 10. Story Creation (Scrum Master)
 
 - **Input**: Task List, Standards Document, and all previous documents
 - **Process**:
@@ -91,11 +119,13 @@ Each document builds on previous documents to ensure completeness and continuity
 2. **PRD/Detailed Requirements** → Complete functional/non-functional requirements
 3. **Technical Research Requirements** → What needs investigation to implement
 4. **Comprehensive Research Documents** → Deep exploration of implementation options
-5. **Architecture Document** → Technical approach and decisions
-6. **Standards and Patterns** → Cross-cutting implementation guidance
-7. **Task List** → Granular, sequenced implementation steps
-8. **Epics/Stories Index** → Organized story tracking
-9. **Story Documents** → Self-contained implementation units
+5. **Architecture Document** → Generic foundation approach and decisions
+6. **Technology Research Document** → Specific technology options and implications
+7. **Final Architecture Document** → Detailed architecture design with technology choices
+8. **Task List** → Granular, sequenced implementation steps
+9. **Standards and Patterns Document** → Integration guidelines and standards
+10. **Epics/Stories Index** → Organized story tracking
+11. **Story Documents** → Self-contained implementation units
 
 ## Critical Improvements
 
