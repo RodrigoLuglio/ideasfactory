@@ -136,14 +136,14 @@ uv run python -m ideasfactory
    - Engage with the Architect agent through interactive chat to refine foundation details
    - Generate a generic architecture document based on the selected foundation
 
-6. **Technology Research Phase**:
+6. **Technology Research Phase** (Coming Soon):
 
    - The Research Team conducts second-pass dimensional research based on the selected foundation
    - Explores specific technologies and tech stacks for implementing each component
    - Evaluates technology options against project requirements and constraints
    - Presents comprehensive technology research report with implementation options
 
-7. **Technology Selection & Architecture Phase**:
+7. **Technology Selection & Architecture Phase** (Coming Soon):
 
    - Review technology options identified in the second research phase
    - Select specific technologies for each component

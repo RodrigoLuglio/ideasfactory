@@ -104,6 +104,7 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
         
         # Use the centralized document loading utility
         from ideasfactory.utils.file_manager import load_document_content
+        from ideasfactory.documents.document_manager import DocumentManager
         
         # Load project vision document
         vision_content = await load_document_content(self.session_id, "project-vision")
@@ -118,6 +119,36 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
         if research_report:
             self.research_report = research_report
             
+            # Get path reports directly from session metadata
+            document_manager = DocumentManager()
+            path_reports = {}
+            
+            # Get the current session
+            session_manager = SessionManager()
+            current_session = session_manager.get_session(self.session_id)
+            
+            if current_session and "path_reports" in current_session.metadata:
+                # Load path reports from metadata references
+                metadata_path_reports = current_session.metadata["path_reports"]
+                logger.info(f"Found {len(metadata_path_reports)} path reports in session metadata")
+                
+                for foundation_name, path in metadata_path_reports.items():
+                    # Load each document from its stored path
+                    doc = document_manager.get_document(path)
+                    if doc:
+                        path_reports[foundation_name] = doc
+                        path_reports[foundation_name]["filepath"] = path
+                        logger.info(f"  - Loaded path report for: {foundation_name}")
+            else:
+                logger.info("No path reports found in session metadata")
+            
+            self.path_reports = path_reports
+            
+            # Log path reports found
+            logger.info(f"Using {len(path_reports)} path reports for session {self.session_id}")
+            for path_name, report in path_reports.items():
+                logger.info(f"  - {path_name}: {report.get('filepath')}")
+            
             # Create an architect session if not already exists
             session = self.architect.sessions.get(self.session_id)
             if not session:
@@ -128,11 +159,15 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
                     prd_document,
                     research_report
                 )
+                
+                # Add path reports to architect session
+                session.path_reports = path_reports
             else:
                 # Update the session with the latest documents
                 session.project_vision = project_vision 
                 session.prd_document = prd_document
                 session.research_report = research_report
+                session.path_reports = path_reports
             
             # Extract foundation options
             await self._extract_foundation_options()

@@ -241,6 +241,7 @@ class ArchitectureSession(BaseModel):
     state: SessionState = Field(default=SessionState.STARTED, description="Current state of the session")
     architecture_document: Optional[str] = Field(None, description="Generated architecture document content")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata for the session")
+    path_reports: Dict[str, Dict[str, Any]] = Field(default_factory=dict, description="Path reports from research phase")
     
     class Config:
         """Pydantic model configuration."""
@@ -1033,23 +1034,43 @@ Please provide the complete revised document in markdown format. Do not include 
         project_vision = session.project_vision
         prd_document = session.prd_document
         
-        # Load the specific path report for this foundation if available
-        path_report = foundation_approach.get("path_report", "")
+        # Get the foundation name for matching with path reports
         foundation_name = foundation_approach.get("name", "Selected Foundation")
+        foundation_key = foundation_name.lower()
+        
+        # Find the specific path report for this foundation
         specific_path_report = None
         
-        if path_report:
-            from ideasfactory.utils.file_manager import load_document_content
+        # First check if there's a path_report field in the foundation approach
+        path_report_path = foundation_approach.get("path_report", "")
+        
+        # First try to find the path report from the session's path_reports
+        if hasattr(session, 'path_reports') and session.path_reports:
+            for path_name, report in session.path_reports.items():
+                path_name_lower = path_name.lower()
+                
+                # Check for match in path name or report title
+                report_title = report.get("title", "").lower()
+                if (foundation_key in path_name_lower or 
+                    path_name_lower in foundation_key or
+                    foundation_key in report_title or
+                    any(term in path_name_lower for term in foundation_key.split()) or
+                    any(term in report_title for term in foundation_key.split())):
+                    specific_path_report = report.get("content", "")
+                    logger.info(f"Found matching path report for '{foundation_name}' in session.path_reports: {path_name}")
+                    break
+        
+        # If we don't have a path report yet, try to load it from the path_report_path
+        if not specific_path_report and path_report_path:
             try:
-                # Extract the path from the full path including "output/" prefix
-                if "path-reports" in path_report:
-                    parts = path_report.split("/")
-                    path_report_file = parts[-1]
-                    specific_path_report = await load_document_content(session_id, "research-report/path-reports/" + path_report_file)
+                from ideasfactory.documents.document_manager import DocumentManager
+                doc_manager = DocumentManager()
+                path_report_doc = doc_manager.get_document(path_report_path)
+                if path_report_doc and "content" in path_report_doc:
+                    specific_path_report = path_report_doc["content"]
+                    logger.info(f"Loaded path report from file: {path_report_path}")
             except Exception as e:
-                logger.error(f"Error loading path report: {str(e)}")
-                # Continue without the specific path report
-                pass
+                logger.error(f"Error loading path report file: {str(e)}")
         
         # Get conversation history if this was a user-defined foundation
         conversation_history = []
@@ -1074,10 +1095,10 @@ Please provide the complete revised document in markdown format. Do not include 
         # Selected Foundation Approach
         {json.dumps(foundation_approach, indent=2)}
 
-        # Specific Path Report (if available):
-        {specific_path_report if specific_path_report else ""}
+        # Specific Path Report For This Foundation:
+        {specific_path_report if specific_path_report else "No specific path report available."}
 
-        # User Foundation Conversation (if available):
+        # User Foundation Conversation (if applicable):
         {json.dumps(conversation_history, indent=2) if is_user_defined and conversation_history else ""}
 
         Your task is to create a COMPREHENSIVE architecture document that:
@@ -1171,7 +1192,7 @@ Please provide the complete revised document in markdown format. Do not include 
     @handle_async_errors
     async def extract_foundation_options(self, session_id: str, research_report: str) -> List[Dict[str, Any]]:
         """
-        Extract foundation options from the research report.
+        Extract foundation options from the research report and individual path reports.
         
         Args:
             session_id: Session ID
@@ -1185,14 +1206,39 @@ Please provide the complete revised document in markdown format. Do not include 
             logger.error(f"Session {session_id} not found")
             return []
         
+        # Get path reports from the session if available
+        path_reports_summary = ""
+        if hasattr(session, 'path_reports') and session.path_reports:
+            path_reports_summary = "# Available Path Reports\n\n"
+            for path_name, report in session.path_reports.items():
+                # Extract title and basic info from each report
+                title = report.get("title", path_name)
+                path_reports_summary += f"## {title}\n"
+                
+                # Extract a summary if the content is too large
+                content = report.get("content", "")
+                if len(content) > 1000:
+                    path_reports_summary += content[:1000] + "...\n\n"
+                else:
+                    path_reports_summary += content + "\n\n"
+                
+                # Add the path to the report file
+                filepath = report.get("filepath", "")
+                if filepath:
+                    path_reports_summary += f"Report file: {filepath}\n\n"
+            
+            logger.info(f"Added {len(session.path_reports)} path reports to extraction context")
+        
         # Create a prompt to extract foundation options that preserves the project's unique essence
         prompt = f"""
-        Analyze the provided research report for the project and extract all foundation implementation paths. 
+        Analyze the provided research report and path reports for the project and extract all foundation implementation paths. 
         Your task is to identify and extract structured information about each foundation approach described 
-        in the research report, maintaining absolute respect for the project's unique character.
+        in the reports, maintaining absolute respect for the project's unique character.
 
         # Research Report
         {research_report}
+
+        {path_reports_summary}
 
         For each foundation approach, extract the following information:
         1. Name (unique identifier for the foundation)
@@ -1204,11 +1250,12 @@ Please provide the complete revised document in markdown format. Do not include 
         7. Path report reference (path to the detailed report file if available)
 
         ESSENTIAL REQUIREMENTS:
-        - Preserve the EXACT terminology used in the research report
+        - Preserve the EXACT terminology used in the research and path reports
         - Maintain the full diversity of foundation approaches without bias toward conventional solutions
         - Include ALL viable foundation approaches, not just mainstream ones
         - Extract ALL information needed to make an informed decision
         - Preserve what makes each approach unique and distinctive
+        - Link each foundation to its corresponding path report file if available
 
         Format your response as a JSON array following this structure:
         ```json
@@ -1259,6 +1306,19 @@ Please provide the complete revised document in markdown format. Do not include 
                     
                 session.metadata["foundation_options"] = foundations
                 
+                # Match foundations with path reports and update file paths
+                if hasattr(session, 'path_reports') and session.path_reports:
+                    for foundation in foundations:
+                        foundation_name = foundation.get("name", "").lower()
+                        # Try to match with path report names
+                        for path_name, report in session.path_reports.items():
+                            if path_name.lower() in foundation_name or foundation_name in path_name.lower():
+                                # Update the path report reference to use the actual file path
+                                filepath = report.get("filepath", "")
+                                if filepath:
+                                    foundation["path_report"] = filepath
+                                    logger.info(f"Matched foundation '{foundation_name}' with path report '{path_name}'")
+                
                 # Log the number of extracted options
                 logger.info(f"Extracted {len(foundations)} foundation options from research report")
                 
@@ -1296,69 +1356,45 @@ Please provide the complete revised document in markdown format. Do not include 
             None
         )
         
-        if not selected_foundation:
-            logger.warning(f"Foundation '{foundation_name}' not found in session metadata")
-            # Try to load the research report to answer anyway
-            research_report = None
-            if hasattr(session, 'research_report') and session.research_report:
-                research_report = session.research_report
-        else:
-            # Try to load the specific path report if available
-            path_report = selected_foundation.get("path_report", "")
-            from ideasfactory.utils.file_manager import load_document_content
-            
-            try:
-                # Use DocumentManager to find path reports related to the foundation
-                from ideasfactory.documents.document_manager import DocumentManager
-                doc_manager = DocumentManager()
+        # Find the relevant path report for this foundation
+        foundation_path_report = None
+        foundation_key = foundation_name.lower()
+        
+        # First check if we already have path reports in the session
+        if hasattr(session, 'path_reports') and session.path_reports:
+            # Try to match the foundation with a path report by name
+            for path_name, report in session.path_reports.items():
+                path_name_lower = path_name.lower()
                 
+                # Check for match in path name or report title
+                report_title = report.get("title", "").lower()
+                if (foundation_key in path_name_lower or 
+                    path_name_lower in foundation_key or
+                    foundation_key in report_title or
+                    any(term in path_name_lower for term in foundation_key.split()) or
+                    any(term in report_title for term in foundation_key.split())):
+                    foundation_path_report = report.get("content", "")
+                    logger.info(f"Found matching path report for '{foundation_name}' in session.path_reports: {path_name}")
+                    break
+        
+        # If we still don't have a path report and the selected foundation has a path_report field
+        if not foundation_path_report and selected_foundation and "path_report" in selected_foundation:
+            path_report_path = selected_foundation.get("path_report", "")
+            if path_report_path:
                 try:
-                    # First, try to find path reports that match the foundation name
-                    path_reports_dir = "research-report/path-reports"
-                    path_report_docs = doc_manager.list_documents(
-                        document_type=path_reports_dir,
-                        session_id=session_id
-                    )
-                    
-                    # Find a report that matches this foundation (case insensitive)
-                    foundation_key = foundation_name.lower()
-                    matching_docs = []
-                    
-                    for doc in path_report_docs:
-                        # Try to match based on the document title or filename
-                        doc_title = doc.get("title", "").lower()
-                        doc_filename = doc.get("filename", "").lower()
-                        
-                        # Check for matches in title or filename
-                        if (foundation_key in doc_title or 
-                            foundation_key in doc_filename or
-                            any(term in doc_title for term in foundation_key.split()) or
-                            any(term in doc_filename for term in foundation_key.split())):
-                            matching_docs.append(doc)
-                    
-                    if matching_docs:
-                        # Use the first matching document
-                        logger.info(f"Found matching path report: {matching_docs[0].get('filepath')}")
-                        
-                        # Load the document content
-                        if "content" in matching_docs[0]:
-                            research_report = matching_docs[0]["content"]
-                        elif "filepath" in matching_docs[0]:
-                            doc_content = doc_manager.get_document(matching_docs[0]["filepath"])
-                            if doc_content and "content" in doc_content:
-                                research_report = doc_content["content"]
-                            else:
-                                logger.warning(f"Could not extract content from matching document")
-                                research_report = session.research_report
-                    else:
-                        logger.warning(f"No matching path report found for '{foundation_name}'")
-                        research_report = session.research_report
+                    from ideasfactory.documents.document_manager import DocumentManager
+                    doc_manager = DocumentManager()
+                    path_report_doc = doc_manager.get_document(path_report_path)
+                    if path_report_doc and "content" in path_report_doc:
+                        foundation_path_report = path_report_doc["content"]
+                        logger.info(f"Loaded path report from file: {path_report_path}")
                 except Exception as e:
-                    logger.error(f"Error finding path report: {str(e)}")
-                    research_report = session.research_report
-            except Exception as e:
-                logger.error(f"Error loading path report: {str(e)}")
-                research_report = session.research_report
+                    logger.error(f"Error loading path report file: {str(e)}")
+        
+        # If we still don't have a path report, use the overall research report
+        if not foundation_path_report:
+            logger.warning(f"No specific path report found for '{foundation_name}', using general research report")
+            foundation_path_report = session.research_report
         
         # Create the prompt to answer the user's question
         prompt = f"""
@@ -1374,8 +1410,8 @@ Please provide the complete revised document in markdown format. Do not include 
         # Product Requirements Document
         {session.prd_document}
         
-        # Research Report
-        {research_report}
+        # Foundation Research Report
+        {foundation_path_report}
         
         # Foundation Details
         {json.dumps(selected_foundation, indent=2) if selected_foundation else "Foundation details not available"}

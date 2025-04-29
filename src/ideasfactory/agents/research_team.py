@@ -1574,11 +1574,26 @@ class FoundationalResearchTeam:
         # Trim hyphens from start and end
         safe_name = safe_name.strip('-')
         
+        # Store in session documents registry
         self.session_manager.add_document(
             session_id, 
             f"path-report-{safe_name}", 
             report_path
         )
+        
+        # ALSO store in session metadata for direct access in future phases
+        # Get the current session
+        current_session = self.session_manager.get_session(session_id)
+        if current_session:
+            # Initialize path_reports metadata if needed
+            if "path_reports" not in current_session.metadata:
+                current_session.metadata["path_reports"] = {}
+                
+            # Store the path with foundation name as key for easy lookup
+            current_session.metadata["path_reports"][path_name] = report_path
+            
+            # Update the session
+            self.session_manager.update_session(session_id, current_session)
         
         logger.info(f"Path report for '{path_name}' saved to {report_path}")
         return report_path

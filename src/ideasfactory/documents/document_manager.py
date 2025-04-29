@@ -519,6 +519,25 @@ class DocumentManager:
             return []
         
     
+    # Note: We've intentionally removed the get_path_reports method that used directory scanning.
+    # Path reports should always be retrieved from session metadata using the pattern in research_team.py:
+    #
+    # When creating:
+    # path_report_path = document_manager.create_document(...)
+    # current_session = session_manager.get_session(session_id)
+    # if current_session:
+    #     if "path_reports" not in current_session.metadata:
+    #         current_session.metadata["path_reports"] = {}
+    #     current_session.metadata["path_reports"][foundation_name] = path_report_path
+    #     session_manager.update_session(session_id, current_session)
+    #
+    # When retrieving:
+    # current_session = session_manager.get_session(session_id)
+    # if current_session and "path_reports" in current_session.metadata:
+    #     for foundation_name, path in current_session.metadata["path_reports"].items():
+    #         doc = document_manager.get_document(path)
+    #         # Use doc here...
+    
     @handle_async_errors
     async def get_latest_document_by_type(self, document_type: str, session_id: str) -> Optional[Dict[str, Any]]:
         """
