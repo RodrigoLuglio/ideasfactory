@@ -210,7 +210,7 @@ class DocumentReviewScreen(BaseScreen):
                 self.query_one("#proceed_button").label = "Continue to Task List"
         elif self.document_source == DocumentSource.RESEARCH_TEAM:
             self.query_one("#back_button").label = "Back to Research"
-            self.query_one("#proceed_button").label = "Continue to Architecture"
+            self.query_one("#proceed_button").label = "Continue to Foundation Selection"
         # Add more mappings for other agents as they're implemented
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -372,7 +372,12 @@ class DocumentReviewScreen(BaseScreen):
                     # This would go to the Product Owner screen once implemented
                     self.notify("Product Owner phase not yet implemented", severity="warning")
             elif self.document_source == DocumentSource.RESEARCH_TEAM:
-                self.app.action_switch_to_architecture()
+                # After viewing research report, go to foundation selection (Architect 2nd pass)
+                if hasattr(self.app, "action_switch_to_foundation_selection"):
+                    self.app.action_switch_to_foundation_selection()
+                else:
+                    # Fallback to architecture screen if foundation selection is not available
+                    self.app.action_switch_to_architecture()
     
     async def action_proceed(self) -> None:
         """Handle keyboard shortcut for proceeding."""

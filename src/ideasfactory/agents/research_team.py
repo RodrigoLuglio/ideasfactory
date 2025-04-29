@@ -652,7 +652,7 @@ class FoundationalResearchTeam:
         agents = []
         
         # Create foundation discovery agents (to identify potential foundations)
-        for i in range(2):  # Start with 2 discovery agents
+        for i in range(3):  # Start with 3 discovery agents
             agent = ResearchAgent(
                 id=f"foundation-discovery-{i+1}",
                 type=ResearchAgentType.FOUNDATION,
@@ -1566,7 +1566,14 @@ class FoundationalResearchTeam:
         
         # Add the report to the session - the document type needs to be unique
         # Use a safe name derived from the path name for uniqueness
-        safe_name = path_name.lower().replace(" ", "-")
+        import re
+        # Replace any character that isn't alphanumeric, hyphen, or underscore with a hyphen
+        safe_name = re.sub(r'[^\w\-]', '-', path_name.lower().replace(" ", "-"))
+        # Remove any consecutive hyphens
+        safe_name = re.sub(r'-+', '-', safe_name)
+        # Trim hyphens from start and end
+        safe_name = safe_name.strip('-')
+        
         self.session_manager.add_document(
             session_id, 
             f"path-report-{safe_name}", 

@@ -16,7 +16,7 @@ PRDCreationScreen {
   layout: vertical;
 }
 
-DeepResearchScreen {
+ArchitectureScreen {
   layout: vertical;
 }
 
@@ -54,25 +54,6 @@ ProgressBar {
   height: 1;
   margin: 1 2;
 }
-# /* VerticalScroll */
-# VerticalScroll {
-#   width: 100%;
-#   height: 20;
-#   margin: 1 2;
-# }
-
-
-# /* Scrolling containers */
-# #document_scroll {
-#   width: 100%;
-#   height: 100%;
-# }
-
-# #report_header {
-#   text-style: bold;
-#   padding: 1 0 1 1;
-#   color: $primary;
-# }
 
 /* --------------------------------------------------------- */
 
@@ -333,7 +314,7 @@ ChatActions {
 
 #create_prd_button {
   width: 100%;
-  margin: 0;
+  margin: 1 0 0 0;
 }
 
 #results_container {
@@ -353,102 +334,212 @@ ChatActions {
 
 /* Architecture screen specific styles */
 
+/* 1st Step - Research Requirements Document */
+
 #architecture_header {
   text-style: bold;
-  padding: 1 2;
+  padding: 1 0 1 1;
+  color: $primary-darken-3;
 }
 
-# #analysis_header {
-#   text-style: bold;
-#   padding: 1 2;
-# }
-
-# #decision_header {
-#   text-style: bold;
-#   padding: 1 2;
-# }
-
-# #question_header {
-#   text-style: bold;
-#   padding: 1 2;
-# }
-
-#analysis_status {
-  background: $primary-darken-3;
-  color: $text;
-  text-align: center;
-  padding: 1;
-  margin: 1 0;
-  border: solid $border;
-}
-
-#decision_title {
-  background: $primary;
-  color: $text;
-  text-align: center;
-  padding: 1;
-  margin: 1 0;
-  border: solid $border;
-}
-
-#decision_description {
-  background: $surface;
-  color: $text;
-  padding: 1;
-  margin: 1 0;
-  border: solid $border;
-}
-
-#answer_display {
-  background: $panel;
-  color: $text;
-  padding: 1;
-  margin: 1 0;
-  border: solid $border;
-  height: 8;
-}
-
-#options_radioset {
+#architecture_container {
   width: 100%;
-  margin: 1 0;
-  background: $panel;
-  padding: 1;
-  border: solid $border;
+  height: 100%;
+  background: $surface-darken-2;
+  layout: vertical;
+  overflow: auto;
 }
 
-#decision_buttons {
+#documents_container {
+  width: 1fr;
+  height: auto;
   layout: horizontal;
-  align: center middle;
-  width: 100%;
-  padding: 1;
-  margin: 1 0;
+  margin: 1 0 1 0;
+  # border: solid $border;
 }
 
-# #analysis_container {
-#   width: 100%;
-#   height: auto;
-#   layout: vertical;
-#   padding: 1;
-#   margin: 1 2;
-# }
+#view_vision_button {
+  width: 2fr;
+  margin: 0 1 0 1;
+}
+#view_prd_button {
+  width: 1fr;
+}
+#view_report_button {
+  width: 2fr;
+  margin: 0 0 0 1;
+}
+#reload_documents_button {
+  width: 2fr;
+  margin: 0 1 0 1;
+}
 
-# #decision_container {
-#   width: 100%;
-#   height: auto;
-#   layout: vertical;
-#   padding: 1;
-#   margin: 1 2;
-#   border: solid $primary;
-# }
+#research_requirements_container {
+  width: 1fr;
+  height: 1fr;
+  min-height: 15;
+  layout: vertical;
+  padding: 1 0 1 0;
+  background: $surface-darken-1;
+  align: center middle;
+  # border: solid $primary-darken-3;
+}
 
-# #question_container {
-#   width: 100%;
-#   height: auto;
-#   layout: vertical;
-#   padding: 1;
-#   margin: 1 2;
+#research_requirements_header {
+  text-style: bold;
+  color: $text;
+  margin: 0 0 1 1;
+}
+
+#research_requirements_status {
+  width: 1fr;
+  height: auto;
+  background: $primary-darken-3;
+  border: solid $border;
+  color: $text;
+  text-style: bold;
+  text-align: center;
+  margin: 0 1 1 1;
+}
+
+#create_research_requirements_button {
+  width: 1fr;
+  margin: 0 1 1 1;
+}
+#view_research_requirements_button {
+  width: 1fr;
+  margin: 0 1 0 1;
+}
+
+#go_to_research_button {
+  width: 1fr;
+  margin: 0 0 0 1;
+}
+
 
 /* -------------------------------------------------- */
+
+/* Foundation Selection screen specific styles */
+
+ArchitectureFoundationSelectionScreen {
+  layout: vertical;
+}
+
+#foundation-decision-container {
+  width: 100%;
+  height: 100%;
+  background: $surface-darken-2;
+  layout: vertical;
+  overflow: auto;
+}
+
+#foundation-title {
+  text-style: bold;
+  padding: 1 0 1 1;
+  color: $primary-darken-3;
+}
+
+#selection-method-prompt {
+  text-align: center;
+  text-style: bold;
+  margin: 1 0;
+}
+
+#selection-method-container {
+  width: 100%;
+  height: auto;
+  layout: vertical;
+  padding: 1 0;
+  margin: 0 0 1 0;
+  align: center middle;
+}
+
+#review-options-button, #specify-foundation-button {
+  width: 1fr;
+  margin: 1 2;
+}
+
+#foundation-options-container {
+  width: 100%;
+  height: auto;
+  padding: 1;
+  margin: 0 0 1 0;
+  background: $surface-darken-1;
+}
+
+#options-title {
+  text-style: bold;
+  text-align: center;
+  margin-bottom: 1;
+}
+
+#options-scroll {
+  width: 100%;
+  height: auto;
+  max-height: 15;
+}
+
+#foundation-options {
+  width: 100%;
+  height: auto;
+}
+
+#view-details-button {
+  width: 100%;
+  margin: 1 0 0 0;
+}
+
+#user-foundation-container {
+  width: 100%;
+  height: auto;
+  min-height: 10;
+  padding: 1;
+  margin: 0 0 1 0;
+  background: $surface-darken-1;
+}
+
+#user-foundation-title {
+  text-style: bold;
+  text-align: center;
+  margin-bottom: 1;
+}
+
+#foundation-input {
+  width: 100%;
+  height: auto;
+  min-height: 5;
+  background: $primary-darken-1;
+  color: $text;
+}
+
+#submit-foundation-button {
+  width: 100%;
+  margin: 1 0 0 0;
+}
+
+#foundation-details-container {
+  width: 100%;
+  height: 1fr;
+  min-height: 40;
+  background: $surface-darken-1;
+  overflow: auto;
+}
+
+#action-buttons {
+  width: 100%;
+  height: auto;
+  layout: horizontal;
+  padding: 1;
+}
+
+#back-button {
+  width: auto;
+}
+
+#continue-button {
+  width: 1fr;
+  margin: 0 0 0 1;
+}
 
 /* Research screen specific styles */
 

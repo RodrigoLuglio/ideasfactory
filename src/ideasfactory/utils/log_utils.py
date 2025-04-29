@@ -2,12 +2,13 @@
 Logging utilities for IdeasFactory.
 
 This module provides utilities for safely logging data, particularly
-sanitizing sensitive information like API keys.
+sanitizing sensitive information like API keys, as well as cost tracking functionality.
 """
 
 import os
 import re
-from typing import Dict, Any
+import logging
+from typing import Dict, Any, Optional
 
 # List of environment variable name patterns that might contain sensitive data
 SENSITIVE_ENV_PATTERNS = [
@@ -66,4 +67,8 @@ def get_safe_env_vars() -> Dict[str, Any]:
         Dictionary with environment variables where sensitive data is redacted
     """
     return sanitize_environment_variables(dict(os.environ))
+
+
+# This code was simplified. The LiteLLM cost tracking functionality 
+# is now implemented directly in llm_utils.py with a simpler approach.
 

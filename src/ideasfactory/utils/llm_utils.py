@@ -18,6 +18,28 @@ from ideasfactory.utils.error_handler import handle_errors, handle_async_errors
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="./litellm_log", level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
+# Simple cost tracking callback
+def log_cost_callback(kwargs, completion_response, start_time, end_time):
+    """Simple callback to log costs in a readable format"""
+    try:
+        response_cost = kwargs.get("response_cost", 0)
+        model = kwargs.get("model", "unknown_model")
+        
+        # Calculate time taken in seconds, handling both float and timedelta objects
+        if isinstance(end_time, float) and isinstance(start_time, float):
+            time_taken = end_time - start_time
+        else:
+            # Convert to seconds if they're timedelta objects
+            time_taken = (end_time - start_time).total_seconds()
+        
+        # Format in a more readable way
+        logger.info(f"COST: ${response_cost:.6f} | MODEL: {model} | TIME: {time_taken:.2f}s")
+    except Exception as e:
+        logger.error(f"Error logging cost: {str(e)}")
+
+# Register the cost tracking callback with LiteLLM
+litellm.success_callback = [log_cost_callback]
+
 # Default model configuration
 DEFAULT_MODEL = os.environ.get("IDEASFACTORY_DEFAULT_MODEL", "gpt-4o")
 DEFAULT_TEMPERATURE = float(os.environ.get("IDEASFACTORY_DEFAULT_TEMPERATURE", "0.7"))

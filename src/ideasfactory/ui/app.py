@@ -20,6 +20,7 @@ from ideasfactory.ui.screens.brainstorm_screen import BrainstormScreen
 from ideasfactory.ui.screens.document_review_screen import DocumentReviewScreen, DocumentSource
 from ideasfactory.ui.screens.prd_creation_screen import PRDCreationScreen
 from ideasfactory.ui.screens.architecture_screen import ArchitectureScreen
+from ideasfactory.ui.screens.architecture_foundation_selection_screen import ArchitectureFoundationSelectionScreen
 from ideasfactory.ui.screens.research_screen import ResearchScreen
 from ideasfactory.agents.business_analyst import BusinessAnalyst
 from ideasfactory.agents.project_manager import ProjectManager
@@ -67,6 +68,7 @@ class IdeasFactoryApp(App):
         self.document_review_screen = None
         self.prd_creation_screen = None
         self.architecture_screen = None
+        self.architecture_foundation_selection_screen = None
         self.research_screen = None
 
     # Add get_current_session method that all screens can use
@@ -86,6 +88,7 @@ class IdeasFactoryApp(App):
         self.document_review_screen = DocumentReviewScreen()
         self.prd_creation_screen = PRDCreationScreen()
         self.architecture_screen = ArchitectureScreen()
+        self.architecture_foundation_selection_screen = ArchitectureFoundationSelectionScreen()
         self.research_screen = ResearchScreen()
         
         # Install screens
@@ -93,6 +96,7 @@ class IdeasFactoryApp(App):
         self.install_screen(self.document_review_screen, name="document_review_screen")
         self.install_screen(self.prd_creation_screen, name="prd_creation_screen")
         self.install_screen(self.architecture_screen, name="architecture_screen")
+        self.install_screen(self.architecture_foundation_selection_screen, name="architecture_foundation_selection_screen")
         self.install_screen(self.research_screen, name="research_screen")
         
         # Show the brainstorm screen by default
@@ -156,6 +160,23 @@ class IdeasFactoryApp(App):
                 self.push_screen("research_screen")
         except Exception as e:
             logger.error(f"Error switching to research screen: {e}")
+            self.notify(f"Error switching screens: {str(e)}", severity="error")
+            
+    @handle_errors
+    def action_switch_to_foundation_selection(self) -> None:
+        """Switch to the Foundation Selection screen."""
+        try:
+            # Safely switch to screen using push_screen
+            if self.screen.name != "architecture_foundation_selection_screen":
+                self.push_screen("architecture_foundation_selection_screen")
+                
+                # Set the session for the screen
+                current_session_id = self.get_current_session_id()
+                if current_session_id:
+                    self.architecture_foundation_selection_screen.set_session(current_session_id)
+                    
+        except Exception as e:
+            logger.error(f"Error switching to foundation selection screen: {e}")
             self.notify(f"Error switching screens: {str(e)}", severity="error")
     
     # Property to access current session ID

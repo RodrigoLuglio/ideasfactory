@@ -358,6 +358,88 @@ class Architect:
         session.research_requirements = response.content
         
         return response.content
+    
+    @handle_async_errors
+    async def revise_research_requirements(self, session_id: str, feedback: str) -> Optional[str]:
+        """
+        Revise the technical research requirements document based on feedback.
+        
+        Args:
+            session_id: Identifier of the session
+            feedback: Feedback for the research requirements document
+            
+        Returns:
+            The revised research requirements content or None if session not found
+        """
+        # Get the session
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session not found: {session_id}")
+            return None
+        
+        # Ensure we have a research requirements document
+        if not session.research_requirements:
+            logger.error(f"No research requirements document available for session {session_id}")
+            return None
+        
+        # Create the revision prompt
+        revision_prompt = f"""
+        Please revise the Technical Research Requirements document based on this feedback:
+        
+        {feedback}
+        
+        When revising, maintain the focus on identifying all technical components that need research before architectural decisions can be made. Ensure your revised document:
+        
+        1. Preserves the unique aspects of the project vision
+        2. Provides clear, focused research questions for each technical component
+        3. Offers guidance on what technical approaches to explore
+        4. Ensures comprehensive coverage of all technical aspects
+        
+        Please provide the complete revised document in markdown format.
+        """
+        
+        # Create the message
+        revision_request = create_user_prompt(revision_prompt)
+        session.messages.append(revision_request)
+        
+        # Get the agent's response
+        response = await send_prompt(session.messages)
+        
+        # Add the response to the session
+        assistant_message = create_assistant_prompt(response.content)
+        session.messages.append(assistant_message)
+        
+        # Update the research requirements
+        session.research_requirements = response.content
+        
+        return response.content
+    
+    @handle_async_errors
+    async def complete_session(self, session_id: str) -> bool:
+        """
+        Complete the architecture definition session.
+        
+        Args:
+            session_id: Identifier of the session
+            
+        Returns:
+            True if the session was completed, False otherwise
+        """
+        # Get the session
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session not found: {session_id}")
+            return False
+        
+        # Update the session state
+        session.state = SessionState.COMPLETED
+        
+        return True
+
+    # TODO Think on how should we improve/adapt/replace the methods from here until the end of the file to properly implement our new 3-step architecture workflow. 
+    # TODO The first step is the generation of the research requirements that is already implemented above
+    # TODO The second step is the decision making with the user on which of the foundational paths from the 1st step of research results to use or gather the foundation inforamtion from the user in case he already knows with what foundation he wants to implement his project on, and generate a complete generic architecture document to identify and inform the research team everything that needs to be researched to gather the technology options for the next step.
+    # TODO The third step is after the research team provides the technology research result with all technologies and technology stack options make the decisions on which to use with the user, again, unless the user already know what technologies and stack he wants, in that case we should gather the information from him. And generate the final complete project architecture document with each and every information needed to bring the project to life from beggining to end. The document must be completely tailored to the unique project that emerged from the original idea following all oour project's philosophy and principles.
 
     @handle_async_errors    
     async def start_analysis(self, session_id: str) -> Optional[List[ArchitecturalDecision]]:
@@ -869,61 +951,6 @@ The document must be comprehensive and leave no requirements or features unaddre
         return response.content
     
     @handle_async_errors
-    async def revise_research_requirements(self, session_id: str, feedback: str) -> Optional[str]:
-        """
-        Revise the technical research requirements document based on feedback.
-        
-        Args:
-            session_id: Identifier of the session
-            feedback: Feedback for the research requirements document
-            
-        Returns:
-            The revised research requirements content or None if session not found
-        """
-        # Get the session
-        session = self.sessions.get(session_id)
-        if not session:
-            logger.error(f"Session not found: {session_id}")
-            return None
-        
-        # Ensure we have a research requirements document
-        if not session.research_requirements:
-            logger.error(f"No research requirements document available for session {session_id}")
-            return None
-        
-        # Create the revision prompt
-        revision_prompt = f"""
-        Please revise the Technical Research Requirements document based on this feedback:
-        
-        {feedback}
-        
-        When revising, maintain the focus on identifying all technical components that need research before architectural decisions can be made. Ensure your revised document:
-        
-        1. Preserves the unique aspects of the project vision
-        2. Provides clear, focused research questions for each technical component
-        3. Offers guidance on what technical approaches to explore
-        4. Ensures comprehensive coverage of all technical aspects
-        
-        Please provide the complete revised document in markdown format.
-        """
-        
-        # Create the message
-        revision_request = create_user_prompt(revision_prompt)
-        session.messages.append(revision_request)
-        
-        # Get the agent's response
-        response = await send_prompt(session.messages)
-        
-        # Add the response to the session
-        assistant_message = create_assistant_prompt(response.content)
-        session.messages.append(assistant_message)
-        
-        # Update the research requirements
-        session.research_requirements = response.content
-        
-        return response.content
-    
-    @handle_async_errors
     async def revise_document(self, session_id: str, feedback: str) -> Optional[str]:
         """
         Revise the architecture document based on feedback.
@@ -982,24 +1009,654 @@ Please provide the complete revised document in markdown format. Do not include 
         
         return response.content
     
+    # Methods for the Architect's 2nd pass (foundation selection)
+    
     @handle_async_errors
-    async def complete_session(self, session_id: str) -> bool:
+    async def create_generic_architecture_document(self, session_id: str, foundation_approach: Dict[str, Any]) -> Optional[str]:
         """
-        Complete the architecture definition session.
+        Create a generic architecture document based on the selected foundation approach,
+        without mentioning any specific technologies.
         
         Args:
-            session_id: Identifier of the session
+            session_id: Session ID
+            foundation_approach: Selected foundation approach details
             
         Returns:
-            True if the session was completed, False otherwise
+            The generated architecture document content
         """
-        # Get the session
         session = self.sessions.get(session_id)
         if not session:
-            logger.error(f"Session not found: {session_id}")
-            return False
+            logger.error(f"Session {session_id} not found")
+            return None
         
-        # Update the session state
-        session.state = SessionState.COMPLETED
+        # Get the project vision, PRD, and research report
+        project_vision = session.project_vision
+        prd_document = session.prd_document
         
-        return True
+        # Load the specific path report for this foundation if available
+        path_report = foundation_approach.get("path_report", "")
+        foundation_name = foundation_approach.get("name", "Selected Foundation")
+        specific_path_report = None
+        
+        if path_report:
+            from ideasfactory.utils.file_manager import load_document_content
+            try:
+                # Extract the path from the full path including "output/" prefix
+                if "path-reports" in path_report:
+                    parts = path_report.split("/")
+                    path_report_file = parts[-1]
+                    specific_path_report = await load_document_content(session_id, "research-report/path-reports/" + path_report_file)
+            except Exception as e:
+                logger.error(f"Error loading path report: {str(e)}")
+                # Continue without the specific path report
+                pass
+        
+        # Get conversation history if this was a user-defined foundation
+        conversation_history = []
+        is_user_defined = foundation_approach.get("id", "").startswith("user-")
+        
+        if is_user_defined and "foundation_conversation" in session.metadata:
+            conversation_history = session.metadata["foundation_conversation"]
+        
+        # Create a comprehensive prompt for generating the generic architecture document
+        prompt = f"""
+        You are creating a comprehensive GENERIC architecture document for a project based on the selected foundation approach.
+        This document must detail ALL aspects of the implementation without naming any specific technologies or tech stacks.
+        Your focus is on creating an architecture that preserves the unique essence of the project while providing complete
+        guidance for the next research phase.
+
+        # Project Vision
+        {project_vision}
+
+        # Product Requirements Document (PRD)
+        {prd_document}
+
+        # Selected Foundation Approach
+        {json.dumps(foundation_approach, indent=2)}
+
+        # Specific Path Report (if available):
+        {specific_path_report if specific_path_report else ""}
+
+        # User Foundation Conversation (if available):
+        {json.dumps(conversation_history, indent=2) if is_user_defined and conversation_history else ""}
+
+        Your task is to create a COMPREHENSIVE architecture document that:
+
+        1. COMPLETELY captures all aspects needed to implement the project from foundation to user-facing features
+        2. Maintains ABSOLUTE TECHNOLOGY NEUTRALITY (no specific technologies, frameworks, libraries, or tech stacks)
+        3. Preserves the PROJECT'S UNIQUE CHARACTER throughout the architecture
+        4. Addresses ALL functional requirements from the PRD
+        5. Provides complete guidance for the next phase of technology research
+
+        The document should include:
+
+        1. Introduction and Background
+           - Overview of the project and its core purpose
+           - Summary of the selected foundation approach and why it fits the project
+
+        2. Architecture Principles and Goals
+           - Core architectural principles driving the design
+           - Quality attributes prioritized in this architecture
+
+        3. System Overview
+           - High-level architecture diagram (described in text)
+           - Key components and their responsibilities
+           - System boundaries and external interfaces
+
+        4. Component Architecture
+           - Detailed description of each component/module
+           - Interfaces and communication patterns
+           - Data management approach
+           - State management and persistence strategy
+
+        5. Functional Capabilities
+           - How each project requirement is addressed by the architecture
+           - User interaction flows and behaviors
+           - Cross-cutting concerns (security, performance, etc.)
+
+        6. Technical Requirements
+           - Clear generic specifications that will drive technology selection
+           - Performance requirements
+           - Security requirements
+           - Scalability and flexibility considerations
+
+        7. Implementation Considerations
+           - Development approach
+           - Testing strategy
+           - Deployment considerations
+
+        8. Areas for Technology Research (CRITICAL SECTION)
+           - Specific aspects of the architecture that require technology decisions
+           - Categories of technologies to explore for each component
+           - Criteria for evaluating technology options
+
+        CRITICAL REQUIREMENT: ABSOLUTELY NO MENTIONS OF SPECIFIC TECHNOLOGIES, FRAMEWORKS, LIBRARIES OR TECH STACKS!
+        Instead, describe the TYPES and CHARACTERISTICS of technologies needed. For example:
+        - Use a reactive data management system instead of naming specific state management libraries
+        - Implement a document-oriented storage system instead of naming specific databases
+        - Apply a component-based UI architecture instead of naming specific UI frameworks
+
+        Format the document in Markdown and ensure it provides complete, technology-neutral guidance that enables the next phase of detailed technology research.
+        """
+        
+        # Initialize the session if needed
+        if not session.messages:
+            session.messages = [self.system_prompt]
+        
+        # Create the document prompt message
+        document_request = create_user_prompt(prompt)
+        session.messages.append(document_request)
+        
+        # Get the agent's response
+        response = await send_prompt(session.messages)
+        
+        # Add the response to the session
+        assistant_message = create_assistant_prompt(response.content)
+        session.messages.append(assistant_message)
+        
+        # Store the document in the session
+        session.architecture_document = response.content
+        
+        # Update session state to reflect document creation
+        session.state = SessionState.DOCUMENT_REVIEW
+        
+        # Store the selected foundation in session metadata
+        if not hasattr(session, 'metadata') or session.metadata is None:
+            session.metadata = {}
+            
+        session.metadata["selected_foundation"] = foundation_approach
+        
+        return response.content
+
+    @handle_async_errors
+    async def extract_foundation_options(self, session_id: str, research_report: str) -> List[Dict[str, Any]]:
+        """
+        Extract foundation options from the research report.
+        
+        Args:
+            session_id: Session ID
+            research_report: Content of the research report
+            
+        Returns:
+            List of foundation options
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session {session_id} not found")
+            return []
+        
+        # Create a prompt to extract foundation options that preserves the project's unique essence
+        prompt = f"""
+        Analyze the provided research report for the project and extract all foundation implementation paths. 
+        Your task is to identify and extract structured information about each foundation approach described 
+        in the research report, maintaining absolute respect for the project's unique character.
+
+        # Research Report
+        {research_report}
+
+        For each foundation approach, extract the following information:
+        1. Name (unique identifier for the foundation)
+        2. Description (concise explanation of the foundation approach)
+        3. Key characteristics (what makes this foundation distinctive)
+        4. Score or compatibility rating with the project vision (if available)
+        5. Primary advantages (key benefits of this approach)
+        6. Primary considerations (potential challenges or trade-offs)
+        7. Path report reference (path to the detailed report file if available)
+
+        ESSENTIAL REQUIREMENTS:
+        - Preserve the EXACT terminology used in the research report
+        - Maintain the full diversity of foundation approaches without bias toward conventional solutions
+        - Include ALL viable foundation approaches, not just mainstream ones
+        - Extract ALL information needed to make an informed decision
+        - Preserve what makes each approach unique and distinctive
+
+        Format your response as a JSON array following this structure:
+        ```json
+        [
+          {{
+            "id": "foundation-1",
+            "name": "Foundation Approach Name",
+            "description": "Concise description of the foundation approach",
+            "characteristics": ["Key characteristic 1", "Key characteristic 2", "Key characteristic 3"],
+            "compatibility_score": 85,  // 0-100 score if available or calculated from report data
+            "advantages": ["Primary advantage 1", "Primary advantage 2"],
+            "considerations": ["Consideration 1", "Consideration 2"],
+            "path_report": "path/to/report-file.md" // If available
+          }},
+          // Additional foundation approaches...
+        ]
+        ```
+
+        Only return the JSON array without any additional text or explanation.
+        """
+        
+        # Create messages for extraction
+        extraction_messages = [
+            self.system_prompt,
+            create_user_prompt(prompt)
+        ]
+        
+        # Get extraction response
+        response = await send_prompt(extraction_messages)
+        
+        # Parse the JSON response
+        try:
+            import re
+            import json
+            
+            # Look for JSON in the response
+            json_match = re.search(r'```json\s*(.*?)\s*```', response.content, re.DOTALL)
+            if not json_match:
+                json_match = re.search(r'(\[\s*\{.*\}\s*\])', response.content, re.DOTALL)
+            
+            if json_match:
+                json_str = json_match.group(1)
+                foundations = json.loads(json_str)
+                
+                # Store in session for future use
+                if not hasattr(session, 'metadata') or session.metadata is None:
+                    session.metadata = {}
+                    
+                session.metadata["foundation_options"] = foundations
+                
+                # Log the number of extracted options
+                logger.info(f"Extracted {len(foundations)} foundation options from research report")
+                
+                return foundations
+            else:
+                logger.error("Failed to extract JSON from response")
+                return []
+        
+        except Exception as e:
+            logger.error(f"Error parsing foundation options: {str(e)}")
+            return []
+
+    @handle_async_errors
+    async def get_foundation_details(self, session_id: str, foundation_name: str, question: str) -> str:
+        """
+        Get more details about a specific foundation based on a user question.
+        
+        Args:
+            session_id: Session ID
+            foundation_name: Name of the foundation to get details for
+            question: User's question about the foundation
+            
+        Returns:
+            Detailed response about the foundation
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session {session_id} not found")
+            return "I'm sorry, but I couldn't find your session information. Please try again later."
+        
+        # First check if foundation exists in session metadata
+        foundation_options = session.metadata.get("foundation_options", [])
+        selected_foundation = next(
+            (f for f in foundation_options if f.get("name") == foundation_name), 
+            None
+        )
+        
+        if not selected_foundation:
+            logger.warning(f"Foundation '{foundation_name}' not found in session metadata")
+            # Try to load the research report to answer anyway
+            research_report = None
+            if hasattr(session, 'research_report') and session.research_report:
+                research_report = session.research_report
+        else:
+            # Try to load the specific path report if available
+            path_report = selected_foundation.get("path_report", "")
+            from ideasfactory.utils.file_manager import load_document_content
+            
+            try:
+                # Use DocumentManager to find path reports related to the foundation
+                from ideasfactory.documents.document_manager import DocumentManager
+                doc_manager = DocumentManager()
+                
+                try:
+                    # First, try to find path reports that match the foundation name
+                    path_reports_dir = "research-report/path-reports"
+                    path_report_docs = doc_manager.list_documents(
+                        document_type=path_reports_dir,
+                        session_id=session_id
+                    )
+                    
+                    # Find a report that matches this foundation (case insensitive)
+                    foundation_key = foundation_name.lower()
+                    matching_docs = []
+                    
+                    for doc in path_report_docs:
+                        # Try to match based on the document title or filename
+                        doc_title = doc.get("title", "").lower()
+                        doc_filename = doc.get("filename", "").lower()
+                        
+                        # Check for matches in title or filename
+                        if (foundation_key in doc_title or 
+                            foundation_key in doc_filename or
+                            any(term in doc_title for term in foundation_key.split()) or
+                            any(term in doc_filename for term in foundation_key.split())):
+                            matching_docs.append(doc)
+                    
+                    if matching_docs:
+                        # Use the first matching document
+                        logger.info(f"Found matching path report: {matching_docs[0].get('filepath')}")
+                        
+                        # Load the document content
+                        if "content" in matching_docs[0]:
+                            research_report = matching_docs[0]["content"]
+                        elif "filepath" in matching_docs[0]:
+                            doc_content = doc_manager.get_document(matching_docs[0]["filepath"])
+                            if doc_content and "content" in doc_content:
+                                research_report = doc_content["content"]
+                            else:
+                                logger.warning(f"Could not extract content from matching document")
+                                research_report = session.research_report
+                    else:
+                        logger.warning(f"No matching path report found for '{foundation_name}'")
+                        research_report = session.research_report
+                except Exception as e:
+                    logger.error(f"Error finding path report: {str(e)}")
+                    research_report = session.research_report
+            except Exception as e:
+                logger.error(f"Error loading path report: {str(e)}")
+                research_report = session.research_report
+        
+        # Create the prompt to answer the user's question
+        prompt = f"""
+        You are having a conversation with a user about the foundation approach named "{foundation_name}" for their project.
+        The user is asking: "{question}"
+        
+        Based on the project details and research information, provide a thorough, accurate response that helps the user 
+        understand this foundation approach and make an informed decision.
+        
+        # Project Vision
+        {session.project_vision}
+        
+        # Product Requirements Document
+        {session.prd_document}
+        
+        # Research Report
+        {research_report}
+        
+        # Foundation Details
+        {json.dumps(selected_foundation, indent=2) if selected_foundation else "Foundation details not available"}
+        
+        Your response should:
+        1. Directly answer the user's question with specific details
+        2. Provide relevant context from the research
+        3. Highlight how this foundation approach aligns with the project's unique vision
+        4. Present balanced information without bias toward this approach
+        5. Include advantages, considerations, and other factors relevant to the question
+        
+        Answer in a conversational yet informative tone, focusing on what's most relevant to the user's question.
+        """
+        
+        # Create temporary messages for this interaction
+        interaction_messages = [
+            self.system_prompt,
+            create_user_prompt(prompt)
+        ]
+        
+        # Get the response
+        response = await send_prompt(interaction_messages)
+        
+        return response.content
+    
+    @handle_async_errors
+    async def refine_user_foundation(self, session_id: str, foundation_id: str, user_response: str) -> str:
+        """
+        Refine the user-defined foundation based on their responses to questions.
+        
+        Args:
+            session_id: Session ID
+            foundation_id: ID of the foundation being refined
+            user_response: User's response to questions
+            
+        Returns:
+            Next response in the conversation to further refine the foundation
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session {session_id} not found")
+            return "I'm sorry, but I couldn't find your session information. Please try again later."
+        
+        # Get the current user foundation from metadata
+        user_foundation = session.metadata.get("user_foundation", {})
+        conversation_history = session.metadata.get("foundation_conversation", [])
+        
+        # Add this exchange to the conversation history
+        if not "foundation_conversation" in session.metadata:
+            session.metadata["foundation_conversation"] = []
+            
+        session.metadata["foundation_conversation"].append({
+            "user": user_response
+        })
+        
+        # Create the prompt to continue the conversation
+        prompt = f"""
+        You are having a conversation with a user to refine their custom foundation approach for their project.
+        The user has provided more details in response to your previous questions.
+        
+        # Project Vision
+        {session.project_vision}
+        
+        # Product Requirements Document
+        {session.prd_document}
+        
+        # Current Understanding of User's Foundation Approach
+        {json.dumps(user_foundation, indent=2)}
+        
+        # User's Latest Response
+        {user_response}
+        
+        Your task is to:
+        1. Analyze the user's response and extract any new information about their foundation approach
+        2. Update your understanding of their approach based on this new information
+        3. Identify what aspects of the foundation are still unclear or need elaboration
+        4. Continue the conversation with follow-up questions or a summary
+        
+        When generating your response:
+        - Acknowledge the information the user has provided
+        - Update your mental model of their foundation approach
+        - Either ask focused follow-up questions about remaining unclear aspects
+        - OR if you have a complete picture, provide a summary of your understanding
+        
+        If you believe you have a complete understanding of the user's foundation approach, include a JSON object with the updated foundation details in a code block that won't be shown to the user:
+        
+        <foundation_update>
+        {{
+          "complete": true,
+          "foundation": {{
+            // Updated foundation details
+          }}
+        }}
+        </foundation_update>
+        
+        If you still need more information, include what aspects are still missing:
+        
+        <foundation_update>
+        {{
+          "complete": false,
+          "foundation": {{
+            // Updated foundation details with what you know so far
+          }},
+          "missing_aspects": [
+            "Aspect 1 that still needs clarification",
+            "Aspect 2 that still needs clarification"
+          ]
+        }}
+        </foundation_update>
+        """
+        
+        # Create temporary messages for this interaction
+        interaction_messages = [
+            self.system_prompt,
+            create_user_prompt(prompt)
+        ]
+        
+        # Get the response
+        response = await send_prompt(interaction_messages)
+        response_content = response.content
+        
+        # Process the foundation update if included
+        import re
+        foundation_update_match = re.search(r'<foundation_update>(.*?)</foundation_update>', response_content, re.DOTALL)
+        
+        if foundation_update_match:
+            try:
+                update_json = foundation_update_match.group(1).strip()
+                update_data = json.loads(update_json)
+                
+                # Update the foundation in session metadata
+                if "foundation" in update_data:
+                    session.metadata["user_foundation"] = update_data["foundation"]
+                
+                # Check if the foundation definition is complete
+                if update_data.get("complete", False):
+                    session.metadata["foundation_complete"] = True
+                else:
+                    session.metadata["foundation_complete"] = False
+                    
+                # Store missing aspects if any
+                if "missing_aspects" in update_data:
+                    session.metadata["foundation_missing_aspects"] = update_data["missing_aspects"]
+                
+                # Remove the hidden update from the user-visible response
+                response_content = re.sub(r'<foundation_update>.*?</foundation_update>', '', response_content, flags=re.DOTALL).strip()
+            except Exception as e:
+                logger.error(f"Error processing foundation update: {str(e)}")
+        
+        # Add the assistant's response to conversation history
+        session.metadata["foundation_conversation"].append({
+            "assistant": response_content
+        })
+        
+        return response_content
+
+    @handle_async_errors
+    async def process_user_foundation(self, session_id: str, foundation_description: str) -> Dict[str, Any]:
+        """
+        Process a user-specified foundation approach.
+        
+        Args:
+            session_id: Session ID
+            foundation_description: User's description of their foundation approach
+            
+        Returns:
+            Processed foundation data with questions for refinement
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session {session_id} not found")
+            return {"status": "error", "message": "Session not found"}
+        
+        # Get the project vision and PRD from the session
+        project_vision = session.project_vision
+        prd_document = session.prd_document
+        
+        # Create a prompt to process the user's foundation while preserving uniqueness
+        prompt = f"""
+        You are helping structure a user-defined foundation approach for a project.
+        Analyze this foundation description and extract structured information while 
+        identifying areas that need further clarification to ensure comprehensive architecture design.
+
+        # Project Vision
+        {project_vision}
+
+        # Product Requirements Document
+        {prd_document}
+
+        # User-Defined Foundation Approach
+        {foundation_description}
+
+        Your task is to:
+        1. Extract and structure the information about this foundation approach
+        2. Identify specific areas that need further clarification or elaboration
+        3. Generate targeted questions to help refine the foundation approach
+
+        Create a JSON response that:
+        - Preserves the unique character and specific terminology of the user's description
+        - Does not impose conventional patterns or assumptions
+        - Identifies the actual information provided and what's missing
+        - Generates questions that help define implementation aspects without biasing toward particular technologies
+
+        CRITICAL: Your questions should EXPLORE the foundation further, not DIRECT it toward any specific implementation.
+
+        Structure your response as a JSON object following this format:
+        ```json
+        {{
+          "foundation": {{
+            "id": "user-defined",
+            "name": "User-Defined Foundation Name", // Extract from description or provide suitable name
+            "description": "Structured description based on user input",
+            "characteristics": ["Identified characteristic 1", "Identified characteristic 2"],
+            "challenges": ["Potential challenge 1", "Potential challenge 2"],
+            "components": ["Component 1", "Component 2"] // Components mentioned explicitly in the description
+          }},
+          "questions": [
+            "Question about aspect 1 that needs clarification?",
+            "Question about aspect 2 that needs clarification?"
+          ],
+          "missing_elements": [
+            "Element 1 that needs to be defined for a complete foundation",
+            "Element 2 that needs to be defined for a complete foundation"
+          ]
+        }}
+        ```
+
+        Only return the JSON object without any additional text or explanation.
+        """
+        
+        # Create messages for processing
+        processing_messages = [
+            self.system_prompt,
+            create_user_prompt(prompt)
+        ]
+        
+        # Get processing response
+        response = await send_prompt(processing_messages)
+        
+        # Parse the JSON response
+        try:
+            import re
+            import json
+            
+            # Look for JSON in the response
+            json_match = re.search(r'```json\s*(.*?)\s*```', response.content, re.DOTALL)
+            if not json_match:
+                json_match = re.search(r'(\{.*\})', response.content, re.DOTALL)
+            
+            if json_match:
+                json_str = json_match.group(1)
+                result = json.loads(json_str)
+                
+                # Format the questions as a single string including both questions and missing elements
+                questions_list = result.get("questions", [])
+                missing_elements = result.get("missing_elements", [])
+                
+                # Create a comprehensive list of questions
+                all_questions = questions_list[:]
+                for element in missing_elements:
+                    all_questions.append(f"Could you elaborate on {element}?")
+                
+                questions = "\n".join([f"{i+1}. {q}" for i, q in enumerate(all_questions)])
+                
+                # Store in session for future use
+                if not hasattr(session, 'metadata') or session.metadata is None:
+                    session.metadata = {}
+                    
+                if "user_foundation" not in session.metadata:
+                    session.metadata["user_foundation"] = result.get("foundation", {})
+                
+                # Return the processed data
+                return {
+                    "status": "success",
+                    "foundation": result.get("foundation", {}),
+                    "questions": questions
+                }
+            else:
+                logger.error("Failed to extract JSON from response")
+                return {"status": "error", "message": "Failed to process foundation"}
+        
+        except Exception as e:
+            logger.error(f"Error processing user foundation: {str(e)}")
+            return {"status": "error", "message": f"Error: {str(e)}"}

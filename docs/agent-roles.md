@@ -28,7 +28,9 @@ This document describes the specialized agent roles in the enhanced IdeasFactory
 - **Critical Skills**: Requirements analysis, product thinking, user empathy
 - **Model Requirements**: Strong analytical thinking, domain understanding
 
-### 3. Architect (First Pass)
+### 3. Architect
+
+#### 3a. Architect (First Pass)
 - **Primary Responsibility**: Identify technical components needing research and direct multi-paradigm exploration
 - **Key Capabilities**:
   - Analyze requirements to determine technical needs
@@ -43,48 +45,74 @@ This document describes the specialized agent roles in the enhanced IdeasFactory
 - **Critical Skills**: Technical breadth, systems thinking, multi-paradigm awareness, innovation mindset
 - **Model Requirements**: Technical knowledge, analytical reasoning, creative thinking
 
+#### 3b. Architect (Second Pass)
+- **Primary Responsibility**: Select foundation approach and create generic architecture document
+- **Key Capabilities**:
+  - Extract foundation options from research results
+  - Present options for user selection
+  - Guide users through foundation exploration via interactive chat
+  - Support user-defined custom foundations
+  - Create technology-neutral generic architecture document
+  - Preserve project uniqueness in architectural decisions
+  - Define architectural structure for second research phase
+- **Inputs**: Foundation Research Report, PRD, Vision Document
+- **Outputs**: Selected Foundation Approach, Generic Architecture Document
+- **Critical Skills**: Option analysis, architectural design, technology-neutral thinking
+- **Model Requirements**: Technical design capabilities, explanation skills, decision-making
+
+#### 3c. Architect (Third Pass)
+- **Primary Responsibility**: Select technologies and create complete architecture document
+- **Key Capabilities**:
+  - Analyze technology research without biasing toward conventional choices
+  - Select technologies based on project-specific needs
+  - Create tailored architecture document structure unique to the project
+  - Define complete implementation architecture
+  - Preserve project uniqueness in technology decisions
+  - Avoid imposing industry-standard patterns where not appropriate
+- **Inputs**: Technology Research Report, Generic Architecture, Previous Documents
+- **Outputs**: Complete Architecture Document
+- **Critical Skills**: Technology evaluation, architectural design, innovation preservation
+- **Model Requirements**: Technical expertise, design capabilities, unbiased decision-making
+
 ### 4. Research Team
-- **Primary Responsibility**: Conduct deep research on all aspects of implementation
 
-#### 4a. Market Researcher
+#### 4a. Research Team (First Pass - Foundation Research)
+- **Primary Responsibility**: Explore foundational architectural approaches
 - **Key Capabilities**:
-  - Analyze competitive landscape
-  - Identify market trends and opportunities
-  - Uncover user needs and preferences
-- **Critical Skills**: Market analysis, trend spotting, competitive intelligence
-
-#### 4b. Technical Researcher
-- **Key Capabilities**:
-  - Explore implementation options for each technical component
-  - Research frameworks, libraries, platforms, and tools
-  - Compare approaches across multiple dimensions
-  - Identify unconventional technical solutions
-- **Critical Skills**: Technical breadth, research depth, option analysis
-
-#### 4c. Domain Expert
-- **Key Capabilities**:
-  - Provide field-specific insights
-  - Identify domain best practices
-  - Recognize domain-specific challenges
-- **Critical Skills**: Domain knowledge, pattern recognition
-
-- **Inputs**: PRD and Technical Research Requirements
-- **Outputs**: Comprehensive Research Document
+  - Use dimensional research methodology to explore foundation options
+  - Research across full spectrum from established to experimental approaches
+  - Identify viable foundation approaches for the project
+  - Map interdependencies between foundations and feature implementation
+  - Discover cross-paradigm opportunities that combine different approaches
+  - Create comprehensive foundation options with pros and cons
+- **Team Structure**:
+  - **Foundation Team**: Explores core architectural foundations
+  - **Branch Teams**: Investigate specific dimensions across paradigms
+  - **Integration Team**: Analyzes cross-dimensional compatibility
+- **Inputs**: Technical Research Requirements, PRD, Vision Document
+- **Outputs**: Foundation Research Report with implementation path options
+- **Critical Skills**: Research depth, multi-paradigm thinking, architectural analysis
 - **Model Requirements**: Research capabilities, knowledge synthesis, reasoning
 
-### 5. Architect (Final Pass)
-- **Primary Responsibility**: Create comprehensive technical architecture
+#### 4b. Research Team (Second Pass - Technology Research)
+- **Primary Responsibility**: Explore specific technologies for implementing the selected foundation
 - **Key Capabilities**:
-  - Design system architecture based on requirements and research
-  - Make informed technical decisions
-  - Define component boundaries and interfaces
-  - Create implementation guidance
-- **Inputs**: PRD and Research Documents
-- **Outputs**: Architecture Document
-- **Critical Skills**: Technical design, decision-making, systems thinking
-- **Model Requirements**: Technical expertise, design capability
+  - Apply dimensional research methodology to technology exploration
+  - Use generic architecture as framework for technology research
+  - Explore full spectrum of technologies for each component
+  - Identify viable technology combinations and stacks
+  - Map interdependencies between technology choices
+  - Discover cross-domain technology opportunities
+  - Create comprehensive technology options with evaluation criteria
+- **Team Structure**:
+  - Same parallel team approach applied to technology exploration
+  - Focus on specific technologies rather than architectural approaches
+- **Inputs**: Generic Architecture Document, Foundation Selection, Previous Documents
+- **Outputs**: Technology Research Report with implementation options
+- **Critical Skills**: Technology evaluation, integration analysis, stack design
+- **Model Requirements**: Technical knowledge, research capabilities, evaluation skills
 
-### 6. Standards Engineer
+### 5. Standards Engineer
 - **Primary Responsibility**: Ensure seamless integration across implementation components
 - **Key Capabilities**:
   - **Cross-reference tasks** to identify shared aspects across multiple implementation units
@@ -121,7 +149,7 @@ This document describes the specialized agent roles in the enhanced IdeasFactory
   - Pattern recognition
   - Integration expertise
 
-### 7. Product Owner
+### 6. Product Owner
 - **Primary Responsibility**: Create a detailed, granular task list for implementation
 - **Key Capabilities**:
   - Break down architecture into sequential implementation tasks
@@ -133,7 +161,7 @@ This document describes the specialized agent roles in the enhanced IdeasFactory
 - **Critical Skills**: Task breakdown, sequence planning, technical understanding
 - **Model Requirements**: Strong analytical thinking, implementation knowledge
 
-### 8. Scrum Master
+### 7. Scrum Master
 - **Primary Responsibility**: Organize tasks into self-contained user stories
 - **Key Capabilities**:
   - Group related tasks into logical user stories
@@ -155,21 +183,36 @@ Different agent roles benefit from different types of large language models:
 1. **Creative Roles** (Business Analyst):
    - Models with strong creative abilities
    - Excellence in conversation and ideation
-   - Examples: Claude Opus, GPT-4
+   - Examples: Claude Opus, GPT-4o, Llama 3 70B
 
-2. **Analytical Roles** (Product Manager, Architect):
+2. **Analytical Roles** (Product Manager, Architect First Pass):
    - Models with strong reasoning and analysis
    - Ability to identify implicit requirements
-   - Examples: Claude Sonnet/Opus, GPT-4
+   - Examples: Claude Sonnet/Opus, GPT-4o, Llama 3 70B
 
-3. **Research Roles** (Research Team):
+3. **Interactive Roles** (Architect Second Pass):
+   - Models with strong conversation and explanation abilities
+   - Capable of interactive chat about complex topics
+   - Examples: Claude Opus, GPT-4o, Llama 3 70B
+
+4. **Research Roles** (Research Team):
    - Models with extensive knowledge
    - Strong information synthesis abilities
-   - Examples: Claude Opus, DeepSeek, GPT-4
+   - Web search capabilities for up-to-date information
+   - Examples: Claude Opus, Claude Sonnet+Web, GPT-4o
 
-4. **Technical Roles** (Architect, Standards Engineer):
+5. **Decision-Making Roles** (Architect Third Pass):
+   - Models with strong reasoning and decision-making
+   - Ability to evaluate options without bias toward conventional choices
+   - Examples: Claude Opus, GPT-4o, Llama 3 70B
+
+6. **Technical Roles** (Standards Engineer):
    - Models with deep technical knowledge
    - Strong reasoning about implementation
-   - Examples: Claude Opus, DeepSeek Coder, GPT-4
+   - Examples: Claude Opus, GPT-4o, DeepSeek Coder
 
-For optimal results in production, the most capable models should be used for all roles, with a potential focus on technically specialized models for the architecture and standards roles.
+7. **Organizational Roles** (Product Owner, Scrum Master):
+   - Models with strong planning and organizational abilities
+   - Examples: Claude Sonnet/Opus, GPT-4o, Llama 3 70B
+
+For optimal results in production, the most capable models should be used for all roles, with a potential focus on technically specialized models for the architecture and standards roles. The research roles benefit significantly from web search capabilities.

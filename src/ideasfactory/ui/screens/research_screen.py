@@ -192,7 +192,7 @@ class ResearchScreen(BaseScreen):
 
             Container(
                 Button("View Report", id="view-report", disabled=True),
-                Button("Continue to Architecture", id="go-to-architecture", disabled=True),
+                Button("Continue to Foundation Selection", id="go-to-architecture", disabled=True),
                 
                 id="research-actions"
             ),
@@ -498,16 +498,19 @@ class ResearchScreen(BaseScreen):
         self.action_go_to_architecture()
     
     def action_go_to_architecture(self) -> None:
-        """Navigate to the architecture screen."""
-        # Check if we completed research before proceeding to architecture
+        """Navigate to the foundation selection screen (Architect 2nd pass)."""
+        # Check if we completed research before proceeding
         if not self.research_report_path:
-            self.app.notify("Please complete research before moving to architecture", severity="warning")
+            self.app.notify("Please complete research before moving to foundation selection", severity="warning")
             return
             
         # Let the app handle workflow state transitions for consistency
-        # Switch to the architecture screen
-        if hasattr(self.app, "action_switch_to_architecture"):
-            self.app.action_switch_to_architecture()
+        # Switch to the foundation selection screen
+        if hasattr(self.app, "action_switch_to_foundation_selection"):
+            self.app.action_switch_to_foundation_selection()
+        else:
+            # Fallback to architecture screen if foundation selection is not available
+            self.app.notify("Foundation selection screen not available", severity="warning")
     
     @handle_errors
     def update_phase_progress(self, phase: str, status: str) -> None:

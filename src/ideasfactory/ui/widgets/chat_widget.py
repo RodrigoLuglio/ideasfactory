@@ -217,6 +217,40 @@ class ChatWidget(Container):
             logger.error("Actions container not found")
         except Exception as e:
             logger.error(f"Error adding action button: {str(e)}")
+            
+    def clear_action_buttons(self) -> None:
+        """Remove all action buttons from the chat widget."""
+        if not self.show_actions:
+            return
+            
+        try:
+            # Find the actions container
+            actions = self.query_one(ChatActions)
+            
+            # Remove all buttons
+            for button in actions.query("Button"):
+                button.remove()
+                
+        except NoMatches:
+            logger.error("Actions container not found")
+        except Exception as e:
+            logger.error(f"Error clearing action buttons: {str(e)}")
+            
+    def update_title(self, new_title: str) -> None:
+        """Update the chat widget's title and header."""
+        self.title = new_title
+        
+        if not self.header_display:
+            return
+            
+        try:
+            # Find and update the header label
+            header = self.query_one("#chat-header", Label)
+            header.update(new_title)
+        except NoMatches:
+            logger.error("Chat header not found")
+        except Exception as e:
+            logger.error(f"Error updating chat header: {str(e)}")
     
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button press events."""

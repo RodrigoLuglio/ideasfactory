@@ -165,8 +165,15 @@ class DocumentManager:
         if document_type in filename_mapping:
             filename = filename_mapping[document_type]
         else:
-            # Fallback to title-based filename
-            sanitized_title = title.replace(" ", "-").lower()
+            # Fallback to title-based filename with proper sanitization
+            # Replace spaces with hyphens and any other potentially problematic characters
+            import re
+            # Replace any character that isn't alphanumeric, hyphen, or underscore with a hyphen
+            sanitized_title = re.sub(r'[^\w\-]', '-', title.lower().replace(" ", "-"))
+            # Remove any consecutive hyphens
+            sanitized_title = re.sub(r'-+', '-', sanitized_title)
+            # Trim hyphens from start and end
+            sanitized_title = sanitized_title.strip('-')
             filename = f"{sanitized_title}.md"
         
         # Check if we have a session_id in the metadata

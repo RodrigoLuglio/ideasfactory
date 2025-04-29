@@ -36,13 +36,15 @@ The project follows a refined workflow to create truly self-contained story pack
 1. **Vision Creation** (Business Analyst): Captures core concept and unique value proposition
 2. **Detailed Requirements** (Product Manager): Expands vision into comprehensive PRD
 3. **Technical Research Requirements** (Architect - First Pass): Analysis of what needs investigation
-4. **Multi-faceted Research** (Research Team): Explores implementation possibilities through foundational paradigm-based approach
-5. **Architecture Design** (Architect - Final Pass): Technical design based on complete information
-6. **Standards and Patterns** (Standards Engineer): Defines integration points and shared components
-7. **Task List Creation** (Product Owner): Breaks down implementation into granular tasks
-8. **Story Creation** (Scrum Master): Packages tasks into self-contained stories with integration
+4. **Foundation Research** (Research Team - First Pass): Explores implementation possibilities through foundational paradigm-based approach
+5. **Foundation Selection** (Architect - Second Pass): Selection of foundational architectural approach and creation of generic architecture document
+6. **Technology Research** (Research Team - Second Pass): Explores specific technologies and tech stacks for implementing the selected foundation
+7. **Technology Selection & Architecture Design** (Architect - Third Pass): Selection of specific technologies and creation of complete architecture document
+8. **Standards and Patterns** (Standards Engineer): Defines integration points and shared components
+9. **Task List Creation** (Product Owner): Breaks down implementation into granular tasks
+10. **Story Creation** (Scrum Master): Packages tasks into self-contained stories with integration
 
-This workflow ensures all implicit requirements are captured, avoids imposing conventional patterns on innovative ideas, and maintains integration integrity across components.
+This workflow ensures all implicit requirements are captured, avoids imposing conventional patterns on innovative ideas, and maintains integration integrity across components. The three-phase approach to architecture (research requirements → foundation selection → technology selection) ensures that architectural decisions are made with progressively deeper levels of information while maintaining flexibility until the appropriate decision point.
 
 ## Core Project Objective
 The fundamental purpose of IdeasFactory is to produce truly self-contained packages for each project that include:
@@ -78,8 +80,14 @@ Each agent has a specific role in the workflow:
 
 1. **Business Analyst**: Conducts brainstorming to create vision document
 2. **Product Manager**: Creates PRD focusing on comprehensive requirements while preserving uniqueness
-3. **Architect**: Two-phase approach - first identifying research needs, then creating architecture
-4. **Research Team**: Conducts dimensional research with parallel teams (Foundation, Branch, Integration)
+3. **Architect**: Three-phase approach:
+   - First Pass: Identifying research needs and creating research requirements
+   - Second Pass: Foundation selection and creation of generic architecture document
+   - Third Pass: Technology selection and creation of complete architecture document
+4. **Research Team**: Two-phase research approach:
+   - First Pass: Foundation Research - exploring foundational architectural approaches
+   - Second Pass: Technology Research - exploring specific technologies based on selected foundation
+   - Both passes use dimensional research with parallel teams (Foundation, Branch, Integration)
 5. **Standards Engineer**: Identifies integration points and creates cross-cutting standards
 6. **Product Owner**: Creates task list with granular implementation steps
 7. **Scrum Master**: Creates self-contained stories that maintain integration
@@ -98,7 +106,8 @@ Each agent has a specific role in the workflow:
    - Define model classes with clear Pydantic field descriptions
 
 2. **Document Flow**:
-   - Vision Document → PRD → Architecture Research Requirements → Research Report → Architecture Document
+   - Vision Document → PRD → Architecture Research Requirements → Foundation Research Report → 
+     Generic Architecture Document → Technology Research Report → Complete Architecture Document
    - Each document builds on the previous one and contributes to the next
    - Extract and preserve structured data when passing between stages
 
@@ -117,7 +126,8 @@ Each agent has a specific role in the workflow:
    - Use specific creation prompts focused on current document/task
    - Include extracted data from previous steps in prompts
    - Emphasize preserving project uniqueness in all prompts
-   - For the architect's research requirements:
+   
+   - For the Architect's first pass (research requirements):
      * Establish a multi-level research framework with foundations first
      * Identify interdependency relationships between research areas
      * Direct exploration across the full spectrum of options for each research area:
@@ -129,7 +139,8 @@ Each agent has a specific role in the workflow:
        - First-principles (custom approaches designed specifically for the project)
      * Make it clear that while the Architect avoids naming specific technologies, the Research Team MUST identify specific implementation options
      * Create a framework that shows how foundational choices create different paths for feature implementation
-   - For the Research Team's dimensional research:
+   
+   - For the Research Team's first pass (foundation research):
      * Use parallel teams approach with Foundation, Branch, and Integration teams
      * Foundation team explores foundational architectural decisions
      * Branch teams investigate specific dimensions across multiple paradigms
@@ -137,9 +148,40 @@ Each agent has a specific role in the workflow:
      * Identify dependencies between dimensions to map implementation paths
      * Discover cross-paradigm opportunities that combine technologies from different domains
      * Create visualizations showing dimension relationships and research paths
-   - Include assumption-challenging questions that push research beyond conventional thinking
-   - Avoid biasing toward mainstream solutions; maintain innovation integrity throughout
-   - Clearly separate responsibilities: Architect creates the research framework, Research Team identifies specific technologies
+     * Produce comprehensive foundation options for the Architect's consideration
+   
+   - For the Architect's second pass (foundation selection):
+     * Extract foundation options from research results
+     * Present options in a user-friendly format for selection
+     * Support interactive exploration of foundation details
+     * Guide user-defined foundation creation when preferred
+     * Create a technology-neutral generic architecture document based on selected foundation
+     * Ensure the generic architecture preserves the project's unique vision
+     * Provide clear structure for the second research phase
+   
+   - For the Research Team's second pass (technology research):
+     * Apply the same dimensional research methodology to technology exploration
+     * Use the generic architecture document as the primary research framework
+     * Explore the full spectrum of technologies for implementing the selected foundation
+     * Maintain parallel teams approach focused on technology dimensions
+     * Identify viable implementation paths using different technology combinations
+     * Evaluate technologies based on project-specific criteria, not industry popularity
+     * Document technology options comprehensively for the Architect's consideration
+   
+   - For the Architect's third pass (technology selection):
+     * Analyze technology research without preconceptions
+     * Make technology selections based on project-specific needs, not conventional patterns
+     * Create a complete architecture document that is uniquely tailored to the project
+     * Structure the document in whatever way best serves this particular project
+     * Avoid imposing industry-standard patterns or approaches that don't fit the project
+     * Preserve the project's unique vision throughout the architecture
+   
+   - Throughout all phases:
+     * Include assumption-challenging questions that push beyond conventional thinking
+     * Avoid biasing toward mainstream solutions; maintain innovation integrity
+     * Clearly separate responsibilities between agents
+     * Ensure each document preserves and enhances the project's unique character
+     * Resist defaulting to standard patterns or approaches
 
 6. **Implementation Organization**:
    - `src/ideasfactory/agents/` - Agent implementations
