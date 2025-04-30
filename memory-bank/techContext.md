@@ -83,7 +83,7 @@ ideasfactory/
 │   ├── prd/             # Product Requirements Documents
 │   ├── research-requirements/ # Technical research requirements
 │   ├── research-report/ # Foundation research reports
-│   │   └── path-reports/ # Individual implementation path reports
+│   │   └── foundation-path-reports/ # Individual implementation path reports
 │   ├── architecture/    # Architecture documents (generic and final)
 │   ├── tech-research/   # Technology stack research (planned)
 │   ├── standards-patterns/ # Standards and patterns documents

@@ -327,7 +327,7 @@ class AgentCoordinator:
             return
         
         # Extract dimensions
-        from ideasfactory.agents.research_team import FoundationalResearchTeam
+        from ideasfactory.agents.foundation_research_team import FoundationalResearchTeam
         
         research_team = FoundationalResearchTeam()
         dimensions = await research_team._extract_research_dimensions(requirements_content)

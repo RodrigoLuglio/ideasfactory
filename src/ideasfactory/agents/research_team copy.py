@@ -128,7 +128,7 @@ class FoundationalResearchSession:
     cross_paradigm_opportunities: Optional[str] = None
     agents: List[ResearchAgent] = field(default_factory=list)
     research_report: Optional[str] = None
-    path_reports: Dict[str, str] = field(default_factory=dict)  # Map of path name to report path
+    foundation_path_reports: Dict[str, str] = field(default_factory=dict)  # Map of path name to report path
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 class FoundationalResearchTeam:
@@ -505,13 +505,13 @@ class FoundationalResearchTeam:
         return session
     
     @handle_async_errors
-    async def create_session(self, session_id: str, research_requirements: str) -> FoundationalResearchSession:
+    async def create_session(self, session_id: str, foundation_research_requirements: str) -> FoundationalResearchSession:
         """
         Create a new research session.
         
         Args:
             session_id: Session ID
-            research_requirements: Research requirements document content
+            foundation_research_requirements: Research requirements document content
             
         Returns:
             Created research session
@@ -538,7 +538,7 @@ class FoundationalResearchTeam:
         # Create a new session with all available documents
         session = FoundationalResearchSession(
             id=session_id,
-            requirements=research_requirements,
+            requirements=foundation_research_requirements,
             project_vision=project_vision,
             prd_document=prd_document
         )
@@ -1290,11 +1290,11 @@ class FoundationalResearchTeam:
         }
         
         # Save the report using document manager
-        # The document manager now handles path-report type documents correctly
-        # storing them in the research-report/path-reports directory
+        # The document manager now handles foundation-path-report type documents correctly
+        # storing them in the research-report/foundation-path-reports directory
         report_path = self.doc_manager.create_document(
             content=content,
-            document_type="path-report",
+            document_type="foundation-path-report",
             title=f"Path Report: {path_name}",
             metadata=metadata
         )
@@ -1304,7 +1304,7 @@ class FoundationalResearchTeam:
         safe_name = path_name.lower().replace(" ", "-")
         self.session_manager.add_document(
             session_id, 
-            f"path-report-{safe_name}", 
+            f"foundation-path-report-{safe_name}", 
             report_path
         )
         
@@ -1448,7 +1448,7 @@ class FoundationalResearchTeam:
         path.report_path = path_report_path
         
         # Add to session path reports dictionary for easy access
-        session.path_reports[path.name] = path_report_path
+        session.foundation_path_reports[path.name] = path_report_path
         
         logger.info(f"Path research completed for {path_name}")
         return {
@@ -1660,7 +1660,7 @@ class FoundationalResearchTeam:
         {session.cross_paradigm_opportunities}
         
         Available Path Reports:
-        {", ".join([f"'{path_name}'" for path_name in session.path_reports.keys()])}
+        {", ".join([f"'{path_name}'" for path_name in session.foundation_path_reports.keys()])}
         
         You are tasked with creating a DEFINITIVE RESEARCH REPORT that aligns with the project vision and requirements:
         
@@ -1696,10 +1696,10 @@ class FoundationalResearchTeam:
         
         6. REFERENCE DETAILED PATH REPORTS:
            - Include a dedicated section that lists all available detailed path reports
-           - For each implementation path, reference its corresponding detailed report in the research-report/path-reports directory
+           - For each implementation path, reference its corresponding detailed report in the research-report/foundation-path-reports directory
            - Explain that architects can access complete implementation details through these reports
            - Note that the path reports contain the full depth of research for each viable approach
-           - Provide clear location information to help architects find the reports (session-id/research-report/path-reports/)
+           - Provide clear location information to help architects find the reports (session-id/research-report/foundation-path-reports/)
         
         You have complete autonomy in how you approach this task. Use the available visualization
         tools in whatever way you determine will create the most illuminating representations.

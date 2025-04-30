@@ -11,6 +11,7 @@ from typing import List, Dict, Any, Optional, Tuple
 from enum import Enum
 import asyncio
 import json
+from datetime import datetime
 
 from pydantic import BaseModel, Field
 
@@ -20,6 +21,7 @@ from ideasfactory.utils.llm_utils import (
 )
 
 from ideasfactory.utils.error_handler import handle_async_errors
+from ideasfactory.utils.file_manager import load_document_content
 from ideasfactory.utils.session_manager import SessionManager
 
 # Make enhanced tools available to the architect
@@ -41,6 +43,8 @@ from ideasfactory.tools.research_visualization import (
     create_ascii_table,
     create_timeline,
 )
+
+
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -203,6 +207,189 @@ Before finalizing:
 The final document should read as a precise blueprint for implementing exactly what was envisioned - a perfect translation from concept to technical specification, without scope creep or omissions.
 """
 
+ARCHITECT_FOUNDATION_SELECTION_PROMPT = """
+Based on the comprehensive foundation research, guide the user in selecting the most appropriate foundation approach for their project. Present each foundation option with its unique characteristics while preserving the project's distinctive vision.
+
+The foundation selection process must:
+1. PRESENT each foundation option with absolute clarity regarding its implications
+2. PRESERVE the unique character of the project throughout the selection process
+3. ENABLE informed decision-making without biasing toward conventional approaches
+4. ILLUSTRATE how each foundation choice creates different implementation paths
+
+For each foundation approach identified in the research:
+- Present its core characteristics and distinctive attributes
+- Explain how it aligns with the project's unique vision
+- Detail its advantages for THIS specific project
+- Outline considerations that might impact implementation
+- Show how it creates a different implementation path than other options
+
+When responding to questions about a specific foundation:
+- Provide PRECISE details about how that foundation would manifest in THIS project
+- Illustrate with concrete examples how features would be implemented
+- Explain architectural implications honestly and completely
+- Present balanced information without favoring any particular approach
+
+If the user decides to define their own foundation approach:
+- Guide them with exploratory questions that reveal possibilities without imposing structure
+- Help articulate their vision without forcing it into conventional patterns
+- Ensure all critical aspects are defined for a complete foundation
+- Preserve what makes their approach distinctive and innovative
+
+After foundation selection, create a COMPREHENSIVE generic architecture document that:
+- Is completely TECHNOLOGY-NEUTRAL (no specific technologies, frameworks, libraries)
+- Addresses ALL functional and non-functional requirements from the PRD
+- Preserves the project's UNIQUE CHARACTER throughout the architecture
+- Provides complete guidance for the next phase of technology research
+- Documents all integration points and component boundaries
+- Specifies the criteria for technology selection in the next phase
+
+The document must be a complete blueprint for implementation that enables informed technology decisions while preserving the unique innovation potential of the original vision.
+"""
+
+ARCHITECT_TECHNOLOGY_RESEARCH_REQUIREMENTS_PROMPT = """
+Based on the selected foundation approach and generic architecture document, create comprehensive requirements for the technology research phase. Your guidance must preserve the project's distinctive character while directing exploration across the full spectrum of implementation technologies.
+
+ESSENTIAL REQUIREMENTS:
+
+1. PRESERVE FOUNDATION INTEGRITY:
+   - Ensure technology research builds directly upon the selected foundation approach
+   - Maintain the architectural principles established in the generic architecture
+   - Guide research that enhances rather than compromises the chosen foundation
+
+2. COMPREHENSIVE COMPONENT COVERAGE:
+   - For EACH architectural component identified in the generic architecture:
+     * Define the specific capabilities required from implementing technologies
+     * Specify all functional and non-functional requirements the technology must address
+     * Articulate constraints and dependencies that will impact technology selection
+
+3. FULL-SPECTRUM TECHNOLOGICAL EXPLORATION:
+   - Direct research across the COMPLETE spectrum for each component:
+     * From established, battle-tested technologies to experimental innovations
+     * From mainstream solutions to specialized options uniquely suited to this project
+     * From conventional patterns to revolutionary approaches
+   - Include first-principles technology possibilities that might not exist yet
+
+4. INTEGRATION FOCUS:
+   - Emphasize research into how different technology choices will integrate
+   - Identify cross-cutting technology concerns that affect multiple components
+   - Guide exploration of technology compatibility and interaction patterns
+
+5. PROJECT-SPECIFIC EVALUATION CRITERIA:
+   - Define precise criteria for evaluating technologies for EACH component
+   - Include project-specific metrics that reflect the unique needs of THIS project
+   - Provide clear guidance on what constitutes a good technology fit for THIS project
+
+6. INNOVATION PRESERVATION:
+   - ACTIVELY RESIST defaulting to conventional technology stacks
+   - EMPHASIZE preservation of the project's unique essence in technology choices
+   - DIRECT research toward technologies that enhance rather than diminish innovation
+
+Your document should provide:
+- A structured framework for technology research that builds on the selected foundation
+- Component-specific research guidance that preserves architectural integrity
+- Clear evaluation criteria for technology selection
+- Strategies for exploring integration between technology choices
+- Guidance that maintains the project's unique character throughout
+
+CRITICALLY IMPORTANT: 
+1. YOU should provide clear guidance for technology research without prescribing specific technologies.
+2. EXPLICITLY DIRECT the research team to identify and evaluate specific technologies, libraries, frameworks and platforms across the FULL spectrum for each component.
+3. Make it clear that the research team's PRIMARY RESPONSIBILITY is to discover ALL viable technology options (from established to experimental) for each component.
+
+Your document should enable the research team to thoroughly explore the technology landscape while maintaining the selected foundation approach and preserving the project's unique character.
+"""
+
+ARCHITECT_TECHNOLOGY_SELECTION_PROMPT = """
+Based on the technology research results, guide the user in selecting the most appropriate technology stack for their project. This process must maintain the integrity of the previously selected foundation approach while preserving the project's unique character throughout technology decisions.
+
+For each component identified in the generic architecture:
+- Present technology options across the complete spectrum from established to experimental
+- Explain how each option fulfills the component's specific requirements
+- Detail how each option integrates with the selected foundation approach
+- Describe how different technologies would interact with each other
+- Present honest trade-offs without biasing toward conventional technologies
+
+When helping the user select technologies:
+- Preserve absolute neutrality in presenting options
+- Provide complete, balanced information about each viable technology
+- Explain implications for implementation, maintenance, and scaling
+- Illustrate how each choice creates different implementation characteristics
+
+If the user decides to specify their own technology choices:
+- Guide with exploratory questions that elicit comprehensive details
+- Help articulate the specific capabilities of their selected technologies
+- Ensure alignment with the foundation approach and generic architecture
+- Preserve what makes their technology approach distinctive
+
+After technology selection, create a COMPREHENSIVE architecture document that:
+- Incorporates all previous decisions (foundation approach and technologies)
+- Specifies EXACTLY how each component will be implemented
+- Documents ALL integration points between components
+- Provides complete implementation guidance for developers
+- Maintains the project's UNIQUE CHARACTER throughout the architecture
+
+The final architecture document should:
+1. COMPLETELY capture all aspects needed to implement the project
+2. DIRECTLY connect every architectural element to specific project requirements
+3. PRESERVE the project's distinctive vision in every implementation detail
+4. ENABLE developers to understand exactly how to build each component
+5. SPECIFY all integration patterns to ensure cohesive system behavior
+
+The document's structure should be COMPLETELY TAILORED to THIS specific project rather than following a standard template. Organize the content in whatever way best communicates the architecture for this particular project.
+
+This final architecture document must provide a complete blueprint for implementation that perfectly preserves the project's unique vision and ensures that all components will integrate seamlessly.
+"""
+
+ARCHITECT_ARCHITECTURE_DOCUMENT_PROMPT = """
+Create a comprehensive, project-specific architecture document that synthesizes all previous decisions - foundation approach and technology selections - into a complete blueprint for implementation. This document must be completely tailored to THIS specific project, with a structure that emerges from the project's unique nature.
+
+Your architecture document must:
+
+1. PRESERVE VISION INTEGRITY
+   - Ensure every architectural decision directly supports the project's unique vision
+   - Maintain the distinctive character that makes this project special
+   - Resist imposing conventional patterns that might dilute innovation
+
+2. COMPLETE IMPLEMENTATION GUIDANCE
+   - Provide ALL details necessary for component implementation
+   - Specify EXACTLY how each feature will be realized with the selected technologies
+   - Include whatever environment, configuration, and workflow elements THIS specific project requires
+   - Document all integration patterns that are relevant to THIS specific project
+
+3. TAILORED DOCUMENT STRUCTURE
+   - Create an organization that perfectly reflects THIS project's specific nature
+   - Emphasize the most critical aspects unique to this project
+   - Group related elements based on THIS project's particular characteristics
+   - Include sections that might not appear in standard templates if needed for THIS project
+
+4. PROJECT-SPECIFIC TECHNICAL ELEMENTS
+   - Identify and document ONLY the technical elements that THIS specific project requires
+   - Let the required technical specifications emerge naturally from the project's unique characteristics
+   - Document each technical aspect with the appropriate level of detail for THIS project
+   - Avoid assuming any "standard" technical elements that aren't explicitly required by THIS project
+   - Ensure complete coverage of ALL technical aspects needed to implement the specific vision
+
+5. IMPLEMENTATION PATH
+   - Outline a development approach specifically tailored to THIS project
+   - Identify whatever implementation sequence makes sense for THIS project
+   - Document any project-specific considerations for initial development
+   - Include whatever validation approaches are appropriate for THIS project
+
+The document MUST NOT:
+- Follow generic architectural templates
+- Include "standard" sections that don't directly apply to THIS project
+- Default to conventional patterns without project-specific justification
+- Assume any technical elements that aren't directly required by THIS project
+- Omit unique aspects of the project that don't fit standard categories
+
+Before finalizing:
+- Verify that EVERY requirement from the PRD is addressed
+- Ensure the architecture enables ALL features in the project vision
+- Confirm that the document preserves what makes this project distinctive
+- Validate that all components will integrate seamlessly
+
+The final architecture document should read as a precise blueprint for implementing exactly what was envisioned - a perfect translation from concept to technical specification that preserves the project's unique character while ensuring technical feasibility and integration integrity.
+"""
 
 class SessionState(Enum):
     """State of the architecture definition session."""
@@ -233,15 +420,19 @@ class ArchitectureSession(BaseModel):
     id: str = Field(..., description="Unique identifier for the session")
     project_vision: str = Field(..., description="Project vision document content")
     prd_document: Optional[str] = Field(None, description="Product Requirements Document content")
-    research_report: Optional[str] = Field(None, description="Research report content")
-    research_requirements: Optional[str] = Field(None, description="Technical research requirements document content")
+    foundation_research_requirements: Optional[str] = Field(None, description="Technical research requirements document content")
+    foundation_research_report: Optional[str] = Field(None, description="Research report content")
+    technology_research_requirements: Optional[str] = Field(None, description="Technology research requirements document content")
+    technology_research_report: Optional[str] = Field(None, description="Technology research report content")
     messages: List[Message] = Field(default_factory=list, description="Messages in the session")
     decisions: List[ArchitecturalDecision] = Field(default_factory=list, description="Architectural decisions to be made")
     current_decision_index: Optional[int] = Field(None, description="Index of the current decision being discussed")
     state: SessionState = Field(default=SessionState.STARTED, description="Current state of the session")
-    architecture_document: Optional[str] = Field(None, description="Generated architecture document content")
+    generic_architecture_document: Optional[str] = Field(None, description="Generic architecture document from 2nd pass")
+    final_architecture_document: Optional[str] = Field(None, description="Complete architecture document from 3rd pass")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata for the session")
-    path_reports: Dict[str, Dict[str, Any]] = Field(default_factory=dict, description="Path reports from research phase")
+    foundation_path_reports: Dict[str, Dict[str, Any]] = Field(default_factory=dict, description="Path reports from foundation research")
+    stack_path_reports: Dict[str, Dict[str, Any]] = Field(default_factory=dict, description="Path reports from technology research")
     
     class Config:
         """Pydantic model configuration."""
@@ -269,6 +460,7 @@ class Architect:
         if not hasattr(self, '_initialized') or not self._initialized:
             self.sessions: Dict[str, ArchitectureSession] = {}
             self.system_prompt = create_system_prompt(ARCHITECT_SYSTEM_PROMPT)
+            self.session_manager = SessionManager()
             self._initialized = True
     
     @handle_async_errors
@@ -277,8 +469,9 @@ class Architect:
         session_id: str, 
         project_vision: str, 
         prd_document: Optional[str] = None,
-        research_report: Optional[str] = None
-    ) -> ArchitectureSession:
+        foundation_research_report: Optional[str] = None,
+        technology_research_report: Optional[str] = None
+        ) -> ArchitectureSession:
         """
         Create a new architecture definition session.
         
@@ -286,8 +479,9 @@ class Architect:
             session_id: Unique identifier for the session
             project_vision: Project vision document content
             prd_document: Product Requirements Document content (optional)
-            research_report: Research report content (optional)
-            
+            foundation_research_report: Foundation research report content (optional)
+            technology_research_report: Technology research report content (optional)
+
         Returns:
             The created architecture session
         """
@@ -296,7 +490,8 @@ class Architect:
             id=session_id,
             project_vision=project_vision,
             prd_document=prd_document,
-            research_report=research_report,
+            foundation_research_report=foundation_research_report,
+            technology_research_report=technology_research_report,
             messages=[self.system_prompt],
             state=SessionState.STARTED
         )
@@ -307,7 +502,7 @@ class Architect:
         return session
         
     @handle_async_errors
-    async def create_research_requirements(self, session_id: str) -> Optional[str]:
+    async def create_foundation_research_requirements(self, session_id: str) -> Optional[str]:
         """
         Create technical research requirements document based on the PRD.
         
@@ -356,7 +551,7 @@ class Architect:
         session.messages.append(assistant_message)
         
         # Store the research requirements
-        session.research_requirements = response.content
+        session.foundation_research_requirements = response.content
         
         return response.content
     
@@ -379,7 +574,7 @@ class Architect:
             return None
         
         # Ensure we have a research requirements document
-        if not session.research_requirements:
+        if not session.foundation_research_requirements:
             logger.error(f"No research requirements document available for session {session_id}")
             return None
         
@@ -411,7 +606,7 @@ class Architect:
         session.messages.append(assistant_message)
         
         # Update the research requirements
-        session.research_requirements = response.content
+        session.foundation_research_requirements = response.content
         
         return response.content
     
@@ -1009,6 +1204,71 @@ Please provide the complete revised document in markdown format. Do not include 
         session.messages.append(create_assistant_prompt(response.content))
         
         return response.content
+        
+    @handle_async_errors
+    async def revise_final_architecture_document(self, session_id: str, feedback: str) -> Optional[str]:
+        """
+        Revise the final architecture document based on feedback.
+        
+        Args:
+            session_id: Identifier of the session
+            feedback: Feedback for the document
+            
+        Returns:
+            The revised document content or None if session not found
+        """
+        # Get the session
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session not found: {session_id}")
+            return None
+        
+        # Create a specific document revision request
+        revision_request = create_user_prompt(
+            f"""I need you to revise the complete architecture document based on this feedback:
+
+{feedback}
+
+Please provide the complete revised document in markdown format. Do not include any other explanations outside of the document content."""
+        )
+        
+        # For the final document, we'll use all messages since it's the culmination of the process
+        revision_messages = session.messages + [revision_request]
+        
+        # Get the agent's response
+        response = await send_prompt(revision_messages)
+        
+        # Update the document in the session
+        session.final_architecture_document = response.content
+        
+        # Add the revision request and response to the session messages
+        session.messages.append(revision_request)
+        session.messages.append(create_assistant_prompt(response.content))
+        
+        # Also save the document
+        from ideasfactory.documents.document_manager import DocumentManager
+        doc_manager = DocumentManager()
+        
+        # Create metadata
+        metadata = {
+            "session_id": session_id,
+            "document_type": "complete-architecture",
+            "created_at": datetime.now().isoformat(),
+            "title": "Complete Architecture Document (Revised)"
+        }
+        
+        # Save the document
+        doc_path = doc_manager.create_document(
+            content=response.content,
+            document_type="complete-architecture",
+            title="Complete Architecture Document (Revised)",
+            metadata=metadata
+        )
+        
+        # Add to session manager
+        self.session_manager.add_document(session_id, "complete-architecture", doc_path)
+        
+        return response.content
     
     # Methods for the Architect's 2nd pass (foundation selection)
     
@@ -1044,9 +1304,9 @@ Please provide the complete revised document in markdown format. Do not include 
         # First check if there's a path_report field in the foundation approach
         path_report_path = foundation_approach.get("path_report", "")
         
-        # First try to find the path report from the session's path_reports
-        if hasattr(session, 'path_reports') and session.path_reports:
-            for path_name, report in session.path_reports.items():
+        # First try to find the path report from the session's foundation_path_reports
+        if hasattr(session, 'foundation_path_reports') and session.foundation_path_reports:
+            for path_name, report in session.foundation_path_reports.items():
                 path_name_lower = path_name.lower()
                 
                 # Check for match in path name or report title
@@ -1057,7 +1317,7 @@ Please provide the complete revised document in markdown format. Do not include 
                     any(term in path_name_lower for term in foundation_key.split()) or
                     any(term in report_title for term in foundation_key.split())):
                     specific_path_report = report.get("content", "")
-                    logger.info(f"Found matching path report for '{foundation_name}' in session.path_reports: {path_name}")
+                    logger.info(f"Found matching path report for '{foundation_name}' in session.foundation_path_reports: {path_name}")
                     break
         
         # If we don't have a path report yet, try to load it from the path_report_path
@@ -1176,7 +1436,7 @@ Please provide the complete revised document in markdown format. Do not include 
         session.messages.append(assistant_message)
         
         # Store the document in the session
-        session.architecture_document = response.content
+        session.generic_architecture_document = response.content
         
         # Update session state to reflect document creation
         session.state = SessionState.DOCUMENT_REVIEW
@@ -1184,8 +1444,12 @@ Please provide the complete revised document in markdown format. Do not include 
         # Store the selected foundation in session metadata
         if not hasattr(session, 'metadata') or session.metadata is None:
             session.metadata = {}
+        
+        # Initialize architecture metadata if needed
+        if "architecture" not in session.metadata:
+            session.metadata["architecture"] = {}
             
-        session.metadata["selected_foundation"] = foundation_approach
+        session.metadata["architecture"]["selected_foundation"] = foundation_approach
         
         return response.content
 
@@ -1207,27 +1471,27 @@ Please provide the complete revised document in markdown format. Do not include 
             return []
         
         # Get path reports from the session if available
-        path_reports_summary = ""
-        if hasattr(session, 'path_reports') and session.path_reports:
-            path_reports_summary = "# Available Path Reports\n\n"
-            for path_name, report in session.path_reports.items():
+        foundation_path_reports_summary = ""
+        if hasattr(session, 'foundation_path_reports') and session.foundation_path_reports:
+            foundation_path_reports_summary = "# Available Path Reports\n\n"
+            for path_name, report in session.foundation_path_reports.items():
                 # Extract title and basic info from each report
                 title = report.get("title", path_name)
-                path_reports_summary += f"## {title}\n"
+                foundation_path_reports_summary += f"## {title}\n"
                 
                 # Extract a summary if the content is too large
                 content = report.get("content", "")
                 if len(content) > 1000:
-                    path_reports_summary += content[:1000] + "...\n\n"
+                    foundation_path_reports_summary += content[:1000] + "...\n\n"
                 else:
-                    path_reports_summary += content + "\n\n"
+                    foundation_path_reports_summary += content + "\n\n"
                 
                 # Add the path to the report file
                 filepath = report.get("filepath", "")
                 if filepath:
-                    path_reports_summary += f"Report file: {filepath}\n\n"
+                    foundation_path_reports_summary += f"Report file: {filepath}\n\n"
             
-            logger.info(f"Added {len(session.path_reports)} path reports to extraction context")
+            logger.info(f"Added {len(session.foundation_path_reports)} path reports to extraction context")
         
         # Create a prompt to extract foundation options that preserves the project's unique essence
         prompt = f"""
@@ -1238,7 +1502,7 @@ Please provide the complete revised document in markdown format. Do not include 
         # Research Report
         {research_report}
 
-        {path_reports_summary}
+        {foundation_path_reports_summary}
 
         For each foundation approach, extract the following information:
         1. Name (unique identifier for the foundation)
@@ -1307,11 +1571,11 @@ Please provide the complete revised document in markdown format. Do not include 
                 session.metadata["foundation_options"] = foundations
                 
                 # Match foundations with path reports and update file paths
-                if hasattr(session, 'path_reports') and session.path_reports:
+                if hasattr(session, 'foundation_path_reports') and session.foundation_path_reports:
                     for foundation in foundations:
                         foundation_name = foundation.get("name", "").lower()
                         # Try to match with path report names
-                        for path_name, report in session.path_reports.items():
+                        for path_name, report in session.foundation_path_reports.items():
                             if path_name.lower() in foundation_name or foundation_name in path_name.lower():
                                 # Update the path report reference to use the actual file path
                                 filepath = report.get("filepath", "")
@@ -1361,9 +1625,9 @@ Please provide the complete revised document in markdown format. Do not include 
         foundation_key = foundation_name.lower()
         
         # First check if we already have path reports in the session
-        if hasattr(session, 'path_reports') and session.path_reports:
+        if hasattr(session, 'foundation_path_reports') and session.foundation_path_reports:
             # Try to match the foundation with a path report by name
-            for path_name, report in session.path_reports.items():
+            for path_name, report in session.foundation_path_reports.items():
                 path_name_lower = path_name.lower()
                 
                 # Check for match in path name or report title
@@ -1374,7 +1638,7 @@ Please provide the complete revised document in markdown format. Do not include 
                     any(term in path_name_lower for term in foundation_key.split()) or
                     any(term in report_title for term in foundation_key.split())):
                     foundation_path_report = report.get("content", "")
-                    logger.info(f"Found matching path report for '{foundation_name}' in session.path_reports: {path_name}")
+                    logger.info(f"Found matching path report for '{foundation_name}' in session.foundation_path_reports: {path_name}")
                     break
         
         # If we still don't have a path report and the selected foundation has a path_report field
@@ -1696,3 +1960,710 @@ Please provide the complete revised document in markdown format. Do not include 
         except Exception as e:
             logger.error(f"Error processing user foundation: {str(e)}")
             return {"status": "error", "message": f"Error: {str(e)}"}
+        
+
+    @handle_async_errors
+    async def extract_technology_stacks(self, session_id: str, technology_report: str) -> List[Dict[str, Any]]:
+        """
+        Extract technology stack options from the technology research report.
+        
+        Args:
+            session_id: Session ID
+            technology_report: Technology research report content
+            
+        Returns:
+            List of technology stack options
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session {session_id} not found")
+            return []
+        
+        # Create a prompt to extract technology stacks
+        extraction_prompt = """
+        You are a Technology Analysis Agent. Your task is to analyze the technology research report
+        and extract all technology stack options that were identified during research.
+        
+        For each identified technology stack, extract:
+        1. A clear name
+        2. A concise description
+        3. The key technologies included in the stack
+        4. The main advantages of this stack
+        5. The main considerations when using this stack
+        
+        Return your analysis in a structured JSON format:
+        {
+        "stacks": [
+            {
+            "id": "stack-1",
+            "name": "Stack Name",
+            "description": "Description of the stack",
+            "technologies": ["Key Technology 1", "Key Technology 2", "Key Technology 3"],
+            "advantages": ["Primary advantage 1", "Primary advantage 2"],
+            "considerations": ["Consideration 1", "Consideration 2"]
+            }
+        ]
+        }
+        """
+        
+        # Create messages for the extraction
+        messages = [
+            create_system_prompt(extraction_prompt),
+            create_user_prompt(f"Technology Research Report:\n{technology_report}")
+        ]
+        
+        # Get extraction response
+        response = await send_prompt(messages)
+        
+        # Extract JSON from response
+        import json
+        import re
+        
+        # Look for JSON pattern in the response
+        json_match = re.search(r'```json\n(.*?)\n```', response.content, re.DOTALL)
+        if not json_match:
+            json_match = re.search(r'{.*}', response.content, re.DOTALL)
+        
+        if not json_match:
+            logger.error("Could not extract JSON from stack extraction response")
+            return []
+        
+        json_str = json_match.group(1) if json_match.group(0).startswith('```') else json_match.group(0)
+        
+        try:
+            data = json.loads(json_str)
+            logger.info(f"Extracted {len(data.get('stacks', []))} technology stacks")
+            return data.get('stacks', [])
+        except Exception as e:
+            logger.error(f"Error parsing extracted technology stacks: {str(e)}")
+            return []
+
+    @handle_async_errors
+    async def get_technology_stack_details(
+        self, 
+        session_id: str, 
+        stack_name: str, 
+        question: str
+    ) -> str:
+        """
+        Get more details about a specific technology stack based on a user question.
+        
+        Args:
+            session_id: Session ID
+            stack_name: Name of the stack to get details for
+            question: User's question about the stack
+            
+        Returns:
+            Detailed response about the stack
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session {session_id} not found")
+            return "I'm sorry, but I couldn't find your session information. Please try again later."
+        
+        # Get stack reports from session metadata
+        stack_path_reports = session.metadata.get("stack_path_reports", {})
+        
+        # Find the relevant stack report
+        stack_report = None
+        for report_name, report in stack_path_reports.items():
+            if stack_name.lower() in report_name.lower() or report_name.lower() in stack_name.lower():
+                if "content" in report:
+                    stack_report = report["content"]
+                    logger.info(f"Found matching stack report for '{stack_name}'")
+                    break
+        
+        # Create the prompt to answer the user's question
+        prompt = f"""
+        You are having a conversation with a user about the technology stack named "{stack_name}" for their project.
+        The user is asking: "{question}"
+        
+        Based on the project details and research information, provide a thorough, accurate response that helps the user 
+        understand this technology stack and make an informed decision.
+        
+        # Stack Report
+        {stack_report if stack_report else "No specific stack report available."}
+        
+        Your response should:
+        1. Directly answer the user's question with specific details
+        2. Provide relevant context from the research
+        3. Highlight how this technology stack aligns with the project's unique vision
+        4. Present balanced information without bias toward this stack
+        5. Include advantages, considerations, and other factors relevant to the question
+        
+        Answer in a conversational yet informative tone, focusing on what's most relevant to the user's question.
+        """
+        
+        # Create temporary messages for this interaction
+        interaction_messages = [
+            self.system_prompt,
+            create_user_prompt(prompt)
+        ]
+        
+        # Get the response
+        response = await send_prompt(interaction_messages)
+        
+        return response.content
+
+    @handle_async_errors
+    async def process_user_technologies(
+        self,
+        session_id: str,
+        technologies_text: str
+    ) -> Dict[str, Any]:
+        """
+        Process user-specified technologies.
+        
+        Args:
+            session_id: Session ID
+            technologies_text: User's description of their technology choices
+            
+        Returns:
+            Processed technology stack with questions for refinement
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session {session_id} not found")
+            return {"status": "error", "message": "Session not found"}
+        
+        # Get project vision and PRD
+        project_vision = session.project_vision
+        prd_document = session.prd_document
+        
+        # Load generic architecture if not already in session
+        generic_architecture = getattr(session, 'generic_architecture', None)
+        if not generic_architecture:
+            generic_architecture = await load_document_content(session_id, "generic-architecture")
+        
+        # Create a prompt to process the technologies
+        prompt = f"""
+        You are analyzing user-defined technology choices for a project. Extract structured information while 
+        identifying areas that need further clarification for a comprehensive architecture design.
+
+        # Project Vision
+        {project_vision if project_vision else "No project vision document available."}
+
+        # Product Requirements Document
+        {prd_document if prd_document else "No PRD document available."}
+        
+        # Generic Architecture
+        {generic_architecture if generic_architecture else "No generic architecture document available."}
+
+        # User-Defined Technologies
+        {technologies_text}
+
+        Your task is to:
+        1. Extract and structure the information about these technology choices
+        2. Identify specific areas that need further clarification or elaboration
+        3. Generate targeted questions to help refine the technology choices
+
+        Create a JSON response that:
+        - Preserves the unique character and specific terminology used by the user
+        - Does not impose conventional patterns or assumptions
+        - Identifies the actual information provided and what's missing
+        - Generates questions that help define implementation aspects without biasing toward particular technologies
+
+        Structure your response as a JSON object following this format:
+        ```json
+        {
+        "technology_stack": {
+            "id": "user-defined",
+            "name": "User-Defined Technology Stack", 
+            "description": "Structured description based on user input",
+            "technologies": ["Technology 1", "Technology 2"],
+            "advantages": ["Identified advantage 1", "Identified advantage 2"],
+            "considerations": ["Potential consideration 1", "Potential consideration 2"]
+        },
+        "questions": [
+            "Question about aspect 1 that needs clarification?",
+            "Question about aspect 2 that needs clarification?"
+        ],
+        "missing_elements": [
+            "Element 1 that needs to be defined for a complete technology stack",
+            "Element 2 that needs to be defined for a complete technology stack"
+        ]
+        }
+        ```
+
+        Only return the JSON object without any additional text or explanation.
+        """
+        
+        # Create messages for processing
+        processing_messages = [
+            self.system_prompt,
+            create_user_prompt(prompt)
+        ]
+        
+        # Get processing response
+        response = await send_prompt(processing_messages)
+        
+        # Parse the JSON response
+        try:
+            import re
+            import json
+            
+            # Look for JSON in the response
+            json_match = re.search(r'```json\s*(.*?)\s*```', response.content, re.DOTALL)
+            if not json_match:
+                json_match = re.search(r'(\{.*\})', response.content, re.DOTALL)
+            
+            if json_match:
+                json_str = json_match.group(1)
+                result = json.loads(json_str)
+                
+                # Format the questions as a single string
+                questions_list = result.get("questions", [])
+                missing_elements = result.get("missing_elements", [])
+                
+                # Create a comprehensive list of questions
+                all_questions = questions_list[:]
+                for element in missing_elements:
+                    all_questions.append(f"Could you elaborate on {element}?")
+                
+                questions = "\n".join([f"{i+1}. {q}" for i, q in enumerate(all_questions)])
+                
+                # Store in session for future use
+                if not hasattr(session, 'metadata') or session.metadata is None:
+                    session.metadata = {}
+                    
+                session.metadata["user_technology_stack"] = result.get("technology_stack", {})
+                
+                # Return the processed data
+                return {
+                    "status": "success",
+                    "technology_stack": result.get("technology_stack", {}),
+                    "questions": questions
+                }
+            else:
+                logger.error("Failed to extract JSON from response")
+                return {"status": "error", "message": "Failed to process technologies"}
+        
+        except Exception as e:
+            logger.error(f"Error processing user technologies: {str(e)}")
+            return {"status": "error", "message": f"Error: {str(e)}"}
+
+    @handle_async_errors
+    async def refine_user_technologies(
+        self,
+        session_id: str,
+        user_response: str
+    ) -> str:
+        """
+        Refine the user-defined technologies based on their responses to questions.
+        
+        Args:
+            session_id: Session ID
+            user_response: User's response to questions
+            
+        Returns:
+            Next response in the conversation to further refine the technologies
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session {session_id} not found")
+            return "I'm sorry, but I couldn't find your session information. Please try again later."
+        
+        # Get the current user technology stack from metadata
+        technology_stack = session.metadata.get("user_technology_stack", {})
+        conversation_history = session.metadata.get("technology_conversation", [])
+        
+        # Add this exchange to the conversation history
+        if "technology_conversation" not in session.metadata:
+            session.metadata["technology_conversation"] = []
+            
+        session.metadata["technology_conversation"].append({
+            "user": user_response
+        })
+        
+        # Create the prompt to continue the conversation
+        prompt = f"""
+        You are having a conversation with a user to refine their custom technology stack for their project.
+        The user has provided more details in response to your previous questions.
+        
+        # Current Understanding of User's Technology Stack
+        {json.dumps(technology_stack, indent=2)}
+        
+        # User's Latest Response
+        {user_response}
+        
+        Your task is to:
+        1. Analyze the user's response and extract any new information about their technology choices
+        2. Update your understanding of their stack based on this new information
+        3. Identify what aspects of the technology selections are still unclear or need elaboration
+        4. Continue the conversation with follow-up questions or a summary
+        
+        When generating your response:
+        - Acknowledge the information the user has provided
+        - Update your mental model of their technology stack
+        - Either ask focused follow-up questions about remaining unclear aspects
+        - OR if you have a complete picture, provide a summary of your understanding
+        
+        If you believe you have a complete understanding of the user's technology choices, include a JSON object with the updated technology details in a code block that won't be shown to the user:
+        
+        <technology_update>
+        {{
+        "complete": true,
+        "technology_stack": {{
+            // Updated technology stack details
+        }}
+        }}
+        </technology_update>
+        
+        If you still need more information, include what aspects are still missing:
+        
+        <technology_update>
+        {{
+        "complete": false,
+        "technology_stack": {{
+            // Updated technology stack details with what you know so far
+        }},
+        "missing_aspects": [
+            "Aspect 1 that still needs clarification",
+            "Aspect 2 that still needs clarification"
+        ]
+        }}
+        </technology_update>
+        """
+        
+        # Create temporary messages for this interaction
+        interaction_messages = [
+            self.system_prompt,
+            create_user_prompt(prompt)
+        ]
+        
+        # Get the response
+        response = await send_prompt(interaction_messages)
+        response_content = response.content
+        
+        # Process the technology update if included
+        import re
+        technology_update_match = re.search(r'<technology_update>(.*?)</technology_update>', response_content, re.DOTALL)
+        
+        if technology_update_match:
+            try:
+                update_json = technology_update_match.group(1).strip()
+                update_data = json.loads(update_json)
+                
+                # Update the technology stack in session metadata
+                if "technology_stack" in update_data:
+                    session.metadata["user_technology_stack"] = update_data["technology_stack"]
+                
+                # Check if the technology definition is complete
+                if update_data.get("complete", False):
+                    session.metadata["technologies_complete"] = True
+                else:
+                    session.metadata["technologies_complete"] = False
+                    
+                # Store missing aspects if any
+                if "missing_aspects" in update_data:
+                    session.metadata["technology_missing_aspects"] = update_data["missing_aspects"]
+                
+                # Remove the hidden update from the user-visible response
+                response_content = re.sub(r'<technology_update>.*?</technology_update>', '', response_content, flags=re.DOTALL).strip()
+            except Exception as e:
+                logger.error(f"Error processing technology update: {str(e)}")
+        
+        # Add the assistant's response to conversation history
+        session.metadata["technology_conversation"].append({
+            "assistant": response_content
+        })
+        
+        return response_content
+
+    @handle_async_errors
+    async def create_technology_research_requirements(
+        self,
+        session_id: str,
+        generic_architecture: str,
+        foundation_approach: Dict[str, Any]
+    ) -> str:
+        """
+        Create technology research requirements based on the selected foundation and generic architecture.
+        
+        Args:
+            session_id: Session ID
+            generic_architecture: Generic architecture document content
+            foundation_approach: Selected foundation approach details
+            
+        Returns:
+            Technology research requirements document content
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session {session_id} not found")
+            return "Failed to create technology research requirements: Session not found."
+        
+        # Create the technology research requirements prompt
+        requirements_prompt = f"""
+        Based on the generic architecture and selected foundation approach, create comprehensive technology research requirements 
+        to guide exploration across the full spectrum of implementation technologies while preserving the project's distinctive vision.
+
+        # Project Vision
+        {session.project_vision if session.project_vision else "No project vision document available."}
+
+        # Product Requirements Document (PRD)
+        {session.prd_document if session.prd_document else "No PRD document available."}
+
+        # Selected Foundation Approach
+        {json.dumps(foundation_approach, indent=2)}
+
+        # Generic Architecture
+        {generic_architecture}
+
+        {ARCHITECT_TECHNOLOGY_RESEARCH_REQUIREMENTS_PROMPT}
+        """
+        
+        # Create the message
+        technology_requirements_request = create_user_prompt(requirements_prompt)
+        session.messages.append(technology_requirements_request)
+        
+        # Get the agent's response
+        response = await send_prompt(session.messages)
+        
+        # Add the response to the session
+        assistant_message = create_assistant_prompt(response.content)
+        session.messages.append(assistant_message)
+        
+        # Store the technology research requirements
+        if "metadata" not in session:
+            session.metadata = {}
+        
+        session.metadata["technology_research_requirements"] = response.content
+        
+        # Save the document
+        document_path = await self._save_technology_research_requirements(
+            session_id,
+            response.content
+        )
+        
+        return response.content
+
+    @handle_async_errors
+    async def _save_technology_research_requirements(
+        self,
+        session_id: str,
+        content: str
+    ) -> str:
+        """
+        Save the technology research requirements document.
+        
+        Args:
+            session_id: Session ID
+            content: Document content
+            
+        Returns:
+            Path to the saved document
+        """
+        # Get document manager
+        from ideasfactory.documents.document_manager import DocumentManager
+        document_manager = DocumentManager()
+        
+        # Create metadata
+        metadata = {
+            "session_id": session_id,
+            "created_at": datetime.now().isoformat(),
+            "title": "Technology Research Requirements",
+            "document_type": "technology-research-requirements"
+        }
+        
+        # Save the document
+        document_path = document_manager.create_document(
+            content=content,
+            document_type="technology-research-requirements",
+            title="Technology Research Requirements",
+            metadata=metadata
+        )
+        
+        # Add document to session
+        self.session_manager.add_document(session_id, "technology-research-requirements", document_path)
+        
+        logger.info(f"Technology research requirements saved to {document_path}")
+        return document_path
+
+    @handle_async_errors
+    async def create_final_architecture_document(
+        self,
+        session_id: str,
+        selected_technologies: Dict[str, Any]
+    ) -> str:
+        """
+        Create the final architecture document based on the selected technologies.
+        
+        Args:
+            session_id: Session ID
+            selected_technologies: Selected technology stack details
+            
+        Returns:
+            Final architecture document content
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session {session_id} not found")
+            return "Failed to create final architecture document: Session not found."
+
+        # Load all necessary documents
+        generic_architecture = None
+        if hasattr(session, 'generic_architecture'):
+            generic_architecture = session.generic_architecture
+        else:
+            generic_architecture = await load_document_content(session_id, "generic-architecture")
+        
+        # Get foundation approach from session metadata
+        foundation_approach = None
+        session_data = self.session_manager.get_session(session_id)
+        if session_data and "architecture" in session_data.metadata and "selected_foundation" in session_data.metadata["architecture"]:
+            foundation_approach = session_data.metadata["architecture"]["selected_foundation"]
+        
+        # Get technology conversation for user-defined technologies
+        technology_conversation = []
+        if session.metadata.get("user_defined_technologies", False):
+            technology_conversation = session.metadata.get("technology_conversation", [])
+        
+        # Create the final architecture document prompt
+        document_prompt = f"""
+        Create a comprehensive, project-specific final architecture document that synthesizes the generic architecture 
+        and selected technology stack into a complete blueprint for implementation.
+
+        # Project Vision
+        {session.project_vision if session.project_vision else "No project vision document available."}
+
+        # Product Requirements Document (PRD)
+        {session.prd_document if session.prd_document else "No PRD document available."}
+
+        # Selected Foundation Approach
+        {json.dumps(foundation_approach, indent=2) if foundation_approach else "No foundation approach available."}
+
+        # Generic Architecture
+        {generic_architecture if generic_architecture else "No generic architecture available."}
+
+        # Selected Technology Stack
+        {json.dumps(selected_technologies, indent=2)}
+
+        # Technology Conversation (if applicable)
+        {json.dumps(technology_conversation, indent=2) if technology_conversation else "No technology conversation available."}
+
+        {ARCHITECT_ARCHITECTURE_DOCUMENT_PROMPT}
+        """
+        
+        # Create the message
+        document_request = create_user_prompt(document_prompt)
+        session.messages.append(document_request)
+        
+        # Get the agent's response
+        response = await send_prompt(session.messages)
+        
+        # Add the response to the session
+        assistant_message = create_assistant_prompt(response.content)
+        session.messages.append(assistant_message)
+        
+        # Store the final architecture document
+        if "metadata" not in session:
+            session.metadata = {}
+        
+        session.metadata["final_architecture"] = response.content
+        
+        # Save the document
+        document_path = await self._save_final_architecture_document(
+            session_id,
+            response.content
+        )
+        
+        return response.content
+
+    @handle_async_errors
+    async def _save_final_architecture_document(
+        self,
+        session_id: str,
+        content: str
+    ) -> str:
+        """
+        Save the final architecture document.
+        
+        Args:
+            session_id: Session ID
+            content: Document content
+            
+        Returns:
+            Path to the saved document
+        """
+        # Get document manager
+        from ideasfactory.documents.document_manager import DocumentManager
+        document_manager = DocumentManager()
+        
+        # Create metadata
+        metadata = {
+            "session_id": session_id,
+            "created_at": datetime.now().isoformat(),
+            "title": "Final Architecture Document",
+            "document_type": "final-architecture"
+        }
+        
+        # Save the document
+        document_path = document_manager.create_document(
+            content=content,
+            document_type="final-architecture",
+            title="Final Architecture Document",
+            metadata=metadata
+        )
+        
+        # Add document to session
+        self.session_manager.add_document(session_id, "final-architecture", document_path)
+        
+        logger.info(f"Final architecture document saved to {document_path}")
+        return document_path
+
+    @handle_async_errors
+    async def revise_final_document(
+        self,
+        session_id: str,
+        feedback: str
+    ) -> str:
+        """
+        Revise the final architecture document based on feedback.
+        
+        Args:
+            session_id: Session ID
+            feedback: Feedback on the document
+            
+        Returns:
+            Revised document content
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            logger.error(f"Session {session_id} not found")
+            return "Failed to revise final architecture document: Session not found."
+        
+        # Create revision prompt
+        revision_prompt = f"""
+        Please revise the final architecture document based on this feedback:
+        
+        {feedback}
+        
+        Focus on maintaining the unique character of the project while addressing the feedback points.
+        Ensure the document remains comprehensive and tailored specifically to this project.
+        
+        The final document should be a complete blueprint for implementation that perfectly 
+        captures the project's unique vision while incorporating the feedback.
+        """
+        
+        # Add the revision prompt to the session
+        revision_request = create_user_prompt(revision_prompt)
+        session.messages.append(revision_request)
+        
+        # Get the agent's response
+        response = await send_prompt(session.messages)
+        
+        # Add the response to the session
+        assistant_message = create_assistant_prompt(response.content)
+        session.messages.append(assistant_message)
+        
+        # Update the final architecture document in metadata
+        session.metadata["final_architecture"] = response.content
+        
+        # Save the revised document
+        document_path = await self._save_final_architecture_document(
+            session_id,
+            response.content
+        )
+        
+        return response.content

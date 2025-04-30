@@ -37,6 +37,7 @@ class DocumentSource(str, Enum):
     PROJECT_MANAGER = "project_manager"
     ARCHITECT = "architect"
     RESEARCH_TEAM = "research_team"
+    TECHNOLOGY_RESEARCH_TEAM = "technology_research_team"
     PRODUCT_OWNER = "product_owner"
     STANDARDS_ENGINEER = "standards_engineer"
     SCRUM_MASTER = "scrum_master"
@@ -202,10 +203,10 @@ class DocumentReviewScreen(BaseScreen):
             self.query_one("#back_button").label = "Back to PRD"
             self.query_one("#proceed_button").label = "Continue to Architecture"
         elif self.document_source == DocumentSource.ARCHITECT:
-            if self.document_type == "research-requirements":
+            if self.document_type == "foundation-research-requirements":
                 self.query_one("#back_button").label = "Back to Architecture"
                 self.query_one("#proceed_button").label = "Continue to Research"
-            else:
+            elif self.document_type == "technology-research-requirements":
                 self.query_one("#back_button").label = "Back to Architecture"
                 self.query_one("#proceed_button").label = "Continue to Task List"
         elif self.document_source == DocumentSource.RESEARCH_TEAM:
@@ -360,24 +361,34 @@ class DocumentReviewScreen(BaseScreen):
         if self._next_screen:
             self.app.push_screen(self._next_screen)
         else:
-            # Default behavior depends on the document source
-            if self.document_source == DocumentSource.BUSINESS_ANALYST:
-                self.app.action_switch_to_prd_creation()
-            elif self.document_source == DocumentSource.PROJECT_MANAGER:
-                self.app.action_switch_to_architecture()
-            elif self.document_source == DocumentSource.ARCHITECT:
-                if self.document_type == "research-requirements":
-                    self.app.action_switch_to_research()
+            # Navigate based on a standardized mapping of document types to screens
+            document_screen_mapping = {
+                "project-vision": "prd_creation_screen",
+                "prd": "foundation_research_requirements_screen",
+                "foundation-research-requirements": "foundation_research_screen",
+                "foundation-research-report": "foundation_selection_screen",
+                "generic-architecture": "technology_research_requirements_screen",
+                "technology-research-requirements": "technology_research_screen",
+                "technology-research-report": "technology_selection_screen",
+                "complete-architecture": None  # Not yet implemented
+            }
+            
+            # Get next screen from mapping
+            next_screen = document_screen_mapping.get(self.document_type)
+            
+            if next_screen:
+                # Form the action name
+                action_name = f"action_switch_to_{next_screen.replace('_screen', '')}"
+                
+                # Check if the app has the method
+                if hasattr(self.app, action_name):
+                    action_method = getattr(self.app, action_name)
+                    action_method()
                 else:
-                    # This would go to the Product Owner screen once implemented
-                    self.notify("Product Owner phase not yet implemented", severity="warning")
-            elif self.document_source == DocumentSource.RESEARCH_TEAM:
-                # After viewing research report, go to foundation selection (Architect 2nd pass)
-                if hasattr(self.app, "action_switch_to_foundation_selection"):
-                    self.app.action_switch_to_foundation_selection()
-                else:
-                    # Fallback to architecture screen if foundation selection is not available
-                    self.app.action_switch_to_architecture()
+                    self.app.push_screen(next_screen)
+            else:
+                # Default behavior when no mapping is found
+                self.notify(f"No next screen defined for document type: {self.document_type}", severity="warning")
     
     async def action_proceed(self) -> None:
         """Handle keyboard shortcut for proceeding."""

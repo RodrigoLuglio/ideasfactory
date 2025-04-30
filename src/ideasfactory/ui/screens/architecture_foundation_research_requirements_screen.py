@@ -1,6 +1,6 @@
 # architecture_screen.py
 """
-Architecture screen for IdeasFactory.
+Foundation Research Requirements screen for IdeasFactory.
 
 This module defines the Textual screen for architecture definition sessions.
 """
@@ -28,7 +28,7 @@ from ideasfactory.utils.error_handler import handle_async_errors
 logger = logging.getLogger(__name__)
 
 
-class ArchitectureScreen(BaseScreen):
+class FoundationResearchRequirementsScreen(BaseScreen):
     """
     Screen for creating architecture research requirements document with the Architect agent.
     """
@@ -45,7 +45,7 @@ class ArchitectureScreen(BaseScreen):
         self.document_manager = DocumentManager()
         self.project_vision: Optional[str] = None
         self.prd_document: Optional[str] = None
-        self.research_requirements: Optional[str] = None
+        self.foundation_research_requirements: Optional[str] = None
     
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
@@ -119,23 +119,23 @@ class ArchitectureScreen(BaseScreen):
             self.prd_document = prd_content
         
         # Load research requirements document
-        research_requirements_content = await load_document_content(self.session_id, "research-requirements")
-        if research_requirements_content:
-            self.research_requirements = research_requirements_content
+        foundation_research_requirements_content = await load_document_content(self.session_id, "foundation-research-requirements")
+        if foundation_research_requirements_content:
+            self.foundation_research_requirements = foundation_research_requirements_content
                 
         # Update UI based on document availability
         if self._is_mounted:
             # Update research requirements status and buttons
             if self.prd_document:
-                if self.research_requirements:
-                    self.query_one("#research_requirements_status").update("Research requirements document created.")
+                if self.foundation_research_requirements:
+                    self.query_one("#research_requirements_status").update("Foundation research requirements document created.")
                     self.query_one("#view_research_requirements_button").disabled = False
                     self.query_one("#create_research_requirements_button").disabled = True
                 else:
-                    self.query_one("#research_requirements_status").update("Ready to create research requirements.")
+                    self.query_one("#research_requirements_status").update("Ready to create foundation research requirements.")
                     self.query_one("#create_research_requirements_button").disabled = False
             else:
-                self.query_one("#research_requirements_status").update("PRD required to create research requirements.")
+                self.query_one("#research_requirements_status").update("PRD required to create foundation research requirements.")
                 self.query_one("#create_research_requirements_button").disabled = True
             
     @handle_async_errors
@@ -145,7 +145,7 @@ class ArchitectureScreen(BaseScreen):
         await super().on_screen_resume()
         
         # If we have a session but no documents, try to load them
-        if self.session_id and (not self.project_vision or not self.prd_document or not self.research_requirements):
+        if self.session_id and (not self.project_vision or not self.prd_document or not self.foundation_research_requirements):
             await self._load_session_documents()
         elif not self.session_id:
             # No session
@@ -157,9 +157,9 @@ class ArchitectureScreen(BaseScreen):
         button_id = event.button.id
         
         if button_id == "create_research_requirements_button":
-            await self.create_research_requirements()
+            await self.create_foundation_research_requirements()
         elif button_id == "view_research_requirements_button":
-            await self.view_research_requirements()
+            await self.view_foundation_research_requirements()
         elif button_id == "view_vision_button":
             await self.view_project_vision()
         elif button_id == "view_prd_button":
@@ -175,13 +175,13 @@ class ArchitectureScreen(BaseScreen):
         """Set the PRD document."""
         self.prd_document = prd_document
         
-    def set_research_requirements(self, research_requirements: str) -> None:
-        """Set the research requirements document."""
-        self.research_requirements = research_requirements
+    def set_foundation_research_requirements(self, foundation_research_requirements: str) -> None:
+        """Set the foundation research requirements document."""
+        self.foundation_research_requirements = foundation_research_requirements
 
     @handle_async_errors
-    async def create_research_requirements(self) -> None:
-        """Create the research requirements document."""
+    async def create_foundation_research_requirements(self) -> None:
+        """Create the foundation research requirements document."""
         if not self._is_mounted:
             return
             
@@ -190,11 +190,11 @@ class ArchitectureScreen(BaseScreen):
             return
             
         if not self.prd_document:
-            self.notify("PRD document is required for research requirements", severity="error")
+            self.notify("PRD document is required for foundation research requirements", severity="error")
             return
         
         # Update status to show we're working
-        self.query_one("#research_requirements_status").update("Creating research requirements...")
+        self.query_one("#research_requirements_status").update("Creating foundation research requirements...")
         self.query_one("#create_research_requirements_button").disabled = True
         
         try:
@@ -212,38 +212,38 @@ class ArchitectureScreen(BaseScreen):
                 architect_session.prd_document = self.prd_document
             
             # Generate the research requirements
-            self.research_requirements = await self.architect.create_research_requirements(self.session_id)
+            self.foundation_research_requirements = await self.architect.create_foundation_research_requirements(self.session_id)
             
-            if self.research_requirements:
+            if self.foundation_research_requirements:
                 # Update UI to show success
-                self.query_one("#research_requirements_status").update("Research requirements document created")
+                self.query_one("#research_requirements_status").update("Foundation research requirements document created")
                 self.query_one("#view_research_requirements_button").disabled = False
                 
                 # Notify user
-                self.notify("Research requirements created successfully", severity="success")
+                self.notify("Foundation research requirements created successfully", severity="success")
                 
                 # Show the document review screen for the research requirements
-                if hasattr(self.app, "show_document_review_for_research_requirements"):
-                    await self.app.show_document_review_for_research_requirements(self.session_id)
+                if hasattr(self.app, "show_document_review_for_foundation_research_requirements"):
+                    await self.app.show_document_review_for_foundation_research_requirements(self.session_id)
             else:
-                raise ValueError("Failed to create research requirements document")
+                raise ValueError("Failed to create foundation research requirements document")
                 
         except Exception as e:
-            logger.error(f"Error creating research requirements: {str(e)}")
-            self.notify(f"Error creating research requirements: {str(e)}", severity="error")
-            self.query_one("#research_requirements_status").update("Error creating research requirements")
+            logger.error(f"Error creating foundation research requirements: {str(e)}")
+            self.notify(f"Error creating foudnation research requirements: {str(e)}", severity="error")
+            self.query_one("#research_requirements_status").update("Error creating foundation research requirements")
             self.query_one("#create_research_requirements_button").disabled = False
     
     @handle_async_errors
-    async def view_research_requirements(self) -> None:
-        """View the research requirements document."""
-        if not self.research_requirements:
-            self.notify("No research requirements document available", severity="error")
+    async def view_foundation_research_requirements(self) -> None:
+        """View the foundation research requirements document."""
+        if not self.foundation_research_requirements:
+            self.notify("No foundation research requirements document available", severity="error")
             return
             
         # Show the document review screen for the research requirements
-        if hasattr(self.app, "show_document_review_for_research_requirements"):
-            await self.app.show_document_review_for_research_requirements(self.session_id)
+        if hasattr(self.app, "show_document_review_for_foundation_research_requirements"):
+            await self.app.show_document_review_for_foundation_research_requirements(self.session_id)
         else:
             self.notify("Document review not available", severity="error")
     
@@ -286,9 +286,9 @@ class ArchitectureScreen(BaseScreen):
         else:
             self.notify("Document review screen not available", severity="error")
     
-    async def action_create_research_requirements_document(self) -> None:
+    async def action_create_foundation_research_requirements_document(self) -> None:
         """Handle keyboard shortcut for creating a document."""
-        await self.create_research_requirements_document()
+        await self.create_foundation_research_requirements_document()
     
     async def go_back(self) -> None:
         """Go back to the previous screen."""

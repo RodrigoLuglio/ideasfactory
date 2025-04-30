@@ -34,8 +34,8 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
         super().__init__()
         self.architect = Architect()
         self.session_manager = SessionManager()
-        self.research_report = None
-        self.path_reports = []
+        self.foundation_report = None
+        self.foundation_path_reports = []
         self.chat_widget = None
         self.selected_foundation = None
         self.user_defined_foundation = False
@@ -115,59 +115,63 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
         prd_document = prd_content
         
         # Load research report
-        research_report = await load_document_content(self.session_id, "research-report")
-        if research_report:
-            self.research_report = research_report
+        foundation_report = await load_document_content(self.session_id, "foundation-research-report")
+        if foundation_report:
+            self.foundation_report = foundation_report
             
             # Get path reports directly from session metadata
             document_manager = DocumentManager()
-            path_reports = {}
+            foundation_path_reports = {}
             
             # Get the current session
-            session_manager = SessionManager()
-            current_session = session_manager.get_session(self.session_id)
+            current_session = self.session_manager.get_session(self.session_id)
             
-            if current_session and "path_reports" in current_session.metadata:
-                # Load path reports from metadata references
-                metadata_path_reports = current_session.metadata["path_reports"]
-                logger.info(f"Found {len(metadata_path_reports)} path reports in session metadata")
+            if current_session and "foundation_path_reports" in current_session.metadata:
+                # Load foundation path reports from metadata references
+                metadata_foundation_path_reports = current_session.metadata["foundation_path_reports"]
+                logger.info(f"Found {len(metadata_foundation_path_reports)} foundation path reports in session metadata")
                 
-                for foundation_name, path in metadata_path_reports.items():
+                for foundation_name, path in metadata_foundation_path_reports.items():
                     # Load each document from its stored path
                     doc = document_manager.get_document(path)
                     if doc:
-                        path_reports[foundation_name] = doc
-                        path_reports[foundation_name]["filepath"] = path
-                        logger.info(f"  - Loaded path report for: {foundation_name}")
+                        foundation_path_reports[foundation_name] = doc
+                        foundation_path_reports[foundation_name]["filepath"] = path
+                        logger.info(f"  - Loaded foundation path report for: {foundation_name}")
             else:
-                logger.info("No path reports found in session metadata")
+                logger.info("No foundation path reports found in session metadata")
             
-            self.path_reports = path_reports
+            self.foundation_path_reports = foundation_path_reports
             
-            # Log path reports found
-            logger.info(f"Using {len(path_reports)} path reports for session {self.session_id}")
-            for path_name, report in path_reports.items():
+            # Log foundation path reports found
+            logger.info(f"Using {len(foundation_path_reports)} foundation path reports for session {self.session_id}")
+            for path_name, report in foundation_path_reports.items():
                 logger.info(f"  - {path_name}: {report.get('filepath')}")
             
             # Create an architect session if not already exists
             session = self.architect.sessions.get(self.session_id)
             if not session:
+                # Load project vision and PRD
+                project_vision = await load_document_content(self.session_id, "project-vision")
+                prd_document = await load_document_content(self.session_id, "prd")
+                foundation_report = await load_document_content(self.session_id, "foundation-research-report")
+                
                 # Create the architect session
                 session = await self.architect.create_session(
                     self.session_id,
                     project_vision,
                     prd_document,
-                    research_report
+                    foundation_report
                 )
                 
                 # Add path reports to architect session
-                session.path_reports = path_reports
+                session.foundation_path_reports = foundation_path_reports
             else:
                 # Update the session with the latest documents
-                session.project_vision = project_vision 
-                session.prd_document = prd_document
-                session.research_report = research_report
-                session.path_reports = path_reports
+                session.metadata["project_vision"] = project_vision 
+                session.metadata["prd_document"] = prd_document
+                session.metadata["foundation_report"] = foundation_report
+                session.metadata["foundation_path_reports"] = foundation_path_reports
             
             # Extract foundation options
             await self._extract_foundation_options()
@@ -175,11 +179,11 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
     @handle_async_errors
     async def _extract_foundation_options(self) -> None:
         """Extract foundation options from the research report."""
-        if not self.research_report:
+        if not self.foundation_report:
             return
         
         # Extract foundation options using the architect
-        options = await self.architect.extract_foundation_options(self.session_id, self.research_report)
+        options = await self.architect.extract_foundation_options(self.session_id, self.foundation_report)
         
         # Populate the option list
         option_list = self.query_one("#foundation-options")
@@ -213,10 +217,42 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
             await self._process_user_foundation()
         
         elif button_id == "back-button":
-            self.app.action_switch_to_research()
+            self.app.action_switch_to_foundation_research()
         
         elif button_id == "continue-button":
-            await self._continue_to_technology_selection()
+            # First check if we have a foundation selected
+            if not self.selected_foundation:
+                self.notify("Please select a foundation approach first", severity="error")
+                return
+                
+            # Check if we've already created the architecture document
+            current_session = self.session_manager.get_session(self.session_id)
+            document_exists = False
+            
+            if current_session and "documents" in current_session.metadata:
+                document_exists = current_session.metadata.get("documents", {}).get("generic-architecture") is not None
+            
+            # If document doesn't exist, create it first
+            if not document_exists:
+                await self._create_architecture_document()
+                return
+            
+            # Document exists, store foundation selection in the session
+            if current_session:
+                if "architecture" not in current_session.metadata:
+                    current_session.metadata["architecture"] = {}
+                
+                current_session.metadata["architecture"]["selected_foundation"] = self.selected_foundation
+                current_session.metadata["architecture"]["user_defined_foundation"] = self.user_defined_foundation
+                
+                self.session_manager.update_session(self.session_id, current_session)
+                
+                # Update workflow state
+                self.session_manager.update_workflow_state(self.session_id, "foundation_selected")
+                
+                # Generate technology research requirements via app method which will handle document review
+                if hasattr(self.app, "_generic_architecture_completion_callback"):
+                    await self.app._generic_architecture_completion_callback()
     
     @handle_async_errors
     async def _show_foundation_options(self) -> None:
@@ -388,73 +424,65 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
     @handle_async_errors
     async def _handle_foundation_refinement(self, message: str) -> None:
         """Handle foundation refinement conversation."""
-        # Send the message to the architect
-        response = await self.architect.refine_user_foundation(
-            self.session_id,
-            self.selected_foundation["id"],
-            message
-        )
-        
-        # Add the response to the chat
-        await self.chat_widget.add_message(response, is_user=False)
-    
-    @handle_async_errors
-    async def _handle_foundation_refinement(self, message: str) -> None:
-        """Handle foundation refinement conversation."""
         try:
-            # Show a loading indicator
             if hasattr(self.chat_widget, "add_message"):
-                await self.chat_widget.add_message("_Processing your response..._", is_user=False)
-            
+                await self.chat_widget.add_message("_Processing your response.._", is_user=False)
+
             # Send the message to the architect
             response = await self.architect.refine_user_foundation(
                 self.session_id,
-                self.selected_foundation.get("id", "user-defined"),
+                self.selected_foundation["id"],
                 message
             )
             
-            # Remove the loading message if it exists
             if hasattr(self.chat_widget, "remove_last_message"):
                 self.chat_widget.remove_last_message()
             elif hasattr(self.chat_widget, "messages") and self.chat_widget.messages:
                 if self.chat_widget.messages[-1] == "_Processing your response..._":
                     self.chat_widget.messages.pop()
-            
+
             # Add the response to the chat
             await self.chat_widget.add_message(response, is_user=False)
-            
-            # Check if foundation is complete
+
             architect_session = self.architect.sessions.get(self.session_id)
             if architect_session and architect_session.metadata.get("foundation_complete", False):
-                # Update our local reference to the foundation
                 self.selected_foundation = architect_session.metadata.get("user_foundation", {})
-                
-                # Add a complete button to create the architecture document
+
                 self.chat_widget.add_action_button(
-                    "Create Architecture Document", 
-                    "create-document-button", 
+                    "Create Generic Architecture Document"
+                    "continue",
                     "success",
                     self._create_architecture_document
                 )
-                
+
         except Exception as e:
             logger.error(f"Error handling foundation refinement: {str(e)}")
             await self.chat_widget.add_message(
-                f"I apologize, but I encountered an error while processing your response. Please try again.",
+                f"I apologize, but I encoutered an error while processing your response. Please try again.",
                 is_user=False
             )
     
     @handle_async_errors
     async def _create_architecture_document(self) -> None:
-        """Create the architecture document based on the selected foundation."""
+        """Create the generic architecture document based on the selected foundation."""
         if not self.selected_foundation:
             self.notify("No foundation selected", severity="error")
             return
             
         # Show a notification that document creation is in progress
-        self.notify("Creating architecture document, this may take a moment...", severity="information")
+        self.notify("Creating generic architecture document, this may take a moment...", severity="information")
         
         try:
+            # Ensure architecture metadata structure exists in the session
+            current_session = self.session_manager.get_session(self.session_id)
+            if current_session and "architecture" not in current_session.metadata:
+                current_session.metadata["architecture"] = {}
+            
+            # Store selected foundation in metadata
+            current_session.metadata["architecture"]["selected_foundation"] = self.selected_foundation
+            current_session.metadata["architecture"]["user_defined_foundation"] = self.user_defined_foundation
+            self.session_manager.update_session(self.session_id, current_session)
+
             # Generate the architecture document
             document_content = await self.architect.create_generic_architecture_document(
                 self.session_id,
@@ -469,7 +497,7 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
                 document_metadata = {
                     "title": "Generic Architecture Document",
                     "display_title": "Generic Architecture Document",
-                    "document_type": "architecture",
+                    "document_type": "generic-architecture",
                     "version": "1.0.0",
                     "source": "architect"
                 }
@@ -480,7 +508,7 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
                 # Use create_document instead of save_document
                 document_path = document_manager.create_document(
                     content=document_content,
-                    document_type="architecture",
+                    document_type="generic-architecture",
                     title="Generic Architecture Document",
                     metadata=document_metadata
                 )
@@ -491,11 +519,11 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
                     if "documents" not in current_session.metadata:
                         current_session.metadata["documents"] = {}
                     
-                    current_session.metadata["documents"]["architecture"] = document_path
+                    current_session.metadata["documents"]["generic-architecture"] = document_path
                     self.session_manager.update_session(self.session_id, current_session)
                 
                 # Success notification
-                self.notify("Architecture document created successfully", severity="success")
+                self.notify("Generic architecture document created successfully", severity="success")
                 
                 # Show the document in the document review screen
                 await self._show_architecture_document(document_content)
@@ -503,12 +531,12 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
                 self.notify("Failed to create architecture document", severity="error")
                 
         except Exception as e:
-            logger.error(f"Error creating architecture document: {str(e)}")
-            self.notify(f"Error creating architecture document: {str(e)}", severity="error")
+            logger.error(f"Error creating generic architecture document: {str(e)}")
+            self.notify(f"Error creating generic architecture document: {str(e)}", severity="error")
     
     @handle_async_errors
     async def _show_architecture_document(self, document_content: str) -> None:
-        """Show the architecture document in the document review screen."""
+        """Show the generic architecture document in the document review screen."""
         # Use the document review screen to show the document
         if hasattr(self.app, "document_review_screen"):
             from ideasfactory.ui.screens.document_review_screen import DocumentSource
@@ -519,10 +547,10 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
                 session_id=self.session_id,
                 document_content=document_content,
                 document_title="Generic Architecture Document",
-                document_type="architecture",
+                document_type="generic-architecture",
                 revision_callback=self._revise_architecture_document,
-                completion_callback=self._continue_to_technology_selection,
-                back_screen="architecture_foundation_selection_screen"
+                completion_callback=self.app._generic_architecture_completion_callback,
+                back_screen="foundation_selection_screen"
             )
             
             # Show the document review screen
@@ -535,7 +563,7 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
         """Handle revision requests for the architecture document."""
         try:
             # Notify that revision is in progress
-            self.notify("Revising architecture document...", severity="information")
+            self.notify("Revising generic architecture document...", severity="information")
             
             # Get the revised document
             revised_document = await self.architect.revise_document(self.session_id, feedback)
@@ -548,7 +576,7 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
                 document_metadata = {
                     "title": "Generic Architecture Document",
                     "display_title": "Generic Architecture Document (Revised)",
-                    "document_type": "architecture",
+                    "document_type": "generic-architecture",
                     "version": "1.1.0",
                     "source": "architect"
                 }
@@ -559,7 +587,7 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
                 # Use create_document instead of save_document
                 document_path = document_manager.create_document(
                     content=revised_document,
-                    document_type="architecture",
+                    document_type="generic-architecture",
                     title="Generic Architecture Document (Revised)",
                     metadata=document_metadata
                 )
@@ -570,20 +598,20 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
                     if "documents" not in current_session.metadata:
                         current_session.metadata["documents"] = {}
                     
-                    current_session.metadata["documents"]["architecture"] = document_path
+                    current_session.metadata["documents"]["generic-architecture"] = document_path
                     self.session_manager.update_session(self.session_id, current_session)
                 
                 # Success notification
-                self.notify("Architecture document revised successfully", severity="success")
+                self.notify("Generic architecture document revised successfully", severity="success")
                 
                 # Show the revised document
                 await self._show_architecture_document(revised_document)
             else:
-                self.notify("Failed to revise architecture document", severity="error")
+                self.notify("Failed to revise generic architecture document", severity="error")
                 
         except Exception as e:
-            logger.error(f"Error revising architecture document: {str(e)}")
-            self.notify(f"Error revising architecture document: {str(e)}", severity="error")
+            logger.error(f"Error revising generic architecture document: {str(e)}")
+            self.notify(f"Error revising generic architecture document: {str(e)}", severity="error")
     
     @handle_async_errors
     async def _continue_to_technology_selection(self) -> None:
@@ -598,7 +626,7 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
         document_exists = False
         
         if current_session and "documents" in current_session.metadata:
-            document_exists = current_session.metadata.get("documents", {}).get("architecture") is not None
+            document_exists = current_session.metadata.get("documents", {}).get("generic-architecture") is not None
         
         # If document doesn't exist, create it first
         if not document_exists:
@@ -607,21 +635,21 @@ class ArchitectureFoundationSelectionScreen(BaseScreen):
         
         # Document exists, store foundation selection in the session
         if current_session:
-            if "architecture" not in current_session.metadata:
-                current_session.metadata["architecture"] = {}
+            if "generic-architecture" not in current_session.metadata:
+                current_session.metadata["generic-architecture"] = {}
             
-            current_session.metadata["architecture"]["selected_foundation"] = self.selected_foundation
-            current_session.metadata["architecture"]["user_defined_foundation"] = self.user_defined_foundation
+            current_session.metadata["generic-architecture"]["selected_foundation"] = self.selected_foundation
+            current_session.metadata["generic-architecture"]["user_defined_foundation"] = self.user_defined_foundation
             
             self.session_manager.update_session(self.session_id, current_session)
             
             # Update workflow state
             self.session_manager.update_workflow_state(self.session_id, "foundation_selected")
         
-        # Go to technology selection screen
-        if hasattr(self.app, "push_screen") and hasattr(self.app, "architecture_technology_selection_screen"):
-            self.app.push_screen("architecture_technology_selection_screen")
+        # Go to technology research requirements screen
+        if hasattr(self.app, "push_screen") and hasattr(self.app, "architecture_technology_research_requirements_screen"):
+            self.app.push_screen("technology_research_requirements_screen")
         else:
-            # Fallback notification if the technology selection screen is not available
-            self.notify("Technology selection screen not available. Moving to research phase.", severity="information")
-            # TODO: Handle transition to research phase for technology research
+            # Fallback notification if the technology research requirements screen is not available
+            self.notify("Technology research requirements screen not available.", severity="information")
+            

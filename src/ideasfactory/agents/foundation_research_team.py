@@ -1,4 +1,4 @@
-"""Foundational Research Team module for IdeasFactory.
+"""Foundation Research Team module for IdeasFactory.
 
 This module implements the comprehensive Research Team that conducts foundation-based
 research across multiple paradigms to inform architectural decisions
@@ -118,7 +118,7 @@ class ResearchAgent:
     status: str = "initialized"
 
 @dataclass
-class FoundationalResearchSession:
+class FoundationResearchSession:
     """Class representing a research session focused on emergent foundations."""
     id: str
     requirements: str
@@ -130,11 +130,11 @@ class FoundationalResearchSession:
     cross_paradigm_opportunities: Optional[str] = None
     agents: List[ResearchAgent] = field(default_factory=list)
     research_report: Optional[str] = None
-    path_reports: Dict[str, str] = field(default_factory=dict)  # Map of path name to report path
+    foundation_path_reports: Dict[str, str] = field(default_factory=dict)  # Map of path name to report path
     metadata: Dict[str, Any] = field(default_factory=dict)
     path_evaluation: Optional[Dict[str, Any]] = None  # Store path evaluation results
 
-class FoundationalResearchTeam:
+class FoundationResearchTeam:
     """
     Research Team that conducts comprehensive foundation-based research.
     
@@ -150,7 +150,7 @@ class FoundationalResearchTeam:
     def __new__(cls):
         """Ensure singleton pattern."""
         if cls._instance is None:
-            cls._instance = super(FoundationalResearchTeam, cls).__new__(cls)
+            cls._instance = super(FoundationResearchTeam, cls).__new__(cls)
             cls._instance._initialized = False
         return cls._instance
     
@@ -162,7 +162,7 @@ class FoundationalResearchTeam:
         self._initialized = True
         self.session_manager = SessionManager()
         self.doc_manager = DocumentManager()
-        self.sessions: Dict[str, FoundationalResearchSession] = {}
+        self.sessions: Dict[str, FoundationResearchSession] = {}
         
         # System prompts for different agent types
         self.foundation_discovery_agent_prompt = """
@@ -558,7 +558,7 @@ class FoundationalResearchTeam:
         return f"{header}\n{separator}\n" + "\n".join(rows) + "\n\n" + priority_line + notes_section
     
     @handle_errors
-    def get_session(self, session_id: Optional[str] = None) -> FoundationalResearchSession:
+    def get_session(self, session_id: Optional[str] = None) -> FoundationResearchSession:
         """Get a session by ID or the current session."""
         if session_id:
             session = self.sessions.get(session_id)
@@ -579,7 +579,7 @@ class FoundationalResearchTeam:
         return session
     
     @handle_async_errors
-    async def create_session(self, session_id: str, research_requirements: str) -> FoundationalResearchSession:
+    async def create_session(self, session_id: str, research_requirements: str) -> FoundationResearchSession:
         """
         Create a new research session.
         
@@ -610,7 +610,7 @@ class FoundationalResearchTeam:
             logger.info(f"Loaded PRD for session {session_id}")
         
         # Create a new session with all available documents
-        session = FoundationalResearchSession(
+        session = FoundationResearchSession(
             id=session_id,
             requirements=research_requirements,
             project_vision=project_vision,
@@ -632,7 +632,7 @@ class FoundationalResearchTeam:
             current_session.metadata["research"]["has_prd"] = prd_document is not None
             session_manager.update_session(session_id, current_session)
         
-        logger.info(f"Created foundational research session")
+        logger.info(f"Created foundation research session")
         return session
     
     @handle_async_errors
@@ -1555,11 +1555,11 @@ class FoundationalResearchTeam:
         }
         
         # Save the report using document manager
-        # The document manager now handles path-report type documents correctly
-        # storing them in the research-report/path-reports directory
+        # The document manager now handles foundation-path-report type documents 
+        # storing them in the research-report/foundation-path-reports directory
         report_path = self.doc_manager.create_document(
             content=content,
-            document_type="path-report",
+            document_type="foundation-path-report",
             title=f"Path Report: {path_name}",
             metadata=metadata
         )
@@ -1577,20 +1577,21 @@ class FoundationalResearchTeam:
         # Store in session documents registry
         self.session_manager.add_document(
             session_id, 
-            f"path-report-{safe_name}", 
+            f"foundation-path-report-{safe_name}", 
             report_path
         )
         
         # ALSO store in session metadata for direct access in future phases
+        # This provides a consistent pattern with how stack reports are handled
         # Get the current session
         current_session = self.session_manager.get_session(session_id)
         if current_session:
-            # Initialize path_reports metadata if needed
-            if "path_reports" not in current_session.metadata:
-                current_session.metadata["path_reports"] = {}
+            # Initialize foundation_path_reports metadata if needed
+            if "foundation_path_reports" not in current_session.metadata:
+                current_session.metadata["foundation_path_reports"] = {}
                 
             # Store the path with foundation name as key for easy lookup
-            current_session.metadata["path_reports"][path_name] = report_path
+            current_session.metadata["foundation_path_reports"][path_name] = report_path
             
             # Update the session
             self.session_manager.update_session(session_id, current_session)
@@ -1736,7 +1737,7 @@ class FoundationalResearchTeam:
         path.report_path = path_report_path
         
         # Add to session path reports dictionary for easy access
-        session.path_reports[path.name] = path_report_path
+        session.foundation_path_reports[path.name] = path_report_path
         
         logger.info(f"Path research completed for {path_name}")
         return {
@@ -1979,7 +1980,7 @@ class FoundationalResearchTeam:
         {session.cross_paradigm_opportunities}
         
         Available Path Reports:
-        {", ".join([f"'{path_name}'" for path_name in session.path_reports.keys()])}
+        {", ".join([f"'{path_name}'" for path_name in session.foundation_path_reports.keys()])}
         
         You are tasked with creating a DEFINITIVE RESEARCH REPORT that aligns with the project vision and requirements:
         
@@ -2015,10 +2016,10 @@ class FoundationalResearchTeam:
         
         6. REFERENCE DETAILED PATH REPORTS:
            - Include a dedicated section that lists all available detailed path reports
-           - For each implementation path, reference its corresponding detailed report in the research-report/path-reports directory
+           - For each implementation path, reference its corresponding detailed report in the research-report/foundation-path-reports directory
            - Explain that architects can access complete implementation details through these reports
            - Note that the path reports contain the full depth of research for each viable approach
-           - Provide clear location information to help architects find the reports (session-id/research-report/path-reports/)
+           - Provide clear location information to help architects find the reports (session-id/research-report/foundation-path-reports/)
         
         7. INCLUDE IMPLEMENTATION PATH EVALUATION:
            - BEGIN the report with the path evaluation matrix you've been provided
@@ -2083,13 +2084,13 @@ class FoundationalResearchTeam:
         # Save the report using document manager
         report_path = self.doc_manager.create_document(
             content=content,
-            document_type="research-report",
-            title="Foundational Research Report",
+            document_type="foundation-research-report",
+            title="Foundation Research Report",
             metadata=metadata
         )
         
         # Add the report to the session - use consistent kebab-case document type naming
-        self.session_manager.add_document(session_id, "research-report", report_path)
+        self.session_manager.add_document(session_id, "foundation-research-report", report_path)
         
         logger.info(f"Research report saved to {report_path}")
         return report_path
@@ -2124,12 +2125,12 @@ class FoundationalResearchTeam:
             # Load all required documents
             # 1. Research requirements (required)
             # Get document path directly from session manager for debugging
-            requirements_path = session_manager.get_document(session_id, "research-requirements")
+            requirements_path = session_manager.get_document(session_id, "foundation-research-requirements")
             logger.info(f"Research requirements path from session manager: {requirements_path}")
                 
             # Use the centralized document loading pattern directly with type - this handles resolution
             logger.info(f"Attempting to load research requirements for session {session_id}")
-            requirements_content = await load_document_content(session_id, "research-requirements")
+            requirements_content = await load_document_content(session_id, "foundation-research-requirements")
             
             if not requirements_content:
                 logger.error(f"No research requirements found for session {session_id}")

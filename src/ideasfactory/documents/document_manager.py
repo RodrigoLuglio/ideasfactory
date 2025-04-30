@@ -32,6 +32,7 @@ class DocumentManager:
             base_dir: Base directory for storing documents
         """
         self.base_dir = base_dir
+        self.repo = None
         self._ensure_directories()
         self._init_git_repo()
 
@@ -46,57 +47,42 @@ class DocumentManager:
         os.makedirs(self.base_dir, exist_ok=True)
         
         if session_id:
-            # Create session-specific directory
             session_dir = os.path.join(self.base_dir, f"session-{session_id}")
+
             os.makedirs(session_dir, exist_ok=True)
-            
-            # Create subdirectories for different document types within the session dir
-            os.makedirs(os.path.join(session_dir, "project-vision"), exist_ok=True)
-            os.makedirs(os.path.join(session_dir, "prd"), exist_ok=True)
-            os.makedirs(os.path.join(session_dir, "research-report"), exist_ok=True)
-            # Create subfolder for path reports
-            os.makedirs(os.path.join(session_dir, "research-report", "path-reports"), exist_ok=True)
+
+            os.makedirs(os.path.join(session_dir, "research-reports"), exist_ok=True)
+            os.makedirs(os.path.join(session_dir, "research-reports", "foundation-path-reports"), exist_ok=True)
+            os.makedirs(os.path.join(session_dir, "research-reports", "stack-path-reports"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "architecture"), exist_ok=True)
-            os.makedirs(os.path.join(session_dir, "task-list"), exist_ok=True)
-            os.makedirs(os.path.join(session_dir, "standards-patterns"), exist_ok=True)
             os.makedirs(os.path.join(session_dir, "epics-stories"), exist_ok=True)
-            os.makedirs(os.path.join(session_dir, "stories"), exist_ok=True)
-            os.makedirs(os.path.join(session_dir, "research-requirements"), exist_ok=True)
-        else:
-            # Create global subdirectories for different document types
-            os.makedirs(os.path.join(self.base_dir, "project-vision"), exist_ok=True)
-            os.makedirs(os.path.join(self.base_dir, "prd"), exist_ok=True)
-            os.makedirs(os.path.join(self.base_dir, "research-report"), exist_ok=True)
-            # Create subfolder for path reports
-            os.makedirs(os.path.join(self.base_dir, "research-report", "path-reports"), exist_ok=True)
-            os.makedirs(os.path.join(self.base_dir, "architecture"), exist_ok=True)
-            os.makedirs(os.path.join(self.base_dir, "task-list"), exist_ok=True)
-            os.makedirs(os.path.join(self.base_dir, "standards-patterns"), exist_ok=True)
-            os.makedirs(os.path.join(self.base_dir, "epics-stories"), exist_ok=True)
-            os.makedirs(os.path.join(self.base_dir, "stories"), exist_ok=True)
-            os.makedirs(os.path.join(self.base_dir, "research-requirements"), exist_ok=True)
+            os.makedirs(os.path.join(session_dir, "epics-stories", "stories"), exist_ok=True)
     
-    def _init_git_repo(self):
+    def _init_git_repo(self, session_id=None):
         """Initialize a Git repository for version control."""
-        try:
-            # Initialize the repository if it doesn't exist
-            if not os.path.exists(os.path.join(self.base_dir, ".git")):
-                self.repo = git.Repo.init(self.base_dir)
-                
-                # Create a .gitignore file
-                with open(os.path.join(self.base_dir, ".gitignore"), "w") as f:
-                    f.write("# Python\n__pycache__/\n*.py[cod]\n*$py.class\n\n")
-                
-                # Add and commit the .gitignore file
-                self.repo.git.add(".gitignore")
-                self.repo.git.commit("-m", "Initial commit: Add .gitignore")
-            else:
-                # Open the existing repository
-                self.repo = git.Repo(self.base_dir)
-        except Exception as e:
-            logger.error(f"Error initializing Git repository: {str(e)}")
-            # Continue without Git support
-            self.repo = None
+
+        if session_id:
+            session_dir = os.path.join(self.base_dir, f"session-{session_id}")
+
+            try:
+                # Initialize the repository if it doesn't exist
+                if not os.path.exists(os.path.join(session_dir, ".git")):
+                    self.repo = git.Repo.init(session_dir)
+                    
+                    # Create a .gitignore file
+                    with open(os.path.join(session_dir, ".gitignore"), "w") as f:
+                        f.write("# Python\n__pycache__/\n*.py[cod]\n*$py.class\n\n")
+                    
+                    # Add and commit the .gitignore file
+                    self.repo.git.add(".gitignore")
+                    self.repo.git.commit("-m", "Initial commit: Add .gitignore")
+                else:
+                    # Open the existing repository
+                    self.repo = git.Repo(session_dir)
+            except Exception as e:
+                logger.error(f"Error initializing Git repository: {str(e)}")
+                # Continue without Git support
+                self.repo = None
     
     def _write_frontmatter(self, filepath: str, post: frontmatter.Post):
         """
@@ -128,6 +114,38 @@ class DocumentManager:
             # If that fails, try the older API
             with open(filepath, "rb") as f:
                 return frontmatter.loads(f.read().decode('utf-8'))
+            
+    def _get_doctype_path(self, session_id: None, document_type: str,) -> str:
+        if session_id:
+            # Determine the directory based on the document type and session
+            if document_type == "foundation-path-report":
+                directory = os.path.join(self.base_dir, f"session-{session_id}", "research-reports", "foundation-path-reports")
+                return directory
+
+            elif document_type == "stack-path-report":
+                directory = os.path.join(self.base_dir, f"session-{session_id}", "research-reports", "stack-path-reports")
+                return directory
+
+            elif document_type in ["foundation-research-requirements", "foundation-research-report", "technology-research-report",
+                                "technology-research-requirements"]:
+                directory = os.path.join(self.base_dir, f"session-{session_id}", "research-reports")
+                return directory
+
+            elif document_type in ["generic-architecture", "architecture"]:
+                directory = os.path.join(self.base_dir, f"session-{session_id}", "architecture")
+                return directory
+
+            elif document_type in ["epics-stories"]:
+                directory = os.path.join(self.base_dir, f"session-{session_id}", "epics-stories")
+                return directory
+            
+            elif document_type in ["story"]:
+                directory = os.path.join(self.base_dir, f"session-{session_id}", "epics-stories", "stories")
+                return directory
+                                                    
+            else:
+                directory = os.path.join(self.base_dir, f"session-{session_id}")
+                return directory
     
     @handle_errors
     def create_document(
@@ -153,12 +171,15 @@ class DocumentManager:
         filename_mapping = {
             "project-vision": "project-vision.md",
             "prd": "product-requirements-document.md",
-            "research-report": "research-report.md",
-            "architecture": "system-architecture.md",
+            "foundation-research-requirements": "foundation-research-requirements.md",
+            "foundation-research-report": "foundation-research-report.md",
+            "generic-architecture": "project-generic-architecture.md",
+            "technology-research-requirements": "technology-research-requirements.md",
+            "technology-research-report": "technology-research-report.md",
+            "architecture": "project-architecture.md",
             "task-list": "task-list.md",
             "standards-patterns": "standards-patterns.md",
-            "epics-stories": "epics-stories.md",
-            "research-requirements": "technical-research-requirements.md"
+            "epics-stories": "epics-stories-list.md"
         }
         
         # Get standardized filename or create from title
@@ -190,25 +211,7 @@ class DocumentManager:
         if session_id:
             self._ensure_directories(session_id)
             
-        # Determine the directory based on the document type and session
-        if document_type == "path-report":
-            # Store path reports in a subdirectory of research-report
-            if session_id:
-                directory = os.path.join(self.base_dir, f"session-{session_id}", "research-report", "path-reports")
-            else:
-                directory = os.path.join(self.base_dir, "research-report", "path-reports")
-        elif document_type in ["project-vision", "prd", "research-requirements", "research-report", "architecture",
-                            "task-list", "standards-patterns", "epics-stories", "stories"]:
-            if session_id:
-                directory = os.path.join(self.base_dir, f"session-{session_id}", document_type)
-            else:
-                directory = os.path.join(self.base_dir, document_type)
-        else:
-            # Default to the base directory or session directory
-            if session_id:
-                directory = os.path.join(self.base_dir, f"session-{session_id}")
-            else:
-                directory = self.base_dir
+        directory = self._get_doctype_path(session_id, document_type)
         
         # Ensure the directory exists
         os.makedirs(directory, exist_ok=True)
@@ -406,18 +409,18 @@ class DocumentManager:
                 session_path = os.path.join(self.base_dir, f"session-{session_id}")
                 if os.path.exists(session_path):
                     if document_type:
-                        doc_type_path = os.path.join(session_path, document_type)
+                        doc_type_path = self._get_doctype_path(session_id, document_type)
                         if os.path.exists(doc_type_path):
                             session_directories.append(doc_type_path)
                     else:
                         # Add all document type directories in this session
                         for d in [
-                            "project-vision", "research-report", "architecture",
-                            "task-list", "standards-patterns", "epics-stories", "stories"
+                            "research-reports", "research-reports/foundation-path-reports", "research-reports/stack-path-reports","architecture","epics-stories", "epics-stories/stories"
                         ]:
                             doc_type_path = os.path.join(session_path, d)
                             if os.path.exists(doc_type_path):
                                 session_directories.append(doc_type_path)
+                                session_directories.append(session_path)
             else:
                 # Search in all session directories and global directories
                 # First, check for session-specific directories
@@ -425,32 +428,18 @@ class DocumentManager:
                     if dir_entry.startswith("session-") and os.path.isdir(os.path.join(self.base_dir, dir_entry)):
                         session_path = os.path.join(self.base_dir, dir_entry)
                         if document_type:
-                            doc_type_path = os.path.join(session_path, document_type)
+                            doc_type_path = self._get_doctype_path(session_id, document_type)
                             if os.path.exists(doc_type_path):
                                 session_directories.append(doc_type_path)
                         else:
                             # Add all document type directories in this session
                             for d in [
-                                "project-vision", "research-report", "architecture",
-                                "task-list", "standards-patterns", "epics-stories", "stories"
+                                "research-reports", "research-reports/foundation-path-reports", "research-reports/stack-path-reports","architecture","epics-stories", "epics-stories/stories"
                             ]:
                                 doc_type_path = os.path.join(session_path, d)
                                 if os.path.exists(doc_type_path):
                                     session_directories.append(doc_type_path)
-                
-                # Also check global directories
-                if document_type:
-                    global_dir = os.path.join(self.base_dir, document_type)
-                    if os.path.exists(global_dir):
-                        session_directories.append(global_dir)
-                else:
-                    for d in [
-                        "project-vision", "research-report", "architecture",
-                        "task-list", "standards-patterns", "epics-stories", "stories"
-                    ]:
-                        global_dir = os.path.join(self.base_dir, d)
-                        if os.path.exists(global_dir):
-                            session_directories.append(global_dir)
+                                    session_directories.append = session_path
             
             # Now collect documents from all identified directories
             for directory in session_directories:
@@ -519,22 +508,22 @@ class DocumentManager:
             return []
         
     
-    # Note: We've intentionally removed the get_path_reports method that used directory scanning.
+    # Note: We've intentionally removed the get_foundation_path_reports method that used directory scanning.
     # Path reports should always be retrieved from session metadata using the pattern in research_team.py:
     #
     # When creating:
     # path_report_path = document_manager.create_document(...)
     # current_session = session_manager.get_session(session_id)
     # if current_session:
-    #     if "path_reports" not in current_session.metadata:
-    #         current_session.metadata["path_reports"] = {}
-    #     current_session.metadata["path_reports"][foundation_name] = path_report_path
+    #     if "foundation_path_reports" not in current_session.metadata:
+    #         current_session.metadata["foundation_path_reports"] = {}
+    #     current_session.metadata["foundation_path_reports"][foundation_name] = path_report_path
     #     session_manager.update_session(session_id, current_session)
     #
     # When retrieving:
     # current_session = session_manager.get_session(session_id)
-    # if current_session and "path_reports" in current_session.metadata:
-    #     for foundation_name, path in current_session.metadata["path_reports"].items():
+    # if current_session and "foundation_path_reports" in current_session.metadata:
+    #     for foundation_name, path in current_session.metadata["foundation_path_reports"].items():
     #         doc = document_manager.get_document(path)
     #         # Use doc here...
     
@@ -553,19 +542,22 @@ class DocumentManager:
         try:
             # Construct the expected path directly based on our folder structure
             session_path = os.path.join(self.base_dir, f"session-{session_id}")
-            doc_type_path = os.path.join(session_path, document_type)
+            doc_type_path = self._get_doctype_path(session_id, document_type)
             
-            # Use our existing filename mapping
             filename_mapping = {
                 "project-vision": "project-vision.md",
                 "prd": "product-requirements-document.md",
-                "research-report": "research-report.md",
-                "architecture": "system-architecture.md",
+                "foundation-research-requirements": "foundation-research-requirements.md",
+                "foundation-research-report": "foundation-research-report.md",
+                "generic-architecture": "project-generic-architecture.md",
+                "technology-research-requirements": "technology-research-requirements.md",
+                "technology-research-report": "technology-research-report.md",
+                "architecture": "project-architecture.md",
                 "task-list": "task-list.md",
                 "standards-patterns": "standards-patterns.md",
-                "epics-stories": "epics-stories.md",
-                "research-requirements": "technical-research-requirements.md"
+                "epics-stories": "epics-stories-list.md"
             }
+            
             
             if document_type in filename_mapping:
                 # Use the standardized filename

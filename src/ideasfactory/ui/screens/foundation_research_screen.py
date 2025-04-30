@@ -17,7 +17,7 @@ from textual import on
 from textual.worker import Worker, get_current_worker
 
 from ideasfactory.ui.screens.base_screen import BaseScreen
-from ideasfactory.agents.research_team import FoundationalResearchTeam, FoundationalResearchSession
+from ideasfactory.agents.foundation_research_team import FoundationResearchTeam, FoundationResearchSession
 from ideasfactory.utils.file_manager import load_document_content
 from ideasfactory.utils.error_handler import handle_errors, handle_async_errors
 from ideasfactory.utils.session_manager import SessionManager
@@ -106,7 +106,7 @@ class ResearchProgressBar(Static):
         self.update(f"{bar} {percentage}")
 
 
-class ResearchScreen(BaseScreen):
+class FoundationResearchScreen(BaseScreen):
     """
     Screen for the research phase of IdeasFactory.
     
@@ -126,7 +126,7 @@ class ResearchScreen(BaseScreen):
     def __init__(self):
         """Initialize the research screen."""
         super().__init__()
-        self.research_team = FoundationalResearchTeam()
+        self.research_team = FoundationResearchTeam()
         self.session_manager = SessionManager()
         
         # UI state tracking
@@ -249,12 +249,12 @@ class ResearchScreen(BaseScreen):
             from ideasfactory.utils.file_manager import load_document_content
             
             # Get document path directly from session manager for debugging
-            requirements_path = self.session_manager.get_document(self.session_id, "research-requirements")
+            requirements_path = self.session_manager.get_document(self.session_id, "foundation-research-requirements")
             logger.info(f"Research requirements path from session manager: {requirements_path}")
             
             # Load research requirements document - explicitly map to technical-research-requirements.md
             logger.info(f"Attempting to load research requirements from session {self.session_id}")
-            research_requirements_content = await load_document_content(self.session_id, "research-requirements")
+            research_requirements_content = await load_document_content(self.session_id, "foundation-research-requirements")
             
             if research_requirements_content:
                 logger.info(f"Successfully loaded research requirements - Length: {len(research_requirements_content)}")
@@ -270,11 +270,11 @@ class ResearchScreen(BaseScreen):
             
             # Load research report if it exists
             logger.info("Attempting to load research report")
-            research_report_content = await load_document_content(self.session_id, "research-report")
+            research_report_content = await load_document_content(self.session_id, "foundation-research-report")
             if research_report_content:
                 logger.info(f"Successfully loaded research report - Length: {len(research_report_content)}")
                 # Store the report path for future reference
-                self.research_report_path = self.session_manager.get_document(self.session_id, "research-report")
+                self.research_report_path = self.session_manager.get_document(self.session_id, "foundation-research-report")
                 
                 if self._is_mounted:
                     self.query_one("#view-report", Button).disabled = False

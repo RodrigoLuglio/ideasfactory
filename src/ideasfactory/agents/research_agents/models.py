@@ -105,7 +105,7 @@ class ResearchSession(BaseModel):
     id: str
     project_vision: str = ""
     prd_content: str = ""
-    research_requirements: str = ""
+    foundation_research_requirements: str = ""
     
     dimensions: List[ResearchDimension] = Field(default_factory=list)
     foundation_dimensions: List[str] = Field(default_factory=list)  # IDs of foundation dimensions
